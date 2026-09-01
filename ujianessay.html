@@ -386,6 +386,21 @@
     margin:0 0 6px;
   }
   .exam-modal .modal-count{color:var(--ink); font-weight:600;}
+  .exam-modal-error{
+    color:var(--brick);
+    font-size:0.82rem;
+    margin:2px 0 0;
+  }
+  .soal-warning{
+    background:rgba(214,51,108,0.1);
+    border:1px solid rgba(214,51,108,0.35);
+    color:var(--brick);
+    font-size:0.85rem;
+    font-weight:500;
+    border-radius:6px;
+    padding:10px 14px;
+    margin:0 0 16px;
+  }
   .exam-modal-actions{
     display:flex;
     gap:10px;
@@ -489,6 +504,7 @@
         <span class="soal-number" id="soalNumberBadge">Soal 1</span>
         <span class="soal-bobot" id="soalBobot"></span>
       </div>
+      <p class="soal-warning" id="soalWarning" hidden></p>
       <p class="soal-text" id="soalText">Memuat soal...</p>
       <label class="soal-jawaban-label" for="soalJawaban">Jawaban Anda</label>
       <textarea class="soal-jawaban" id="soalJawaban" placeholder="Tuliskan jawabanmu di sini..."></textarea>
@@ -509,8 +525,8 @@
 <div class="exam-modal-backdrop" id="confirmBackdrop">
   <div class="exam-modal" role="dialog" aria-modal="true" aria-labelledby="confirmHeading">
     <h3 id="confirmHeading">Selesai Mengerjakan?</h3>
-    <p>Kamu sudah menjawab <span class="modal-count" id="confirmTerjawab">0</span> dari <span class="modal-count" id="confirmTotal">0</span> soal.</p>
-    <p id="confirmWarning" hidden>Masih ada soal yang belum dijawab. Yakin ingin menyelesaikan ujian sekarang?</p>
+    <p>Apakah anda yakin menyelesaikan ujian ini? Pastikan seluruh soal telah anda jawab.</p>
+    <p class="exam-modal-error" id="confirmError" hidden></p>
     <div class="exam-modal-actions">
       <button type="button" class="exam-btn exam-btn-ghost" id="btnBatalSelesai">Cancel</button>
       <button type="button" class="exam-btn exam-btn-finish" id="btnKonfirmasiSelesai">Ya, Selesaikan</button>
@@ -566,6 +582,10 @@
       .join('');
   }
 
+  // Identitas siswa yang dipakai saat menyimpan jawaban ke Supabase.
+  // Diisi awal dari sesi login, lalu diperbarui dari tabel "datasiswa".
+  let siswaIdentitas = { nama: '', nisn: '', kelas: '' };
+
   (async function loadSiswaProfile(){
     const siswaCardNama = document.getElementById('siswaCardNama');
     const siswaCardNisn = document.getElementById('siswaCardNisn');
@@ -582,6 +602,7 @@
     const namaSesi = siswaSession.nama_siswa || siswaSession.nama || 'Siswa';
     siswaCardNama.textContent = namaSesi;
     siswaAvatar.textContent = getInitials(namaSesi) || 'SW';
+    siswaIdentitas.nama = namaSesi;
 
     try{
       let url;
@@ -602,6 +623,10 @@
       siswaAvatar.textContent = getInitials(nama) || 'SW';
       siswaCardNisn.textContent = 'NISN: ' + (siswa.nisn || '-');
       siswaCardKelas.textContent = 'Kelas: ' + (siswa.kelas || '-');
+
+      siswaIdentitas.nama = nama;
+      siswaIdentitas.nisn = siswa.nisn || '';
+      siswaIdentitas.kelas = siswa.kelas || '';
     }catch(err){
       console.error('Gagal memuat identitas siswa:', err);
     }
@@ -631,6 +656,7 @@
   const soalNavGrid = document.getElementById('soalNavGrid');
   const soalNumberBadge = document.getElementById('soalNumberBadge');
   const soalBobot = document.getElementById('soalBobot');
+  const soalWarning = document.getElementById('soalWarning');
   const soalText = document.getElementById('soalText');
   const soalJawaban = document.getElementById('soalJawaban');
   const autosaveNote = document.getElementById('autosaveNote');
@@ -639,9 +665,7 @@
   const btnSelesaiUjian = document.getElementById('btnSelesaiUjian');
 
   const confirmBackdrop = document.getElementById('confirmBackdrop');
-  const confirmTerjawab = document.getElementById('confirmTerjawab');
-  const confirmTotal = document.getElementById('confirmTotal');
-  const confirmWarning = document.getElementById('confirmWarning');
+  const confirmError = document.getElementById('confirmError');
   const btnBatalSelesai = document.getElementById('btnBatalSelesai');
   const btnKonfirmasiSelesai = document.getElementById('btnKonfirmasiSelesai');
 
@@ -756,9 +780,16 @@
     }
   }
 
-  btnTutupTimeUp.addEventListener('click', () => {
+  btnTutupTimeUp.addEventListener('click', async () => {
     timeUpBackdrop.classList.remove('open');
-    tampilkanLayarSelesai();
+    btnTutupTimeUp.disabled = true;
+    try{
+      await simpanJawabanKeServer();
+    }catch(e){
+      console.error('Gagal mengirim jawaban otomatis saat waktu habis:', e);
+    }finally{
+      tampilkanLayarSelesai();
+    }
   });
 
   // ---------- Render navigator & soal ----------
@@ -783,6 +814,8 @@
     soalBobot.textContent = (s.bobot_nilai !== null && s.bobot_nilai !== undefined && s.bobot_nilai !== '')
       ? `Bobot: ${s.bobot_nilai}`
       : '';
+    soalWarning.hidden = true;
+    soalWarning.textContent = '';
     soalText.textContent = s.soal || '(Teks soal tidak tersedia)';
     soalJawaban.value = jawabanMap[s.kode_soal] || '';
     autosaveNote.textContent = jawabanMap[s.kode_soal] ? 'Tersimpan otomatis' : '';
@@ -804,6 +837,8 @@
     const s = daftarSoal[currentIndex];
     if(!s) return;
     jawabanMap[s.kode_soal] = soalJawaban.value;
+    soalWarning.hidden = true;
+    soalWarning.textContent = '';
     clearTimeout(saveTimeout);
     autosaveNote.textContent = 'Menyimpan...';
     saveTimeout = setTimeout(() => {
@@ -816,16 +851,17 @@
   btnSoalSelanjutnya.addEventListener('click', () => pindahKeSoal(currentIndex + 1));
 
   // ---------- Selesai ujian ----------
-  function jumlahTerjawab(){
-    return daftarSoal.filter(s => jawabanMap[s.kode_soal] && jawabanMap[s.kode_soal].trim() !== '').length;
+
+  // Cari soal pertama yang belum dijawab. Mengembalikan null jika semua
+  // soal sudah dijawab.
+  function cariSoalBelumDijawab(){
+    return daftarSoal.find(s => !jawabanMap[s.kode_soal] || jawabanMap[s.kode_soal].trim() === '') || null;
   }
 
   btnSelesaiUjian.addEventListener('click', () => {
     simpanJawabanLokal();
-    const terjawab = jumlahTerjawab();
-    confirmTerjawab.textContent = terjawab;
-    confirmTotal.textContent = daftarSoal.length;
-    confirmWarning.hidden = terjawab === daftarSoal.length;
+    confirmError.hidden = true;
+    confirmError.textContent = '';
     confirmBackdrop.classList.add('open');
   });
   btnBatalSelesai.addEventListener('click', () => {
@@ -835,28 +871,102 @@
     if(e.target === confirmBackdrop) confirmBackdrop.classList.remove('open');
   });
 
-  // Placeholder pengiriman jawaban ke server. Saat ini jawaban hanya
-  // disimpan di perangkat siswa (localStorage). Lengkapi fungsi ini
-  // dengan panggilan Supabase (mis. POST ke tabel "jawaban_essay") saat
-  // skema penyimpanan jawaban sudah disiapkan.
+  // Buat id_jawaban unik dengan format: <kode_mapping>-<nomor_soal>-<3 angka acak>
+  function buatIdJawaban(nomorSoal){
+    const acak = String(Math.floor(100 + Math.random() * 900)); // 3 digit acak (100-999)
+    return `${kodeMapping}-${nomorSoal}-${acak}`;
+  }
+
+  // Kirim seluruh jawaban (satu baris per butir soal) ke tabel "jawabanujianessay".
+  // Catatan: jika kolom baru saja dibuat di Supabase, PostgREST kadang
+  // belum me-reload schema cache-nya sehingga insert ditolak dengan kode
+  // "PGRST204: Could not find the '<kolom>' column...". Agar jawaban siswa
+  // tetap tersimpan, fungsi ini otomatis mencoba lagi tanpa kolom yang
+  // bermasalah. Solusi permanen: di Supabase, buka Database > jalankan
+  // `NOTIFY pgrst, 'reload schema';` (atau Settings > API > Reload schema).
   async function simpanJawabanKeServer(){
-    return true;
+    const waktuKirim = new Date().toISOString();
+    let rows = daftarSoal.map(s => ({
+      kode_mapping: kodeMapping,
+      id_jawaban: buatIdJawaban(s.nomor_soal),
+      nama_siswa: siswaIdentitas.nama || '',
+      nisn: siswaIdentitas.nisn || '',
+      kelas: siswaIdentitas.kelas || (ujianAktif && ujianAktif.kelas) || '',
+      mata_pelajaran: (ujianAktif && ujianAktif.mata_pelajaran) || '',
+      kkm: (ujianAktif && ujianAktif.kkm !== undefined && ujianAktif.kkm !== null && ujianAktif.kkm !== '')
+        ? ujianAktif.kkm
+        : null,
+      jumlah_soal: String(daftarSoal.length),
+      bobot_soal: (s.bobot_nilai !== undefined && s.bobot_nilai !== null && s.bobot_nilai !== '') ? s.bobot_nilai : null,
+      nomor_soal: s.nomor_soal,
+      soal: s.soal || '',
+      jawaban: jawabanMap[s.kode_soal] || '',
+      waktu_pengiriman: waktuKirim
+    }));
+
+    const maxPercobaan = rows.length > 0 ? Object.keys(rows[0]).length : 1;
+    for(let percobaan = 0; percobaan < maxPercobaan; percobaan++){
+      const res = await fetch(`${SUPABASE_URL}/jawabanujianessay`, {
+        method: 'POST',
+        headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+        body: JSON.stringify(rows)
+      });
+      if(res.ok) return;
+
+      const errText = await res.text();
+      console.error('Supabase error (jawabanujianessay):', errText);
+
+      // Coba deteksi kolom yang belum dikenali PostgREST (schema cache
+      // belum di-reload) lalu ulangi tanpa kolom tsb.
+      let kolomBermasalah = null;
+      try{
+        const errJson = JSON.parse(errText);
+        const match = String(errJson.message || '').match(/Could not find the '([^']+)' column/);
+        if(match) kolomBermasalah = match[1];
+      }catch(e){ /* abaikan, errText bukan JSON */ }
+
+      if(kolomBermasalah && rows[0] && Object.prototype.hasOwnProperty.call(rows[0], kolomBermasalah)){
+        console.warn(`Kolom "${kolomBermasalah}" belum dikenali Supabase (schema cache belum di-reload). Mencoba menyimpan tanpa kolom ini...`);
+        rows = rows.map(row => {
+          const salinan = { ...row };
+          delete salinan[kolomBermasalah];
+          return salinan;
+        });
+        continue;
+      }
+
+      throw new Error('Gagal menyimpan jawaban ke server.');
+    }
+
+    throw new Error('Gagal menyimpan jawaban ke server.');
   }
 
   btnKonfirmasiSelesai.addEventListener('click', async () => {
+    // ---------- Validasi: seluruh soal wajib sudah dijawab ----------
+    const belumDijawab = cariSoalBelumDijawab();
+    if(belumDijawab){
+      confirmError.textContent = `Soal nomor ${belumDijawab.nomor_soal} belum anda jawab, silahkan di jawab terlebih dahulu.`;
+      confirmError.hidden = false;
+      return;
+    }
+
     btnKonfirmasiSelesai.disabled = true;
     btnKonfirmasiSelesai.textContent = 'Menyimpan...';
+    confirmError.hidden = true;
+    confirmError.textContent = '';
     simpanJawabanLokal();
     try{
       await simpanJawabanKeServer();
-    }catch(e){
-      console.error('Gagal mengirim jawaban ke server:', e);
-    }finally{
-      btnKonfirmasiSelesai.disabled = false;
-      btnKonfirmasiSelesai.textContent = 'Ya, Selesaikan';
       confirmBackdrop.classList.remove('open');
       if(examTimerInterval) clearInterval(examTimerInterval);
       tampilkanLayarSelesai();
+    }catch(e){
+      console.error('Gagal mengirim jawaban ke server:', e);
+      confirmError.textContent = 'Terjadi kesalahan saat menyimpan jawaban. Silakan coba lagi.';
+      confirmError.hidden = false;
+    }finally{
+      btnKonfirmasiSelesai.disabled = false;
+      btnKonfirmasiSelesai.textContent = 'Ya, Selesaikan';
     }
   });
 
