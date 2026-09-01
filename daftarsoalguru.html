@@ -115,6 +115,14 @@
     max-width:100%;
     overflow:hidden;
   }
+  .panel-soal{
+    background:#FFF9EC;
+    border-left:5px solid var(--brand);
+  }
+  .panel-jawaban{
+    background:#FBEFF3;
+    border-left:5px solid var(--brick);
+  }
   .panel-head{
     display:flex;
     align-items:center;
@@ -322,6 +330,8 @@
   .btn-edit:hover{background:#146B44;}
   .btn-del{background:var(--brick);}
   .btn-del:hover{background:#B32559;}
+  .btn-koreksi{background:var(--brand); white-space:nowrap;}
+  .btn-koreksi:hover{background:#5A3FCB;}
 
   .panel-foot{
     display:flex;
@@ -431,6 +441,144 @@
   }
   .modal-backdrop.open .modal-box{transform:scale(1); opacity:1;}
   .modal-box h3{font-family:'Newsreader',serif; font-weight:500; font-size:1.15rem; margin:0 0 16px;}
+
+  /* ---------- Modal Koreksi Jawaban Siswa ---------- */
+  .koreksi-modal-box{max-width:760px;}
+  .koreksi-info{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px 18px;
+    background:var(--paper-deep);
+    border:1px solid var(--paper-line);
+    border-radius:10px;
+    padding:10px 14px;
+    margin-bottom:16px;
+    font-size:0.82rem;
+  }
+  .koreksi-info span b{color:var(--ink);}
+  .koreksi-info span{color:var(--ink-soft);}
+  .koreksi-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    max-height:52vh;
+    overflow-y:auto;
+    padding-right:4px;
+    margin-bottom:16px;
+  }
+  .koreksi-card{
+    border:1px solid var(--paper-line);
+    border-radius:10px;
+    padding:14px 16px;
+    background:var(--paper);
+  }
+  .koreksi-card-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:10px;
+    margin-bottom:8px;
+  }
+  .koreksi-card-head b{font-size:0.88rem; color:var(--ink);}
+  .koreksi-card-head .bobot{font-size:0.72rem; color:var(--ink-soft);}
+  .koreksi-soal-text{font-size:0.88rem; color:var(--ink); margin:0 0 10px; white-space:pre-wrap;}
+  .koreksi-jawaban-box{
+    background:var(--paper-deep);
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:0.85rem;
+    color:var(--ink);
+    white-space:pre-wrap;
+    margin-bottom:10px;
+  }
+  .koreksi-nilai-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .koreksi-nilai-row label{
+    font-size:0.74rem;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    white-space:nowrap;
+  }
+  .koreksi-nilai-row input{
+    width:100px;
+    padding:8px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    font-family:inherit;
+    font-size:0.9rem;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .koreksi-nilai-row input:focus{border-color:var(--brand); outline:none;}
+  .koreksi-total{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#EFEAFB;
+    border:1px solid var(--brand);
+    border-radius:10px;
+    padding:12px 16px;
+    font-weight:700;
+    color:var(--brand);
+    margin-bottom:16px;
+  }
+  .koreksi-total span:last-child{font-size:1.15rem;}
+
+  /* ---------- Dark mode khusus modal Koreksi Jawaban Siswa ---------- */
+  .koreksi-modal-box{
+    background:#1E1B2E;
+    box-shadow:0 20px 50px rgba(0,0,0,0.55);
+  }
+  .koreksi-modal-box h3{color:#F3F1FF;}
+  .koreksi-info{
+    background:#262341;
+    border-color:#3A355C;
+  }
+  .koreksi-info span{color:#A79FD1;}
+  .koreksi-info span b{color:#F3F1FF;}
+  .koreksi-list::-webkit-scrollbar{width:8px;}
+  .koreksi-list::-webkit-scrollbar-track{background:#262341; border-radius:6px;}
+  .koreksi-list::-webkit-scrollbar-thumb{background:#6C4FE0; border-radius:6px;}
+  .koreksi-card{
+    background:#262341;
+    border-color:#3A355C;
+  }
+  .koreksi-card-head b{color:#F3F1FF;}
+  .koreksi-card-head .bobot{color:#A79FD1;}
+  .koreksi-soal-text{color:#DCD8F7;}
+  .koreksi-jawaban-box{
+    background:#1E1B2E;
+    border-color:#3A355C;
+    color:#DCD8F7;
+  }
+  .koreksi-nilai-row label{color:#A79FD1;}
+  .koreksi-nilai-row input{
+    background:#1E1B2E;
+    border-color:#3A355C;
+    color:#F3F1FF;
+  }
+  .koreksi-nilai-row input:focus{border-color:#9C8CFF;}
+  .koreksi-total{
+    background:#2E2853;
+    border-color:#9C8CFF;
+    color:#C9BEFF;
+  }
+  .koreksi-modal-box .scroll-hint{color:#A79FD1;}
+  .koreksi-modal-box .form-msg.success{color:#7FE0A8;}
+  .koreksi-modal-box .form-msg.error{color:#FF8FAE;}
+  .koreksi-modal-box .btn-ghost{
+    background:#262341;
+    color:#DCD8F7;
+    border-color:#3A355C;
+  }
+  .koreksi-modal-box .btn-ghost:hover{border-color:#9C8CFF; color:#C9BEFF;}
+  #koreksiBackdrop{background:rgba(10,8,20,0.7);}
 
   /* ---------- Form ---------- */
   .form-grid{
@@ -581,7 +729,7 @@
   <h1 class="page-heading">Daftar Soal</h1>
   <p class="page-sub">Kelola soal-soal yang sudah Anda buat, baik Essay maupun Pilihan Ganda.</p>
 
-  <div class="panel">
+  <div class="panel panel-soal">
     <div class="panel-head">
       <h3>Daftar Soal Tersimpan</h3>
       <div class="panel-head-actions">
@@ -591,7 +739,7 @@
       </div>
     </div>
 
-    <div class="tab-bar" role="tablist">
+    <div class="tab-bar" id="tabBarSoal" role="tablist">
       <button type="button" class="tab-btn active" id="tabEssay" data-tab="essay" role="tab" aria-selected="true">Essay</button>
       <button type="button" class="tab-btn" id="tabPilgan" data-tab="pilgan" role="tab" aria-selected="false">Pilihan Ganda</button>
     </div>
@@ -617,6 +765,44 @@
       <div class="pager">
         <button type="button" id="btnPrev" disabled>Sebelumnya</button>
         <button type="button" id="btnNext" disabled>Berikutnya</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-jawaban" style="margin-top:15px;">
+    <div class="panel-head">
+      <h3>Daftar Jawaban Siswa</h3>
+      <div class="panel-head-actions">
+        <input type="text" class="panel-search" id="searchInputJawaban" placeholder="Cari nama siswa / NISN / kode / kelas...">
+      </div>
+    </div>
+
+    <div class="tab-bar" id="tabBarJawaban" role="tablist">
+      <button type="button" class="tab-btn active" id="tabJawabanEssay" data-tab="essay" role="tab" aria-selected="true">Essay</button>
+      <button type="button" class="tab-btn" id="tabJawabanPilgan" data-tab="pilgan" role="tab" aria-selected="false">Pilihan Ganda</button>
+    </div>
+
+    <p class="scroll-hint">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 6 15 12 9 18"/></svg>
+      Geser tabel ke samping untuk melihat kolom lainnya
+    </p>
+
+    <div class="table-wrap">
+      <table class="preview-table" id="tableJawaban">
+        <thead id="tableJawabanHead">
+          <!-- diisi dinamis sesuai tab aktif -->
+        </thead>
+        <tbody id="tableJawabanBody">
+          <tr class="empty-row"><td colspan="9">Memuat data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="panel-foot">
+      <span id="entriesInfoJawaban">Menampilkan 0 entri</span>
+      <div class="pager">
+        <button type="button" id="btnPrevJawaban" disabled>Sebelumnya</button>
+        <button type="button" id="btnNextJawaban" disabled>Berikutnya</button>
       </div>
     </div>
   </div>
@@ -775,6 +961,31 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="koreksiBackdrop">
+  <div class="modal-box koreksi-modal-box" role="dialog" aria-modal="true" aria-labelledby="koreksiTitle">
+    <h3 id="koreksiTitle">Koreksi Jawaban Siswa</h3>
+    <div class="koreksi-info">
+      <span>Nama: <b id="koreksiNamaSiswa">-</b></span>
+      <span>NISN: <b id="koreksiNisn">-</b></span>
+      <span>Kelas: <b id="koreksiKelas">-</b></span>
+      <span>Mapel: <b id="koreksiMapel">-</b></span>
+      <span>Kode Mapping: <b id="koreksiKodeMapping">-</b></span>
+    </div>
+    <div class="koreksi-list" id="koreksiList">
+      <p class="scroll-hint">Memuat jawaban siswa...</p>
+    </div>
+    <div class="koreksi-total">
+      <span>Total Nilai Akhir</span>
+      <span id="koreksiTotalNilai">0</span>
+    </div>
+    <p class="form-msg" id="koreksiMsg"></p>
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" id="btnBatalKoreksi">Batal</button>
+      <button type="button" class="btn btn-primary" id="btnSimpanKoreksi">Simpan Nilai</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
@@ -835,6 +1046,56 @@
     }catch(err){ console.error('Gagal memuat profil sekolah:', err); }
   })();
 
+  // ---------- Ambil daftar Mata Pelajaran yang diampu guru (tabel datamapel) ----------
+  // Dicocokkan lewat NIP guru (lebih unik) dari tabel "dataguru"; fallback ke
+  // nama guru kalau NIP tidak ditemukan. guruMapelList: null = belum dimuat,
+  // [] = tidak ada mapel yang ditugaskan, [...] = daftar mapel yang diampu.
+  let guruMapelList = null;
+
+  async function loadGuruMapelList(){
+    try{
+      let nip = null;
+      let namaGuru = guruSession.nama_guru || guruSession.nama || '';
+
+      try{
+        const guruUrl = guruSession.id
+          ? `${SUPABASE_URL}/dataguru?id=eq.${encodeURIComponent(guruSession.id)}&select=nama_guru,nip&limit=1`
+          : `${SUPABASE_URL}/dataguru?nama_guru=eq.${encodeURIComponent(namaGuru)}&select=nama_guru,nip&limit=1`;
+        const guruRes = await fetch(guruUrl, { headers: sbHeaders() });
+        if(guruRes.ok){
+          const guruRows = await guruRes.json();
+          const guru = guruRows && guruRows[0];
+          if(guru){
+            namaGuru = guru.nama_guru || namaGuru;
+            nip = guru.nip || null;
+          }
+        }
+      }catch(e){
+        console.error('Gagal memuat identitas guru untuk filter mapel:', e);
+      }
+
+      const url = nip
+        ? `${SUPABASE_URL}/datamapel?nip=eq.${encodeURIComponent(nip)}&select=nama_mapel&order=nama_mapel.asc`
+        : `${SUPABASE_URL}/datamapel?guru_pengajar=eq.${encodeURIComponent(namaGuru)}&select=nama_mapel&order=nama_mapel.asc`;
+      const res = await fetch(url, { headers: sbHeaders() });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const rows = await res.json();
+      guruMapelList = rows.map(r => r.nama_mapel).filter(Boolean);
+    }catch(err){
+      console.error('Gagal memuat mata pelajaran yang diampu guru:', err);
+      guruMapelList = []; // gagal ambil -> anggap kosong, supaya tidak bocor mapel guru lain
+    }
+  }
+
+  // Bentuk fragmen filter PostgREST "mata_pelajaran=in.(...)" dari guruMapelList.
+  // Mengembalikan null jika guru tidak memiliki mapel (supaya pemanggil tahu
+  // untuk tidak menampilkan data apapun).
+  function guruMapelFilterParam(){
+    const list = guruMapelList || [];
+    if(list.length === 0) return null;
+    return `mata_pelajaran=in.(${list.map(m => encodeURIComponent(m)).join(',')})`;
+  }
+
   // ================= State & Pagination =================
   const PAGE_SIZE = 10;
   let currentPage = 0;
@@ -875,7 +1136,7 @@
   const entriesInfo = document.getElementById('entriesInfo');
   const btnPrev = document.getElementById('btnPrev');
   const btnNext = document.getElementById('btnNext');
-  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabButtons = document.querySelectorAll('#tabBarSoal .tab-btn');
 
   function currentConfig(){
     return TAB_CONFIG[activeTab];
@@ -920,14 +1181,23 @@
   async function fetchSoal(){
     renderTableHead();
     const table = currentConfig().table;
+
+    const mapelFilter = guruMapelFilterParam();
+    if(!mapelFilter){
+      totalRows = 0;
+      tableBody.innerHTML = `<tr class="empty-row"><td colspan="${colCount()}">Anda belum memiliki mata pelajaran yang ditugaskan.</td></tr>`;
+      renderFoot(0, 0);
+      return;
+    }
+
     tableBody.innerHTML = `<tr class="empty-row"><td colspan="${colCount()}">Memuat data...</td></tr>`;
     try{
       // Ambil semua baris butir soal dari tabel aktif, lalu dikelompokkan
       // di sisi client per Kode Mapping — supaya walaupun 1 Kode Mapping
       // punya banyak baris butir soal di Supabase, tetap muncul sebagai
-      // 1 baris saja di Daftar Soal.
+      // 1 baris saja di Daftar Soal. Dibatasi hanya mapel yang diampu guru ini.
       let res = await fetch(
-        `${SUPABASE_URL}/${table}?select=kode_mapping,mata_pelajaran,kelas,jenis_penilaian,status&order=kode_mapping.asc`,
+        `${SUPABASE_URL}/${table}?select=kode_mapping,mata_pelajaran,kelas,jenis_penilaian,status&order=kode_mapping.asc&${mapelFilter}`,
         { headers: sbHeaders() }
       );
 
@@ -940,7 +1210,7 @@
         console.warn('Kolom "status" gagal dibaca (kemungkinan schema cache Supabase belum di-reload). Memuat ulang tanpa kolom status...');
         statusColumnAvailable = false;
         res = await fetch(
-          `${SUPABASE_URL}/${table}?select=kode_mapping,mata_pelajaran,kelas,jenis_penilaian&order=kode_mapping.asc`,
+          `${SUPABASE_URL}/${table}?select=kode_mapping,mata_pelajaran,kelas,jenis_penilaian&order=kode_mapping.asc&${mapelFilter}`,
           { headers: sbHeaders() }
         );
       }
@@ -1252,6 +1522,408 @@
       currentPage = 0;
       fetchSoal();
     }, 350);
+  });
+
+  // ================= Daftar Jawaban Siswa =================
+  // Menampilkan siswa yang sudah selesai mengerjakan ujian, dikelompokkan
+  // per pengiriman (kode_mapping + nama_siswa + nisn). Untuk tab Essay,
+  // data ditarik dari tabel "jawabanujianessay" (lihat ujianessay.html
+  // untuk struktur kolomnya). Tab Pilihan Ganda menyusul.
+  const JAWABAN_PAGE_SIZE = 10;
+  let currentPageJawaban = 0;
+  let searchTermJawaban = '';
+  let totalRowsJawaban = 0;
+  let activeJawabanTab = 'essay'; // 'essay' | 'pilgan'
+
+  const JAWABAN_TAB_CONFIG = {
+    essay: {
+      table: 'jawabanujianessay',
+      columns: [
+        { key: 'kode_mapping', label: 'Kode Mapping' },
+        { key: 'nama_siswa', label: 'Nama Siswa' },
+        { key: 'nisn', label: 'NISN' },
+        { key: 'kelas', label: 'Kelas' },
+        { key: 'mata_pelajaran', label: 'Mata Pelajaran' },
+        { key: 'jumlah_jawaban', label: 'Jumlah Jawaban' },
+        { key: 'waktu_pengiriman', label: 'Waktu Pengiriman' },
+        { key: 'nilai', label: 'Nilai' },
+        { key: 'aksi', label: 'Aksi' }
+      ]
+    },
+    pilgan: {
+      table: null, // menyusul: "jawabanujianpilgan"
+      columns: [
+        { key: 'kode_mapping', label: 'Kode Mapping' },
+        { key: 'nama_siswa', label: 'Nama Siswa' },
+        { key: 'nisn', label: 'NISN' },
+        { key: 'kelas', label: 'Kelas' },
+        { key: 'mata_pelajaran', label: 'Mata Pelajaran' },
+        { key: 'jumlah_jawaban', label: 'Jumlah Jawaban' },
+        { key: 'waktu_pengiriman', label: 'Waktu Pengiriman' },
+        { key: 'nilai', label: 'Nilai' },
+        { key: 'aksi', label: 'Aksi' }
+      ]
+    }
+  };
+
+  const tableJawabanHead = document.getElementById('tableJawabanHead');
+  const tableJawabanBody = document.getElementById('tableJawabanBody');
+  const entriesInfoJawaban = document.getElementById('entriesInfoJawaban');
+  const btnPrevJawaban = document.getElementById('btnPrevJawaban');
+  const btnNextJawaban = document.getElementById('btnNextJawaban');
+  const tabJawabanButtons = document.querySelectorAll('#tabBarJawaban .tab-btn');
+
+  function currentJawabanConfig(){
+    return JAWABAN_TAB_CONFIG[activeJawabanTab];
+  }
+  function jawabanColCount(){
+    return currentJawabanConfig().columns.length;
+  }
+  function renderJawabanTableHead(){
+    const ths = currentJawabanConfig().columns.map(c => `<th>${escapeHtml(c.label)}</th>`).join('');
+    tableJawabanHead.innerHTML = `<tr>${ths}</tr>`;
+  }
+
+  function formatWaktuJawaban(val){
+    if(!val) return '-';
+    try{
+      const d = new Date(val);
+      if(isNaN(d.getTime())) return val;
+      return d.toLocaleString('id-ID', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }) + ' WIB';
+    }catch(e){
+      return val;
+    }
+  }
+
+  tabJawabanButtons.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const tab = btn.dataset.tab;
+      if(tab === activeJawabanTab) return;
+      activeJawabanTab = tab;
+      tabJawabanButtons.forEach(b=>{
+        b.classList.toggle('active', b.dataset.tab === activeJawabanTab);
+        b.setAttribute('aria-selected', b.dataset.tab === activeJawabanTab ? 'true' : 'false');
+      });
+      currentPageJawaban = 0;
+      fetchJawaban();
+    });
+  });
+
+  async function fetchJawaban(){
+    renderJawabanTableHead();
+    const config = currentJawabanConfig();
+
+    // Tab Pilihan Ganda menyusul — belum ada tabel jawaban di Supabase.
+    if(!config.table){
+      totalRowsJawaban = 0;
+      tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Daftar jawaban Pilihan Ganda akan segera tersedia.</td></tr>`;
+      renderJawabanFoot(0, 0);
+      return;
+    }
+
+    const mapelFilter = guruMapelFilterParam();
+    if(!mapelFilter){
+      totalRowsJawaban = 0;
+      tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Anda belum memiliki mata pelajaran yang ditugaskan.</td></tr>`;
+      renderJawabanFoot(0, 0);
+      return;
+    }
+
+    tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Memuat data...</td></tr>`;
+    try{
+      // Satu pengiriman jawaban essay tersimpan sebagai banyak baris (1 baris
+      // per butir soal) dengan kode_mapping + nama_siswa + nisn yang sama.
+      // Di sini dikelompokkan di sisi client supaya tampil sebagai 1 baris
+      // per siswa yang sudah selesai mengerjakan.
+      const res = await fetch(
+        `${SUPABASE_URL}/${config.table}?select=kode_mapping,nama_siswa,nisn,kelas,mata_pelajaran,waktu_pengiriman,nilai&order=waktu_pengiriman.desc&${mapelFilter}`,
+        { headers: sbHeaders() }
+      );
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const allRows = await res.json();
+
+      const groupsMap = new Map();
+      allRows.forEach(row => {
+        const key = `${row.kode_mapping}|${row.nama_siswa}|${row.nisn}`;
+        if(!groupsMap.has(key)){
+          groupsMap.set(key, {
+            kode_mapping: row.kode_mapping,
+            nama_siswa: row.nama_siswa,
+            nisn: row.nisn,
+            kelas: row.kelas,
+            mata_pelajaran: row.mata_pelajaran,
+            jumlah_jawaban: 0,
+            waktu_pengiriman: row.waktu_pengiriman,
+            nilai: null,
+            adaNilai: false
+          });
+        }
+        const g = groupsMap.get(key);
+        g.jumlah_jawaban += 1;
+        if(row.nilai !== null && row.nilai !== undefined && row.nilai !== ''){
+          g.nilai = (g.nilai || 0) + Number(row.nilai);
+          g.adaNilai = true;
+        }
+        // Simpan waktu pengiriman terbaru (rows sudah diurutkan desc, tapi
+        // dijaga lagi di sini untuk keamanan urutan pengelompokan).
+        if(row.waktu_pengiriman && (!g.waktu_pengiriman || new Date(row.waktu_pengiriman) > new Date(g.waktu_pengiriman))){
+          g.waktu_pengiriman = row.waktu_pengiriman;
+        }
+      });
+
+      let groups = Array.from(groupsMap.values());
+      groups.sort((a, b) => new Date(b.waktu_pengiriman || 0) - new Date(a.waktu_pengiriman || 0));
+
+      const term = searchTermJawaban.trim().toLowerCase();
+      if(term){
+        groups = groups.filter(g =>
+          String(g.nama_siswa ?? '').toLowerCase().includes(term) ||
+          String(g.nisn ?? '').toLowerCase().includes(term) ||
+          String(g.kode_mapping ?? '').toLowerCase().includes(term) ||
+          String(g.kelas ?? '').toLowerCase().includes(term) ||
+          String(g.mata_pelajaran ?? '').toLowerCase().includes(term)
+        );
+      }
+
+      totalRowsJawaban = groups.length;
+      const offset = currentPageJawaban * JAWABAN_PAGE_SIZE;
+      const pageGroups = groups.slice(offset, offset + JAWABAN_PAGE_SIZE);
+
+      renderJawabanTable(pageGroups);
+      renderJawabanFoot(offset, pageGroups.length);
+    }catch(err){
+      console.error('Gagal memuat daftar jawaban siswa:', err);
+      tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Gagal memuat data. Pastikan tabel "${config.table}" sudah dibuat di Supabase.</td></tr>`;
+      entriesInfoJawaban.textContent = 'Menampilkan 0 entri';
+      btnPrevJawaban.disabled = true;
+      btnNextJawaban.disabled = true;
+    }
+  }
+
+  function renderJawabanTable(rows){
+    if(!rows || rows.length === 0){
+      tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Belum ada siswa yang menyelesaikan ujian.</td></tr>`;
+      return;
+    }
+    const columns = currentJawabanConfig().columns;
+    tableJawabanBody.innerHTML = rows.map(row => {
+      const tds = columns.map(c => {
+        if(c.key === 'waktu_pengiriman'){
+          return `<td>${escapeHtml(formatWaktuJawaban(row.waktu_pengiriman))}</td>`;
+        }
+        if(c.key === 'nilai'){
+          const nilai = row.adaNilai ? row.nilai : 'Belum dinilai';
+          return `<td>${escapeHtml(nilai)}</td>`;
+        }
+        if(c.key === 'aksi'){
+          return `<td><button type="button" class="btn-mini btn-koreksi" data-kode-mapping="${escapeHtml(row.kode_mapping)}" data-nama-siswa="${escapeHtml(row.nama_siswa)}" data-nisn="${escapeHtml(row.nisn)}">Koreksi Jawaban Siswa</button></td>`;
+        }
+        const val = row[c.key] ?? '-';
+        return `<td>${escapeHtml(val)}</td>`;
+      }).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+
+    tableJawabanBody.querySelectorAll('.btn-koreksi').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const kodeMapping = btn.dataset.kodeMapping;
+        const namaSiswa = btn.dataset.namaSiswa;
+        const nisn = btn.dataset.nisn;
+        const rowData = rows.find(r => r.kode_mapping === kodeMapping && r.nama_siswa === namaSiswa && r.nisn === nisn);
+        openKoreksiModal({
+          kodeMapping,
+          namaSiswa,
+          nisn,
+          kelas: rowData ? rowData.kelas : '-',
+          mataPelajaran: rowData ? rowData.mata_pelajaran : '-'
+        });
+      });
+    });
+  }
+
+  function renderJawabanFoot(offset, countInPage){
+    if(totalRowsJawaban === 0){
+      entriesInfoJawaban.textContent = 'Menampilkan 0 entri';
+    } else {
+      const start = offset + 1;
+      const end = offset + countInPage;
+      entriesInfoJawaban.textContent = `Menampilkan ${start} - ${end} dari ${totalRowsJawaban} entri`;
+    }
+    btnPrevJawaban.disabled = currentPageJawaban === 0;
+    btnNextJawaban.disabled = (offset + countInPage) >= totalRowsJawaban;
+  }
+
+  btnPrevJawaban.addEventListener('click', ()=>{
+    if(currentPageJawaban > 0){ currentPageJawaban--; fetchJawaban(); }
+  });
+  btnNextJawaban.addEventListener('click', ()=>{
+    currentPageJawaban++; fetchJawaban();
+  });
+
+  let searchDebounceJawaban;
+  document.getElementById('searchInputJawaban').addEventListener('input', (e)=>{
+    clearTimeout(searchDebounceJawaban);
+    searchDebounceJawaban = setTimeout(()=>{
+      searchTermJawaban = e.target.value;
+      currentPageJawaban = 0;
+      fetchJawaban();
+    }, 350);
+  });
+
+  // ================= Modal Koreksi Jawaban Siswa =================
+  const koreksiBackdrop = document.getElementById('koreksiBackdrop');
+  const koreksiList = document.getElementById('koreksiList');
+  const koreksiTotalNilai = document.getElementById('koreksiTotalNilai');
+  const koreksiMsg = document.getElementById('koreksiMsg');
+  const btnBatalKoreksi = document.getElementById('btnBatalKoreksi');
+  const btnSimpanKoreksi = document.getElementById('btnSimpanKoreksi');
+  let koreksiContext = null; // { kodeMapping, namaSiswa, nisn, table }
+  let koreksiRows = []; // baris mentah dari Supabase untuk siswa yang sedang dikoreksi
+
+  // Ambil nilai field pertama yang ada isinya dari beberapa kemungkinan nama kolom,
+  // karena nama kolom di tabel Supabase bisa berbeda-beda tergantung struktur guru.
+  function pickField(row, ...keys){
+    for(const k of keys){
+      if(row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') return row[k];
+    }
+    return '';
+  }
+
+  function openKoreksiModal({ kodeMapping, namaSiswa, nisn, kelas, mataPelajaran }){
+    const config = currentJawabanConfig();
+    if(!config.table){
+      alert('Tabel jawaban untuk tipe soal ini belum tersedia.');
+      return;
+    }
+    koreksiContext = { kodeMapping, namaSiswa, nisn, table: config.table };
+    document.getElementById('koreksiNamaSiswa').textContent = namaSiswa || '-';
+    document.getElementById('koreksiNisn').textContent = nisn || '-';
+    document.getElementById('koreksiKelas').textContent = kelas || '-';
+    document.getElementById('koreksiMapel').textContent = mataPelajaran || '-';
+    document.getElementById('koreksiKodeMapping').textContent = kodeMapping || '-';
+    koreksiMsg.textContent = '';
+    koreksiMsg.className = 'form-msg';
+    koreksiList.innerHTML = '<p class="scroll-hint">Memuat jawaban siswa...</p>';
+    koreksiTotalNilai.textContent = '0';
+    koreksiBackdrop.classList.add('open');
+    fetchKoreksiJawaban();
+  }
+
+  function closeKoreksiModal(){
+    koreksiBackdrop.classList.remove('open');
+    koreksiContext = null;
+    koreksiRows = [];
+  }
+  btnBatalKoreksi.addEventListener('click', closeKoreksiModal);
+  koreksiBackdrop.addEventListener('click', (e)=>{
+    if(e.target === koreksiBackdrop) closeKoreksiModal();
+  });
+
+  async function fetchKoreksiJawaban(){
+    if(!koreksiContext) return;
+    const { kodeMapping, namaSiswa, nisn, table } = koreksiContext;
+    try{
+      const params = new URLSearchParams({
+        select: '*',
+        kode_mapping: `eq.${kodeMapping}`,
+        nama_siswa: `eq.${namaSiswa}`,
+        nisn: `eq.${nisn}`,
+        order: 'nomor_soal.asc'
+      });
+      const res = await fetch(`${SUPABASE_URL}/${table}?${params.toString()}`, { headers: sbHeaders() });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const rowsData = await res.json();
+      koreksiRows = rowsData;
+      renderKoreksiList();
+    }catch(err){
+      console.error('Gagal memuat jawaban untuk koreksi:', err);
+      koreksiList.innerHTML = '<p class="scroll-hint">Gagal memuat jawaban siswa. Silakan coba lagi.</p>';
+    }
+  }
+
+  function renderKoreksiList(){
+    if(!koreksiRows || koreksiRows.length === 0){
+      koreksiList.innerHTML = '<p class="scroll-hint">Belum ada jawaban yang tersimpan untuk siswa ini.</p>';
+      koreksiTotalNilai.textContent = '0';
+      return;
+    }
+    koreksiList.innerHTML = koreksiRows.map((row, idx) => {
+      const nomor = pickField(row, 'nomor_soal', 'no_soal') || (idx + 1);
+      const soalText = pickField(row, 'soal', 'pertanyaan', 'teks_soal') || '(Teks soal tidak tersedia)';
+      const jawabanText = pickField(row, 'jawaban_siswa', 'jawaban', 'teks_jawaban') || '(Siswa tidak menjawab)';
+      const bobot = pickField(row, 'bobot_nilai', 'bobot');
+      const nilaiAwal = pickField(row, 'nilai', 'skor');
+      return `
+        <div class="koreksi-card" data-idx="${idx}">
+          <div class="koreksi-card-head">
+            <b>Soal No. ${escapeHtml(nomor)}</b>
+            ${bobot !== '' ? `<span class="bobot">Bobot: ${escapeHtml(bobot)}</span>` : ''}
+          </div>
+          <p class="koreksi-soal-text">${escapeHtml(soalText)}</p>
+          <div class="koreksi-jawaban-box">${escapeHtml(jawabanText)}</div>
+          <div class="koreksi-nilai-row">
+            <label for="koreksiNilai-${idx}">Nilai</label>
+            <input type="number" id="koreksiNilai-${idx}" class="koreksi-nilai-input" data-idx="${idx}" min="0" max="100" step="1" value="${escapeHtml(nilaiAwal)}">
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    koreksiList.querySelectorAll('.koreksi-nilai-input').forEach(input=>{
+      input.addEventListener('input', updateKoreksiTotal);
+    });
+    updateKoreksiTotal();
+  }
+
+  function updateKoreksiTotal(){
+    let total = 0;
+    koreksiList.querySelectorAll('.koreksi-nilai-input').forEach(input=>{
+      total += Number(input.value) || 0;
+    });
+    koreksiTotalNilai.textContent = total;
+  }
+
+  btnSimpanKoreksi.addEventListener('click', async ()=>{
+    if(!koreksiContext || koreksiRows.length === 0) return;
+    btnSimpanKoreksi.disabled = true;
+    btnSimpanKoreksi.textContent = 'Menyimpan...';
+    koreksiMsg.textContent = '';
+    koreksiMsg.className = 'form-msg';
+    try{
+      const { table } = koreksiContext;
+      const inputs = koreksiList.querySelectorAll('.koreksi-nilai-input');
+      for(const input of inputs){
+        const idx = Number(input.dataset.idx);
+        const row = koreksiRows[idx];
+        const nilaiBaru = input.value === '' ? null : Number(input.value);
+        // Gunakan kolom "id" jika tersedia sebagai kunci unik per baris jawaban,
+        // jika tidak, gunakan kombinasi kode_mapping + nisn + nomor soal.
+        let filterUrl;
+        if(row.id !== undefined && row.id !== null){
+          filterUrl = `${SUPABASE_URL}/${table}?id=eq.${encodeURIComponent(row.id)}`;
+        } else {
+          const nomor = pickField(row, 'nomor_soal', 'no_soal');
+          filterUrl = `${SUPABASE_URL}/${table}?kode_mapping=eq.${encodeURIComponent(koreksiContext.kodeMapping)}&nisn=eq.${encodeURIComponent(koreksiContext.nisn)}&nomor_soal=eq.${encodeURIComponent(nomor)}`;
+        }
+        const res = await fetch(filterUrl, {
+          method: 'PATCH',
+          headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+          body: JSON.stringify({ nilai: nilaiBaru })
+        });
+        if(!res.ok) throw new Error('Gagal menyimpan nilai butir soal (status ' + res.status + ')');
+      }
+      koreksiMsg.textContent = 'Nilai berhasil disimpan.';
+      koreksiMsg.className = 'form-msg success';
+      await fetchJawaban();
+      setTimeout(closeKoreksiModal, 700);
+    }catch(err){
+      console.error('Gagal menyimpan nilai:', err);
+      koreksiMsg.textContent = 'Gagal menyimpan nilai. Silakan coba lagi.';
+      koreksiMsg.className = 'form-msg error';
+    }finally{
+      btnSimpanKoreksi.disabled = false;
+      btnSimpanKoreksi.textContent = 'Simpan Nilai';
+    }
   });
 
   async function deleteSoal(kodeMapping){
@@ -1706,8 +2378,14 @@
   }
 
   async function loadKodeMappingOptions(){
+    const mapelFilter = guruMapelFilterParam();
+    if(!mapelFilter){
+      mappingList = [];
+      inputKodeMapping.innerHTML = '<option value="" disabled selected>Anda belum memiliki mata pelajaran yang ditugaskan</option>';
+      return;
+    }
     try{
-      const res = await fetch(`${SUPABASE_URL}/mappingpenilaian?select=*&order=kode_mapping.asc`, { headers: sbHeaders() });
+      const res = await fetch(`${SUPABASE_URL}/mappingpenilaian?select=*&order=kode_mapping.asc&${mapelFilter}`, { headers: sbHeaders() });
       if(!res.ok) throw new Error('Status ' + res.status);
       mappingList = await res.json();
       inputKodeMapping.innerHTML = '<option value="" disabled selected>Pilih kode mapping</option>';
@@ -1719,7 +2397,7 @@
         inputKodeMapping.appendChild(opt);
       });
       if(mappingList.length === 0){
-        inputKodeMapping.innerHTML = '<option value="" disabled selected>Belum ada data mapping penilaian</option>';
+        inputKodeMapping.innerHTML = '<option value="" disabled selected>Belum ada data mapping penilaian untuk mapel Anda</option>';
       }
     }catch(err){
       console.error('Gagal memuat data mapping penilaian:', err);
@@ -2031,8 +2709,12 @@
   });
 
   // ---------- Init ----------
-  loadKodeMappingOptions();
-  fetchSoal();
+  (async function init(){
+    await loadGuruMapelList();
+    loadKodeMappingOptions();
+    fetchSoal();
+    fetchJawaban();
+  })();
 </script>
 
 </body>
