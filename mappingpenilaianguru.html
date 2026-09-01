@@ -583,33 +583,57 @@
     }catch(err){ console.error('Gagal memuat profil sekolah:', err); }
   })();
 
-  // ---------- Ambil daftar Mata Pelajaran (tabel datamapel) ----------
-  let guruMapelDefault = null;
-  async function loadMapelOptions(){
+  // ---------- Ambil daftar Mata Pelajaran yang diampu guru (tabel datamapel) ----------
+  // Dicocokkan lewat NIP guru (lebih unik) dari tabel "dataguru"; fallback ke
+  // nama guru kalau NIP tidak ditemukan. guruMapelList: null = belum dimuat,
+  // [] = tidak ada mapel yang ditugaskan, [...] = daftar mapel yang diampu.
+  let guruMapelList = null;
+
+  async function loadGuruMapelList(){
     try{
-      const res = await fetch(`${SUPABASE_URL}/datamapel?select=nama_mapel&order=nama_mapel.asc`, { headers: sbHeaders() });
+      let nip = null;
+      let namaGuru = guruSession.nama_guru || guruSession.nama || '';
+
+      try{
+        const guruUrl = guruSession.id
+          ? `${SUPABASE_URL}/dataguru?id=eq.${encodeURIComponent(guruSession.id)}&select=nama_guru,nip&limit=1`
+          : `${SUPABASE_URL}/dataguru?nama_guru=eq.${encodeURIComponent(namaGuru)}&select=nama_guru,nip&limit=1`;
+        const guruRes = await fetch(guruUrl, { headers: sbHeaders() });
+        if(guruRes.ok){
+          const guruRows = await guruRes.json();
+          const guru = guruRows && guruRows[0];
+          if(guru){
+            namaGuru = guru.nama_guru || namaGuru;
+            nip = guru.nip || null;
+          }
+        }
+      }catch(e){
+        console.error('Gagal memuat identitas guru untuk filter mapel:', e);
+      }
+
+      const url = nip
+        ? `${SUPABASE_URL}/datamapel?nip=eq.${encodeURIComponent(nip)}&select=nama_mapel&order=nama_mapel.asc`
+        : `${SUPABASE_URL}/datamapel?guru_pengajar=eq.${encodeURIComponent(namaGuru)}&select=nama_mapel&order=nama_mapel.asc`;
+      const res = await fetch(url, { headers: sbHeaders() });
       if(!res.ok) throw new Error('Status ' + res.status);
       const rows = await res.json();
-      const select = document.getElementById('inputMapel');
-      select.innerHTML = '<option value="" disabled selected>Pilih mata pelajaran</option>';
-      rows.forEach(row=>{
-        if(!row.nama_mapel) return;
-        const opt = document.createElement('option');
-        opt.value = row.nama_mapel;
-        opt.textContent = row.nama_mapel;
-        select.appendChild(opt);
-      });
-      if(rows.length === 0){
-        select.innerHTML = '<option value="" disabled selected>Belum ada data mapel</option>';
-      }
-      if(guruMapelDefault){
-        const match = Array.from(select.options).find(o => o.value === guruMapelDefault);
-        if(match) select.value = guruMapelDefault;
-      }
+      guruMapelList = rows.map(r => r.nama_mapel).filter(Boolean);
     }catch(err){
-      console.error('Gagal memuat data mapel:', err);
-      document.getElementById('inputMapel').innerHTML = '<option value="" disabled selected>Gagal memuat data mapel</option>';
+      console.error('Gagal memuat mata pelajaran yang diampu guru:', err);
+      guruMapelList = []; // gagal ambil -> anggap kosong, supaya tidak bocor mapel guru lain
     }
+  }
+
+  // Isi dropdown "Mata Pelajaran" di form Tambah/Edit hanya dengan mapel milik guru ini.
+  function loadMapelOptions(){
+    const select = document.getElementById('inputMapel');
+    const list = guruMapelList || [];
+    if(list.length === 0){
+      select.innerHTML = '<option value="" disabled selected>Anda belum memiliki mata pelajaran yang ditugaskan</option>';
+      return;
+    }
+    select.innerHTML = '<option value="" disabled selected>Pilih mata pelajaran</option>' +
+      list.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
   }
 
   // ---------- Ambil daftar Kelas (tabel rombel) ----------
@@ -636,35 +660,6 @@
     }
   }
 
-  // ---------- Coba tandai Mata Pelajaran guru yang login sebagai pilihan awal ----------
-  async function fetchGuruMapelBy(field, value){
-    const url = `${SUPABASE_URL}/dataguru?${field}=eq.${encodeURIComponent(value)}&select=mata_pelajaran&limit=1`;
-    const res = await fetch(url, { headers: sbHeaders() });
-    if(!res.ok){
-      const errText = await res.text();
-      console.error(`Gagal ambil mata_pelajaran via ${field} (Status ${res.status}):`, errText);
-      return null;
-    }
-    const rows = await res.json();
-    return (rows && rows[0] && rows[0].mata_pelajaran) || null;
-  }
-
-  (async function detectGuruMapel(){
-    if(!guruSession) return;
-    try{
-      let mapel = null;
-      // Coba pakai id dulu (kalau ada), kalau gagal / kosong, fallback ke nama_guru
-      if(guruSession.id){
-        mapel = await fetchGuruMapelBy('id', guruSession.id);
-      }
-      if(!mapel){
-        const nama = guruSession.nama_guru || guruSession.nama || '';
-        if(nama) mapel = await fetchGuruMapelBy('nama_guru', nama);
-      }
-      if(mapel) guruMapelDefault = mapel;
-    }catch(err){ console.error('Gagal deteksi mapel guru:', err); }
-  })();
-
   // ================= State & Pagination =================
   const PAGE_SIZE = 10;
   let currentPage = 0;
@@ -685,13 +680,24 @@
   }
 
   async function fetchMapping(){
+    const list = guruMapelList || [];
+    if(list.length === 0){
+      totalRows = 0;
+      tableBody.innerHTML = '<tr class="empty-row"><td colspan="8">Anda belum memiliki mata pelajaran yang ditugaskan.</td></tr>';
+      renderFoot(0, 0);
+      return;
+    }
+
     tableBody.innerHTML = '<tr class="empty-row"><td colspan="8">Memuat data...</td></tr>';
     const offset = currentPage * PAGE_SIZE;
-    let url = `${SUPABASE_URL}/${TABLE}?select=*&order=kode_mapping.asc`;
+    // Batasi hanya mapel yang diampu guru ini, supaya guru tidak melihat
+    // mapping penilaian mata pelajaran lain.
+    const mapelFilter = list.map(m => encodeURIComponent(m)).join(',');
+    let url = `${SUPABASE_URL}/${TABLE}?select=*&order=kode_mapping.asc&mata_pelajaran=in.(${mapelFilter})`;
     const term = searchTerm.trim();
     if(term){
       const q = encodeURIComponent(term);
-      url += `&or=(kode_mapping.ilike.*${q}*,mata_pelajaran.ilike.*${q}*,kelas.ilike.*${q}*,jenis_penilaian.ilike.*${q}*)`;
+      url += `&or=(kode_mapping.ilike.*${q}*,kelas.ilike.*${q}*,jenis_penilaian.ilike.*${q}*)`;
     }
     try{
       const res = await fetch(url, {
@@ -964,9 +970,12 @@
   });
 
   // ---------- Init ----------
-  loadMapelOptions();
-  loadKelasOptions();
-  fetchMapping();
+  (async function init(){
+    await loadGuruMapelList();
+    loadMapelOptions();
+    loadKelasOptions();
+    fetchMapping();
+  })();
 </script>
 
 </body>
