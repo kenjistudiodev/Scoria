@@ -851,7 +851,12 @@
   })();
 
   // ---------- Ambil identitas lengkap siswa dari tabel "datasiswa" ----------
-  (async function loadSiswaProfile(){
+  // currentSiswaData & siswaProfilePromise disimpan secara global agar bisa
+  // dipakai ulang saat validasi kode ujian (cek apakah siswa sudah pernah
+  // mengerjakan ujian ini di tabel jawabanujianessay).
+  let currentSiswaData = null;
+
+  const siswaProfilePromise = (async function loadSiswaProfile(){
     const profileNama = document.getElementById('profileNama');
     const profileNisn = document.getElementById('profileNisn');
     const profileKelas = document.getElementById('profileKelas');
@@ -860,7 +865,7 @@
 
     if(!siswaSession){
       profileNama.textContent = 'Sesi tidak ditemukan';
-      return;
+      return null;
     }
 
     try{
@@ -884,7 +889,7 @@
 
       if(!siswa){
         profileNama.textContent = siswaSession.nama_siswa || siswaSession.nama || 'Siswa';
-        return;
+        return null;
       }
 
       const nama = siswa.nama_siswa || '-';
@@ -906,9 +911,13 @@
       } else {
         profileTtl.textContent = '-';
       }
+
+      currentSiswaData = siswa;
+      return siswa;
     }catch(err){
       console.error('Gagal memuat identitas siswa:', err);
       profileNama.textContent = siswaSession.nama_siswa || siswaSession.nama || 'Siswa';
+      return null;
     }
   })();
 
@@ -1007,6 +1016,26 @@
     return rows && rows.length > 0 ? rows[0] : null;
   }
 
+  // Cek apakah siswa ini (nama_siswa + nisn) sudah pernah mengirim jawaban
+  // untuk kode_mapping tsb di tabel "jawabanujianessay". Dipakai untuk
+  // mencegah siswa mengerjakan ulang ujian yang sama.
+  async function cekSudahUjian(kodeMapping, namaSiswa, nisn){
+    const url = `${SUPABASE_URL}/jawabanujianessay` +
+      `?kode_mapping=eq.${encodeURIComponent(kodeMapping)}` +
+      `&nama_siswa=eq.${encodeURIComponent(namaSiswa)}` +
+      `&nisn=eq.${encodeURIComponent(nisn)}` +
+      `&select=id_jawaban&limit=1`;
+    const res = await fetch(url, {
+      headers:{
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY
+      }
+    });
+    if(!res.ok) throw new Error('Status ' + res.status);
+    const rows = await res.json();
+    return rows && rows.length > 0;
+  }
+
   examCodeForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     clearExamError();
@@ -1021,12 +1050,26 @@
     examConfirmBtn.textContent = 'Memeriksa...';
     try{
       const ujianAktif = await validasiKodeUjian(kode);
-      if(ujianAktif){
-        closeExamModal();
-        openExamInfoModal(ujianAktif);
-      } else {
+      if(!ujianAktif){
         showExamError('Kode ujian tidak ditemukan. Periksa kembali kode yang diberikan guru.');
+        return;
       }
+
+      // Pastikan identitas siswa (nama + NISN) sudah dimuat dari "datasiswa"
+      // sebelum dicocokkan ke tabel jawaban, supaya nama/nisn yang dipakai
+      // konsisten dengan yang tersimpan saat siswa mengirim jawaban.
+      const siswa = currentSiswaData || await siswaProfilePromise;
+      const namaSiswa = (siswa && siswa.nama_siswa) || siswaSession.nama_siswa || siswaSession.nama || '';
+      const nisn = (siswa && siswa.nisn) || siswaSession.nisn || '';
+
+      const sudahUjian = await cekSudahUjian(ujianAktif.kode_mapping, namaSiswa, nisn);
+      if(sudahUjian){
+        showExamError('Maaf, anda sudah melaksanakan ujian.');
+        return;
+      }
+
+      closeExamModal();
+      openExamInfoModal(ujianAktif);
     }catch(err){
       console.error('Gagal memvalidasi kode ujian:', err);
       showExamError('Terjadi kesalahan saat memeriksa kode. Coba lagi.');
