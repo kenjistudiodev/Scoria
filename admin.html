@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — SCORIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#3B2E63;
+    --ink-soft:#7A7191;
+    --paper:#FFFAF0;
+    --paper-deep:#FFEFD6;
+    --paper-line:#F5DDAE;
+    --brand:#6C4FE0;
+    --gold:#FFC93C;
+    --brick:#D6336C;
+    --green:#1A8754;
+    --turquoise:#0F766E;
+    --purple:#7B5EEA;
+    --amber:#92600F;
+    --footer-h:72px;
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 20px);
+  }
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  /* ---------- Navbar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:var(--brand);
+    color:#FFFFFF;
+    padding:14px clamp(16px,4vw,40px);
+  }
+  .nav-left{display:flex; align-items:center; gap:10px;}
+  .school-logo{
+    width:38px; height:38px;
+    border-radius:50%;
+    background:var(--paper);
+    color:var(--brand);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:0.75rem;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .school-logo img{
+    width:100%; height:100%;
+    object-fit:cover;
+  }
+  .nav-right{display:flex; align-items:center; gap:16px;}
+  .school-name{
+    font-size:0.92rem;
+    font-weight:500;
+    color:var(--paper);
+    max-width:32ch;
+  }
+  .admin-account{
+    display:flex; align-items:center; gap:8px;
+    padding-left:16px;
+    border-left:1px solid rgba(240,234,217,0.25);
+  }
+  .avatar{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--gold);
+    color:#221a06;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:0.78rem;
+    flex-shrink:0;
+  }
+  .admin-name{font-size:0.88rem; color:#ddd6bf;}
+
+  /* ---------- Main ---------- */
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:32px clamp(16px,4vw,40px) 12px;
+  }
+  .page-heading{
+    font-family:'Newsreader',serif;
+    font-weight:500;
+    font-size:clamp(1.4rem,2.6vw,1.85rem);
+    margin:0 0 4px;
+  }
+  .page-sub{
+    font-size:0.92rem;
+    color:var(--ink-soft);
+    margin:0 0 28px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
+    gap:16px;
+  }
+  .card{
+    background:#fffdf7;
+    border:1px solid var(--paper-line);
+    border-left:4px solid var(--accent, var(--brick));
+    border-radius:6px;
+    padding:20px;
+    position:relative;
+  }
+  .card-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.02em;
+    color:var(--accent, var(--brick));
+    margin:0 0 10px;
+  }
+  .card-value{
+    font-family:'Newsreader',serif;
+    font-weight:600;
+    font-size:2rem;
+    color:var(--ink);
+    line-height:1;
+    margin:0 0 6px;
+  }
+  .card-note{
+    font-size:0.85rem;
+    color:var(--ink-soft);
+    margin:0;
+  }
+  .card-link{
+    display:inline-block;
+    margin-top:12px;
+    font-size:0.82rem;
+    font-weight:500;
+    color:var(--ink);
+    text-decoration:none;
+    border-bottom:1px solid var(--ink);
+  }
+  .card-link:hover{color:var(--brick); border-color:var(--brick);}
+
+  /* Kartu Data Nilai - tuntas/tidak tuntas */
+  .card-nilai .split{
+    display:flex;
+    gap:20px;
+    margin:8px 0 12px;
+  }
+  .split-item{flex:1;}
+  .split-num{
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    font-size:1.3rem;
+  }
+  .split-num.tuntas{color:var(--green);}
+  .split-num.belum{color:var(--brick);}
+  .split-label{
+    font-size:0.76rem;
+    color:var(--ink-soft);
+  }
+  .progress-track{
+    height:6px;
+    border-radius:3px;
+    background:var(--paper-line);
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--green);
+  }
+
+  /* ---------- Footer sticky ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex;
+    align-items:stretch;
+    justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    background:none;
+    border:none;
+    color:var(--ink);
+    font-size:0.75rem;
+    font-weight:600;
+    width:140px;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .footer-btn svg{width:20px; height:20px;}
+  .footer-btn:hover{background:rgba(59,46,99,0.12); color:#FFFFFF;}
+  .footer-divider{
+    width:1px;
+    background:rgba(59,46,99,0.2);
+    margin:14px 0;
+  }
+  .footer-btn.logout:hover{background:rgba(242,80,138,0.35); color:#FFFFFF;}
+
+  /* ---------- Bottom sheet menu ---------- */
+  .sheet-backdrop{
+    position:fixed; inset:0;
+    background:rgba(59,46,99,0.45);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.2s ease;
+    z-index:40;
+  }
+  .sheet-backdrop.open{opacity:1; visibility:visible;}
+
+  .sheet{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:var(--paper);
+    border-radius:16px 16px 0 0;
+    padding:10px 20px calc(20px + var(--footer-h));
+    max-width:640px;
+    margin:0 auto;
+    transform:translateY(100%);
+    transition:transform 0.28s cubic-bezier(.2,.8,.3,1);
+    z-index:41;
+    max-height:78vh;
+    overflow-y:auto;
+  }
+  .sheet-backdrop.open .sheet{transform:translateY(0);}
+
+  .sheet-handle{
+    width:40px; height:4px;
+    background:var(--paper-line);
+    border-radius:2px;
+    margin:8px auto 16px;
+  }
+  .sheet h3{
+    font-family:'Newsreader',serif;
+    font-weight:500;
+    font-size:1.15rem;
+    margin:0 0 16px;
+  }
+  .menu-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+  }
+  .menu-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    text-align:center;
+    background:var(--paper-deep);
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    padding:16px 8px;
+    text-decoration:none;
+    color:var(--ink);
+    font-size:0.78rem;
+    font-weight:500;
+    line-height:1.25;
+    transition:border-color 0.15s ease, background 0.15s ease;
+  }
+  .menu-item:hover{border-color:var(--brick); background:#FFE3EE;}
+  .menu-item svg{width:22px; height:22px; color:var(--brick);}
+
+  @media (max-width:520px){
+    .menu-grid{grid-template-columns:repeat(3,1fr);}
+    .school-name{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <div class="school-logo" id="schoolLogo">SMA</div>
+  </div>
+  <div class="nav-right">
+    <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+    <div class="admin-account">
+      <span class="avatar">AD</span>
+      <span class="admin-name">Admin</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <h1 class="page-heading">Ringkasan sekolah</h1>
+  <p class="page-sub">Gambaran umum data dan status penilaian yang tercatat di SCORIA.</p>
+
+  <div class="grid">
+
+    <div class="card" style="--accent:var(--turquoise);">
+      <p class="card-label">IDENTITAS SEKOLAH</p>
+      <p class="card-value" style="font-size:1.1rem;">Lengkap</p>
+      <p class="card-note">Profil, NPSN, dan kop sekolah sudah terisi.</p>
+      <a class="card-link" href="identitassekolah.html">Lihat detail</a>
+    </div>
+
+    <div class="card" style="--accent:var(--purple);">
+      <p class="card-label">DATA GURU</p>
+      <p class="card-value">24</p>
+      <p class="card-note">Guru aktif terdaftar</p>
+      <a class="card-link" href="dataguru.html">Kelola data guru</a>
+    </div>
+
+    <div class="card" style="--accent:var(--brand);">
+      <p class="card-label">DATA SISWA</p>
+      <p class="card-value" id="siswaAktifValue">–</p>
+      <p class="card-note">Siswa aktif terdaftar (total dari rombel)</p>
+      <a class="card-link" href="datasiswa.html">Kelola data siswa</a>
+    </div>
+
+    <div class="card" style="--accent:var(--amber);">
+      <p class="card-label">DATA ROMBEL</p>
+      <p class="card-value" id="rombelCountValue">–</p>
+      <p class="card-note">Rombongan belajar berjalan</p>
+      <a class="card-link" href="rombel.html">Kelola rombel</a>
+    </div>
+
+    <div class="card" style="--accent:var(--green);">
+      <p class="card-label">DATA MAPEL</p>
+      <p class="card-value">14</p>
+      <p class="card-note">Mata pelajaran terdaftar</p>
+      <a class="card-link" href="matapelajaran.html">Kelola mata pelajaran</a>
+    </div>
+
+    <div class="card card-nilai">
+      <p class="card-label">DATA NILAI</p>
+      <div class="split">
+        <div class="split-item">
+          <div class="split-num tuntas">268</div>
+          <div class="split-label">Tuntas</div>
+        </div>
+        <div class="split-item">
+          <div class="split-num belum">44</div>
+          <div class="split-label">Tidak tuntas</div>
+        </div>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width:86%;"></div></div>
+      <a class="card-link" href="daftarnilairombel.html">Lihat daftar nilai</a>
+    </div>
+
+  </div>
+</main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button class="footer-btn" id="openMenuBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    Menu
+  </button>
+  <div class="footer-divider"></div>
+  <button class="footer-btn logout" id="logoutBtn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Log Out
+  </button>
+</div>
+
+<!-- Bottom sheet menu -->
+<div class="sheet-backdrop" id="sheetBackdrop">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetHeading">
+    <div class="sheet-handle"></div>
+    <h3 id="sheetHeading">Menu</h3>
+    <div class="menu-grid">
+      <a class="menu-item" href="identitassekolah.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
+        Profil Sekolah
+      </a>
+      <a class="menu-item" href="rombel.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Rombongan Belajar
+      </a>
+      <a class="menu-item" href="datasiswa.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        Data Siswa
+      </a>
+      <a class="menu-item" href="dataguru.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-4.5 3.5-7 7-7s7 2.5 7 7"/><path d="M17 4l1.5 1.5L21 3"/></svg>
+        Data Guru
+      </a>
+      <a class="menu-item" href="matapelajaran.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M8 7h8"/><path d="M8 11h5"/></svg>
+        Mata Pelajaran
+      </a>
+      <a class="menu-item" href="mappingnilai.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 6h4a4 4 0 0 1 4 4v2"/></svg>
+        Mapping Nilai
+      </a>
+      <a class="menu-item" href="daftarnilairombel.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="M4 10h16"/><path d="M9 10v10"/></svg>
+        Daftar Nilai Per Rombel
+      </a>
+      <a class="menu-item" href="backupreset.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+        Back Up &amp; Reset
+      </a>
+      <a class="menu-item" href="restore.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        Restore
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Ambil logo & nama sekolah dari tabel "profil" di Supabase
+  (async function loadSchoolProfile(){
+    const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo&limit=1`, {
+        headers:{
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        }
+      });
+      if(!res.ok) return;
+      const rows = await res.json();
+      const profil = rows && rows[0];
+      if(!profil) return;
+
+      if(profil.nama_sekolah){
+        document.getElementById('schoolName').textContent = profil.nama_sekolah;
+      }
+      if(profil.logo){
+        const logoEl = document.getElementById('schoolLogo');
+        logoEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = profil.logo;
+        img.alt = 'Logo Sekolah';
+        logoEl.appendChild(img);
+      }
+    }catch(err){
+      console.error('Gagal memuat profil sekolah:', err);
+    }
+  })();
+
+  // Ambil jumlah rombel & total siswa aktif dari tabel "rombel"
+  (async function loadRombelSummary(){
+    const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+
+    const rombelValueEl = document.getElementById('rombelCountValue');
+    const siswaValueEl = document.getElementById('siswaAktifValue');
+
+    try{
+      const res = await fetch(`${SUPABASE_URL}/rombel?select=jumlah_siswa`, {
+        headers:{
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        }
+      });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const rows = await res.json();
+
+      const totalRombel = rows.length;
+      const totalSiswa = rows.reduce((sum, r) => sum + (Number(r.jumlah_siswa) || 0), 0);
+
+      rombelValueEl.textContent = totalRombel;
+      siswaValueEl.textContent = totalSiswa;
+    }catch(err){
+      console.error('Gagal memuat ringkasan rombel:', err);
+      rombelValueEl.textContent = '0';
+      siswaValueEl.textContent = '0';
+    }
+  })();
+
+  const sheetBackdrop = document.getElementById('sheetBackdrop');
+  document.getElementById('openMenuBtn').addEventListener('click', () => {
+    sheetBackdrop.classList.add('open');
+  });
+  sheetBackdrop.addEventListener('click', (e) => {
+    if (e.target === sheetBackdrop) sheetBackdrop.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') sheetBackdrop.classList.remove('open');
+  });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    // TODO: sambungkan ke proses logout Supabase, lalu arahkan ke index.html
+    window.location.href = 'index.html';
+  });
+</script>
+
+</body>
+</html>
