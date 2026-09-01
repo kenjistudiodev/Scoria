@@ -205,6 +205,13 @@
     font-weight:500;
     color:var(--ink);
   }
+  .row .rname .rsub{
+    display:block;
+    font-size:12px;
+    font-weight:400;
+    color:var(--muted);
+    margin-top:2px;
+  }
   .row .rarrow{
     color:var(--muted);
     flex-shrink:0;
@@ -292,7 +299,7 @@
     margin-bottom:6px;
   }
   label{font-size:13px; font-weight:600; color:var(--ink);}
-  input[type=text]{
+  input[type=text],select{
     font-family:'Inter', sans-serif;
     font-size:15px;
     padding:11px 13px;
@@ -304,7 +311,12 @@
     transition:border-color .15s ease, box-shadow .15s ease;
     width:100%;
   }
-  input:focus{
+  select{cursor:pointer; appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B5F49' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat; background-position:right 13px center; padding-right:34px;
+  }
+  input[readonly]{background:#F1EEE3; color:#6B5F49; cursor:not-allowed;}
+  input:focus,select:focus{
     border-color:var(--sky);
     box-shadow:0 0 0 3px rgba(46,143,176,0.15);
     background:#fff;
@@ -417,6 +429,18 @@
           <input type="text" id="nama_mapel" name="nama_mapel" required placeholder="cth. Matematika">
         </div>
 
+        <div class="field">
+          <label for="guru_pengajar">Guru pengajar</label>
+          <select id="guru_pengajar" name="guru_pengajar" required>
+            <option value="" disabled selected>Pilih guru pengajar</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="nip">NIP / NIY</label>
+          <input type="text" id="nip" name="nip" readonly placeholder="Terisi otomatis setelah memilih guru">
+        </div>
+
         <div class="modal-actions">
           <button type="button" class="btn-delete" id="btnDelete" style="display:none;">Hapus</button>
           <span class="status" id="statusMsg"></span>
@@ -444,6 +468,8 @@
   const btnSubmit = document.getElementById("btnSubmit");
   const statusMsg = document.getElementById("statusMsg");
   const namaInput = document.getElementById("nama_mapel");
+  const guruSelect = document.getElementById("guru_pengajar");
+  const nipInput = document.getElementById("nip");
   const listBody = document.getElementById("listBody");
   const countLabel = document.getElementById("countLabel");
   const searchInput = document.getElementById("searchInput");
@@ -451,7 +477,34 @@
   const modalDesc = document.getElementById("modalDesc");
 
   let allMapel = [];
+  let allGuru = [];
   let editingMapel = null; // null = mode tambah, object = mode edit
+
+  /* ---------- guru pengajar (tabel dataguru) ---------- */
+  async function loadGuruOptions() {
+    try {
+      const res = await fetch(SUPABASE_REST + "dataguru?select=nama_guru,nip&order=nama_guru.asc", {
+        headers: {
+          "apikey": ANON_KEY,
+          "Authorization": "Bearer " + ANON_KEY
+        }
+      });
+      if (!res.ok) throw new Error(await res.text());
+      allGuru = await res.json();
+
+      guruSelect.innerHTML = `<option value="" disabled>Pilih guru pengajar</option>` +
+        allGuru.map(g => `<option value="${escapeHtml(g.nama_guru || "")}">${escapeHtml(g.nama_guru || "-")}</option>`).join("");
+    } catch (err) {
+      console.error(err);
+      guruSelect.innerHTML = `<option value="" disabled selected>Gagal memuat data guru</option>`;
+    }
+  }
+
+  // Saat guru dipilih, isi NIP otomatis sesuai data dari tabel dataguru.
+  guruSelect.addEventListener("change", () => {
+    const guru = allGuru.find(g => g.nama_guru === guruSelect.value);
+    nipInput.value = guru ? (guru.nip || "") : "";
+  });
 
   /* ---------- modal open/close ---------- */
   function openModal() {
@@ -474,6 +527,8 @@
     btnSubmit.textContent = "Simpan";
     btnDelete.style.display = "none";
     namaInput.value = "";
+    guruSelect.value = "";
+    nipInput.value = "";
     openModal();
   }
 
@@ -484,6 +539,8 @@
     btnSubmit.textContent = "Simpan perubahan";
     btnDelete.style.display = "inline-block";
     namaInput.value = mapel.nama_mapel || "";
+    guruSelect.value = mapel.guru_pengajar || "";
+    nipInput.value = mapel.nip || "";
     openModal();
   }
 
@@ -575,7 +632,11 @@
     const isEdit = !!editingMapel;
 
     try {
-      const payload = { nama_mapel: namaInput.value.trim() };
+      const payload = {
+        nama_mapel: namaInput.value.trim(),
+        guru_pengajar: guruSelect.value.trim(),
+        nip: nipInput.value.trim() || null
+      };
 
       if (!isEdit) {
         payload.id = genId();
@@ -621,7 +682,7 @@
   function renderList() {
     const q = searchInput.value.trim().toLowerCase();
     const filtered = q
-      ? allMapel.filter(m => (m.nama_mapel || "").toLowerCase().includes(q))
+      ? allMapel.filter(m => (m.nama_mapel || "").toLowerCase().includes(q) || (m.guru_pengajar || "").toLowerCase().includes(q))
       : allMapel;
 
     countLabel.innerHTML = allMapel.length === 0
@@ -641,7 +702,7 @@
       <div class="row" data-id="${escapeHtml(m.id)}">
         <span class="num">${i + 1}</span>
         <span class="rdot" style="background:${colorFor(m.nama_mapel || m.id || '')}"></span>
-        <span class="rname">${escapeHtml(m.nama_mapel || "-")}</span>
+        <span class="rname">${escapeHtml(m.nama_mapel || "-")}${m.guru_pengajar ? `<span class="rsub">${escapeHtml(m.guru_pengajar)}${m.nip ? " · NIP " + escapeHtml(m.nip) : ""}</span>` : ""}</span>
         <svg class="rarrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     `).join("");
@@ -676,6 +737,7 @@
   }
 
   loadMapel();
+  loadGuruOptions();
 </script>
 
 </body>
