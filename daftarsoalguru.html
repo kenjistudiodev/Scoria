@@ -63,11 +63,37 @@
   }
   .school-logo img{width:100%; height:100%; object-fit:cover;}
   .nav-right{display:flex; align-items:center; gap:16px;}
+  .nav-schoolinfo{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:4px;
+  }
   .school-name{
     font-size:0.92rem;
     font-weight:500;
     color:var(--paper);
     max-width:32ch;
+  }
+  .term-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.66rem;
+    letter-spacing:0.02em;
+    color:var(--gold);
+    background:rgba(255,201,60,0.14);
+    border:1px solid rgba(255,201,60,0.4);
+    padding:2px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .term-badge .dot{
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--gold);
+    flex-shrink:0;
   }
   .admin-account{
     display:flex; align-items:center; gap:8px;
@@ -149,6 +175,40 @@
     min-width:160px;
   }
   .panel-search:focus{border-color:var(--brick); outline:none;}
+
+  /* ---------- Filter bertingkat (Kelas & Mata Pelajaran) ---------- */
+  .jawaban-filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin:12px 0 4px;
+  }
+  .jawaban-filter-row label{
+    font-size:0.78rem;
+    color:var(--ink-soft, #6b6355);
+    font-weight:600;
+  }
+  .jawaban-filter-row .btn svg{width:14px; height:14px; vertical-align:-2px; margin-right:5px;}
+  .panel-select{
+    font-family:inherit;
+    font-size:0.82rem;
+    padding:7px 28px 7px 10px;
+    border:1px solid var(--paper-line);
+    border-radius:5px;
+    background:#fbf8f0;
+    color:var(--ink);
+    min-width:150px;
+    cursor:pointer;
+    appearance:none;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;
+    background-position:right 8px center;
+    background-size:14px;
+  }
+  .panel-select:focus{border-color:var(--brick); outline:none;}
+  .panel-select:disabled{opacity:0.55; cursor:not-allowed;}
 
   /* ---------- Buttons ---------- */
   .btn{
@@ -516,6 +576,25 @@
     color:var(--ink);
   }
   .koreksi-nilai-row input:focus{border-color:var(--brand); outline:none;}
+
+  /* ---------- Modal Upload Nilai Kolektif ---------- */
+  .upload-nilai-modal-box{max-width:880px;}
+  .upload-nilai-table-wrap{
+    max-height:46vh;
+    overflow-y:auto;
+    margin-bottom:6px;
+  }
+  .upload-nilai-input{
+    width:80px;
+    padding:6px 8px;
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    font-family:inherit;
+    font-size:0.85rem;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  .upload-nilai-input:focus{border-color:var(--brand); outline:none;}
   .koreksi-total{
     display:flex;
     justify-content:space-between;
@@ -705,7 +784,7 @@
     main{padding-left:5px; padding-right:5px;}
     .navbar{padding-left:5px; padding-right:5px;}
     .panel{padding:16px 12px;}
-    .school-name{display:none;}
+    .nav-schoolinfo{display:none;}
     .form-grid{grid-template-columns:1fr;}
   }
 </style>
@@ -717,7 +796,10 @@
     <div class="school-logo" id="schoolLogo">SMA</div>
   </div>
   <div class="nav-right">
-    <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
     <div class="admin-account">
       <span class="avatar" id="guruAvatar">GR</span>
       <span class="admin-name" id="guruName">Guru</span>
@@ -780,6 +862,20 @@
     <div class="tab-bar" id="tabBarJawaban" role="tablist">
       <button type="button" class="tab-btn active" id="tabJawabanEssay" data-tab="essay" role="tab" aria-selected="true">Essay</button>
       <button type="button" class="tab-btn" id="tabJawabanPilgan" data-tab="pilgan" role="tab" aria-selected="false">Pilihan Ganda</button>
+    </div>
+
+    <div class="jawaban-filter-row">
+      <label for="filterKelasJawaban">Kelas</label>
+      <select id="filterKelasJawaban" class="panel-select">
+        <option value="">Semua Kelas</option>
+      </select>
+      <label for="filterMapelJawaban">Mata Pelajaran</label>
+      <select id="filterMapelJawaban" class="panel-select">
+        <option value="">Semua Mata Pelajaran</option>
+      </select>
+      <button type="button" class="btn btn-ghost btn-sm" id="btnUploadNilaiKolektif">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21V9"/><path d="M7 14l5-5 5 5"/><path d="M5 3h14"/></svg>Upload Nilai Kolektif
+      </button>
     </div>
 
     <p class="scroll-hint">
@@ -986,6 +1082,69 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="uploadNilaiBackdrop">
+  <div class="modal-box upload-nilai-modal-box" role="dialog" aria-modal="true" aria-labelledby="uploadNilaiTitle">
+    <h3 id="uploadNilaiTitle">Upload Nilai Kolektif</h3>
+    <p class="excel-hint" style="margin-bottom:12px;">
+      Menampilkan siswa tab <b id="uploadNilaiTabLabel">Essay</b> sesuai filter yang sedang aktif: <b id="uploadNilaiFilterInfo">Semua Kelas, Semua Mata Pelajaran</b>. Pilih jenis penilaian, ubah nilai langsung di tabel, lalu klik "Kirim Nilai".
+    </p>
+
+    <div class="table-wrap upload-nilai-table-wrap">
+      <table class="preview-table" id="tableUploadNilai">
+        <thead>
+          <tr>
+            <th>Kode Mapping</th>
+            <th>Nama Siswa</th>
+            <th>NISN</th>
+            <th>Kelas</th>
+            <th>Mata Pelajaran</th>
+            <th>Waktu Pengiriman</th>
+            <th>Nilai</th>
+          </tr>
+        </thead>
+        <tbody id="tableUploadNilaiBody">
+          <tr class="empty-row"><td colspan="7">Tidak ada data.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="excel-hint" id="uploadNilaiCountInfo">Menampilkan 0 siswa.</p>
+
+    <div class="form-group full" style="margin-top:10px;">
+      <label for="selectPenilaianNilai">Pilih Penilaian</label>
+      <select class="form-control" id="selectPenilaianNilai">
+        <option value="">-- Pilih Penilaian --</option>
+        <option value="UH1">UH1</option>
+        <option value="UH2">UH2</option>
+        <option value="UH3">UH3</option>
+        <option value="UH4">UH4</option>
+        <option value="UH5">UH5</option>
+        <option value="UH6">UH6</option>
+        <option value="UTS">UTS</option>
+        <option value="UAS">UAS</option>
+      </select>
+    </div>
+
+    <p class="form-msg" id="uploadNilaiMsg"></p>
+    <div class="form-actions">
+      <button type="button" class="btn btn-ghost" id="btnTutupUploadNilai">Tutup</button>
+      <button type="button" class="btn btn-primary" id="btnSimpanTabelNilai" disabled>Kirim Nilai</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="mappingWarningBackdrop">
+  <div class="modal-box" style="max-width:480px;" role="dialog" aria-modal="true" aria-labelledby="mappingWarningTitle">
+    <h3 id="mappingWarningTitle">Mapping Siswa Belum Ditemukan</h3>
+    <p style="font-size:0.88rem; color:var(--ink); line-height:1.55; margin:0 0 14px;">
+      Maaf, Anda belum me-mapping Penilaian Siswa di menu Daftar Nilai Siswa. Silahkan lakukan Mapping Siswa untuk dinilai terlebih dahulu.
+    </p>
+    <div id="mappingWarningList" style="font-size:0.78rem; color:var(--ink-soft); background:#fbf8f0; border:1px solid var(--paper-line); border-radius:8px; padding:10px 12px; max-height:180px; overflow-y:auto;"></div>
+    <div class="form-actions" style="margin-top:14px;">
+      <button type="button" class="btn btn-primary" id="btnTutupMappingWarning">Mengerti</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
@@ -994,6 +1153,11 @@
   // Tabel tujuan penyimpanan saat "Simpan" ditekan, tergantung jenis soal.
   const TABLE_ESSAY = "daftar_soal_essay";
   const TABLE_PILGAN = "daftar_soal_pilgan";
+  // Tabel rekap nilai siswa (diisi guru lewat menu Daftar Nilai Siswa >
+  // Mapping Peserta). "Kirim Nilai" pada modal Upload Nilai Kolektif akan
+  // menulis skor ke kolom UH1..UH6/UTS/UAS pada tabel ini, dicocokkan
+  // berdasarkan Nama Siswa + NISN + Kelas + Mata Pelajaran.
+  const TABLE_DAFTARNILAI = "daftarnilai";
 
   function sbHeaders(extra){
     return Object.assign({
@@ -1029,12 +1193,25 @@
   // ---------- Ambil logo & nama sekolah dari tabel "profil" ----------
   (async function loadSchoolProfile(){
     try{
-      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo&limit=1`, { headers: sbHeaders() });
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: sbHeaders() });
       if(!res.ok) return;
       const rows = await res.json();
       const profil = rows && rows[0];
       if(!profil) return;
       if(profil.nama_sekolah) document.getElementById('schoolName').textContent = profil.nama_sekolah;
+
+      const termBadgeText = document.getElementById('termBadgeText');
+      if(termBadgeText){
+        const semester = (profil.semester || '').trim();
+        const tahunPelajaran = (profil.tahun_pelajaran || '').trim();
+        if(semester || tahunPelajaran){
+          termBadgeText.textContent = [semester ? 'Semester ' + semester : '', tahunPelajaran].filter(Boolean).join(' • ');
+        } else {
+          const termBadge = document.getElementById('termBadge');
+          if(termBadge) termBadge.style.display = 'none';
+        }
+      }
+
       if(profil.logo){
         const logoEl = document.getElementById('schoolLogo');
         logoEl.innerHTML = '';
@@ -1534,6 +1711,9 @@
   let searchTermJawaban = '';
   let totalRowsJawaban = 0;
   let activeJawabanTab = 'essay'; // 'essay' | 'pilgan'
+  let selectedKelasJawaban = '';
+  let selectedMapelJawaban = '';
+  let lastJawabanGroupsForTemplate = []; // data terfilter (Kelas/Mapel) untuk template Upload Nilai Kolektif
 
   const JAWABAN_TAB_CONFIG = {
     essay: {
@@ -1572,6 +1752,8 @@
   const btnPrevJawaban = document.getElementById('btnPrevJawaban');
   const btnNextJawaban = document.getElementById('btnNextJawaban');
   const tabJawabanButtons = document.querySelectorAll('#tabBarJawaban .tab-btn');
+  const filterKelasJawabanEl = document.getElementById('filterKelasJawaban');
+  const filterMapelJawabanEl = document.getElementById('filterMapelJawaban');
 
   function currentJawabanConfig(){
     return JAWABAN_TAB_CONFIG[activeJawabanTab];
@@ -1604,10 +1786,64 @@
         b.classList.toggle('active', b.dataset.tab === activeJawabanTab);
         b.setAttribute('aria-selected', b.dataset.tab === activeJawabanTab ? 'true' : 'false');
       });
+      // Reset filter bertingkat saat ganti tab, karena kombinasi kelas/mapel
+      // yang tersedia bisa berbeda antara Essay dan Pilihan Ganda.
+      selectedKelasJawaban = '';
+      selectedMapelJawaban = '';
       currentPageJawaban = 0;
       fetchJawaban();
     });
   });
+
+  // Filter bertingkat: memilih Kelas akan menyempitkan opsi Mata Pelajaran
+  // yang ditampilkan (begitu juga sebaliknya), karena opsi selalu dibangun
+  // ulang dari data yang sudah dipersempit oleh pilihan lawan filternya.
+  filterKelasJawabanEl.addEventListener('change', (e)=>{
+    selectedKelasJawaban = e.target.value;
+    currentPageJawaban = 0;
+    fetchJawaban();
+  });
+  filterMapelJawabanEl.addEventListener('change', (e)=>{
+    selectedMapelJawaban = e.target.value;
+    currentPageJawaban = 0;
+    fetchJawaban();
+  });
+
+  // Bangun ulang opsi dropdown Kelas & Mata Pelajaran berdasarkan data yang
+  // benar-benar ada (hasil pengelompokan jawaban), saling menyempitkan satu
+  // sama lain. Jika pilihan sebelumnya sudah tidak tersedia lagi di opsi
+  // baru, otomatis dikembalikan ke "Semua".
+  function populateJawabanFilterOptions(groups){
+    const kelasSource = groups.filter(g => !selectedMapelJawaban || String(g.mata_pelajaran ?? '') === selectedMapelJawaban);
+    const mapelSource = groups.filter(g => !selectedKelasJawaban || String(g.kelas ?? '') === selectedKelasJawaban);
+
+    const kelasList = Array.from(new Set(kelasSource.map(g => g.kelas).filter(v => v !== null && v !== undefined && v !== '')))
+      .sort((a, b) => String(a).localeCompare(String(b), 'id', { numeric: true }));
+    const mapelList = Array.from(new Set(mapelSource.map(g => g.mata_pelajaran).filter(v => v !== null && v !== undefined && v !== '')))
+      .sort((a, b) => String(a).localeCompare(String(b), 'id'));
+
+    if(!kelasList.includes(selectedKelasJawaban)) selectedKelasJawaban = '';
+    if(!mapelList.includes(selectedMapelJawaban)) selectedMapelJawaban = '';
+
+    filterKelasJawabanEl.innerHTML = '<option value="">Semua Kelas</option>' +
+      kelasList.map(k => `<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join('');
+    filterMapelJawabanEl.innerHTML = '<option value="">Semua Mata Pelajaran</option>' +
+      mapelList.map(m => `<option value="${escapeHtml(m)}">${escapeHtml(m)}</option>`).join('');
+
+    filterKelasJawabanEl.value = selectedKelasJawaban;
+    filterMapelJawabanEl.value = selectedMapelJawaban;
+    filterKelasJawabanEl.disabled = false;
+    filterMapelJawabanEl.disabled = false;
+  }
+
+  function resetJawabanFilterOptions(){
+    filterKelasJawabanEl.innerHTML = '<option value="">Semua Kelas</option>';
+    filterMapelJawabanEl.innerHTML = '<option value="">Semua Mata Pelajaran</option>';
+    filterKelasJawabanEl.value = '';
+    filterMapelJawabanEl.value = '';
+    filterKelasJawabanEl.disabled = true;
+    filterMapelJawabanEl.disabled = true;
+  }
 
   async function fetchJawaban(){
     renderJawabanTableHead();
@@ -1615,6 +1851,8 @@
 
     // Tab Pilihan Ganda menyusul — belum ada tabel jawaban di Supabase.
     if(!config.table){
+      resetJawabanFilterOptions();
+      lastJawabanGroupsForTemplate = [];
       totalRowsJawaban = 0;
       tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Daftar jawaban Pilihan Ganda akan segera tersedia.</td></tr>`;
       renderJawabanFoot(0, 0);
@@ -1623,6 +1861,8 @@
 
     const mapelFilter = guruMapelFilterParam();
     if(!mapelFilter){
+      resetJawabanFilterOptions();
+      lastJawabanGroupsForTemplate = [];
       totalRowsJawaban = 0;
       tableJawabanBody.innerHTML = `<tr class="empty-row"><td colspan="${jawabanColCount()}">Anda belum memiliki mata pelajaran yang ditugaskan.</td></tr>`;
       renderJawabanFoot(0, 0);
@@ -1673,6 +1913,23 @@
 
       let groups = Array.from(groupsMap.values());
       groups.sort((a, b) => new Date(b.waktu_pengiriman || 0) - new Date(a.waktu_pengiriman || 0));
+
+      // Bangun ulang opsi dropdown Kelas & Mata Pelajaran dari seluruh data
+      // (sebelum difilter kelas/mapel/pencarian), supaya keduanya saling
+      // menyempitkan pilihan satu sama lain (filter bertingkat).
+      populateJawabanFilterOptions(groups);
+
+      if(selectedKelasJawaban){
+        groups = groups.filter(g => String(g.kelas ?? '') === selectedKelasJawaban);
+      }
+      if(selectedMapelJawaban){
+        groups = groups.filter(g => String(g.mata_pelajaran ?? '') === selectedMapelJawaban);
+      }
+
+      // Disimpan (sebelum difilter pencarian teks) sebagai sumber data saat
+      // guru mengunduh template Upload Nilai Kolektif, supaya template
+      // mengikuti filter Kelas/Mata Pelajaran yang sedang aktif.
+      lastJawabanGroupsForTemplate = groups.slice();
 
       const term = searchTermJawaban.trim().toLowerCase();
       if(term){
@@ -1923,6 +2180,313 @@
     }finally{
       btnSimpanKoreksi.disabled = false;
       btnSimpanKoreksi.textContent = 'Simpan Nilai';
+    }
+  });
+
+  // ================= Modal Upload Nilai Kolektif =================
+  // Menampilkan tabel siswa (kolom sama seperti Daftar Jawaban Siswa) sesuai
+  // filter Kelas/Mata Pelajaran yang sedang aktif saat tombol diklik. Nilai
+  // bisa diedit langsung di tabel, atau diisi lewat Excel untuk data dalam
+  // jumlah besar. Kedua jalur memakai logika simpan yang sama: butir soal
+  // pertama diisi nilai total, butir lainnya diset 0, supaya total (jumlah
+  // semua butir) yang ditampilkan di tabel utama tetap sama dengan nilai
+  // yang diinput di sini.
+  const uploadNilaiBackdrop = document.getElementById('uploadNilaiBackdrop');
+  const uploadNilaiTabLabel = document.getElementById('uploadNilaiTabLabel');
+  const uploadNilaiFilterInfo = document.getElementById('uploadNilaiFilterInfo');
+  const tableUploadNilaiBody = document.getElementById('tableUploadNilaiBody');
+  const uploadNilaiCountInfo = document.getElementById('uploadNilaiCountInfo');
+  const selectPenilaianNilai = document.getElementById('selectPenilaianNilai');
+  const uploadNilaiMsg = document.getElementById('uploadNilaiMsg');
+  const btnSimpanTabelNilai = document.getElementById('btnSimpanTabelNilai');
+
+  // Data yang ditampilkan di tabel modal: SALINAN dari lastJawabanGroupsForTemplate
+  // pada saat modal dibuka, supaya tetap sesuai filter Kelas/Mata Pelajaran
+  // yang aktif waktu tombol diklik meski data utama berubah setelahnya.
+  let uploadNilaiSnapshot = [];
+
+  function renderUploadNilaiTable(){
+    if(!uploadNilaiSnapshot || uploadNilaiSnapshot.length === 0){
+      tableUploadNilaiBody.innerHTML = '<tr class="empty-row"><td colspan="7">Tidak ada siswa yang sesuai dengan filter saat ini.</td></tr>';
+      uploadNilaiCountInfo.textContent = 'Menampilkan 0 siswa.';
+      return;
+    }
+    tableUploadNilaiBody.innerHTML = uploadNilaiSnapshot.map((g, idx) => `
+      <tr>
+        <td>${escapeHtml(g.kode_mapping ?? '-')}</td>
+        <td>${escapeHtml(g.nama_siswa ?? '-')}</td>
+        <td>${escapeHtml(g.nisn ?? '-')}</td>
+        <td>${escapeHtml(g.kelas ?? '-')}</td>
+        <td>${escapeHtml(g.mata_pelajaran ?? '-')}</td>
+        <td>${escapeHtml(formatWaktuJawaban(g.waktu_pengiriman))}</td>
+        <td><input type="number" class="upload-nilai-input" data-idx="${idx}" min="0" step="1" value="${g.adaNilai ? escapeHtml(g.nilai) : ''}" placeholder="-"></td>
+      </tr>
+    `).join('');
+    uploadNilaiCountInfo.textContent = `Menampilkan ${uploadNilaiSnapshot.length} siswa.`;
+  }
+
+  function openUploadNilaiModal(){
+    uploadNilaiTabLabel.textContent = activeJawabanTab === 'pilgan' ? 'Pilihan Ganda' : 'Essay';
+    uploadNilaiFilterInfo.textContent = `${selectedKelasJawaban || 'Semua Kelas'}, ${selectedMapelJawaban || 'Semua Mata Pelajaran'}`;
+    // Ambil salinan data sesuai filter yang aktif SAAT INI (bukan semua data).
+    uploadNilaiSnapshot = (lastJawabanGroupsForTemplate || []).slice();
+    renderUploadNilaiTable();
+    selectPenilaianNilai.value = '';
+    btnSimpanTabelNilai.disabled = true;
+    uploadNilaiMsg.textContent = '';
+    uploadNilaiMsg.className = 'form-msg';
+    uploadNilaiBackdrop.classList.add('open');
+  }
+  function closeUploadNilaiModal(){
+    uploadNilaiBackdrop.classList.remove('open');
+  }
+  document.getElementById('btnUploadNilaiKolektif').addEventListener('click', openUploadNilaiModal);
+  document.getElementById('btnTutupUploadNilai').addEventListener('click', closeUploadNilaiModal);
+  uploadNilaiBackdrop.addEventListener('click', (e)=>{
+    if(e.target === uploadNilaiBackdrop) closeUploadNilaiModal();
+  });
+
+  // ---------- Aktifkan tombol Kirim Nilai hanya jika Pilih Penilaian sudah dipilih ----------
+  selectPenilaianNilai.addEventListener('change', ()=>{
+    btnSimpanTabelNilai.disabled = !selectPenilaianNilai.value;
+  });
+
+  // Logika simpan bersama, dipakai baik oleh tabel di modal maupun oleh
+  // proses file Excel. entries: [{ kodeMapping, nisn, nilai (number), label }]
+  async function saveNilaiKolektifBatch(entries, table){
+    let sukses = 0;
+    const gagal = [];
+    let i = 0;
+    for(const entry of entries){
+      i++;
+      const { kodeMapping, nisn, nilai, label } = entry;
+      try{
+        uploadNilaiMsg.textContent = `Menyimpan ${i} dari ${entries.length}...`;
+        const params = new URLSearchParams({
+          select: 'id,nomor_soal',
+          kode_mapping: `eq.${kodeMapping}`,
+          nisn: `eq.${nisn}`,
+          order: 'nomor_soal.asc'
+        });
+        const resRows = await fetch(`${SUPABASE_URL}/${table}?${params.toString()}`, { headers: sbHeaders() });
+        if(!resRows.ok) throw new Error('Status ' + resRows.status);
+        const itemRows = await resRows.json();
+
+        if(!itemRows || itemRows.length === 0){
+          gagal.push(`${label}: data jawaban siswa tidak ditemukan.`);
+          continue;
+        }
+
+        const firstId = itemRows[0].id;
+        const restIds = itemRows.slice(1).map(r => r.id).filter(id => id !== undefined && id !== null);
+
+        const resFirst = await fetch(`${SUPABASE_URL}/${table}?id=eq.${encodeURIComponent(firstId)}`, {
+          method: 'PATCH',
+          headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+          body: JSON.stringify({ nilai })
+        });
+        if(!resFirst.ok) throw new Error('Gagal menyimpan (status ' + resFirst.status + ')');
+
+        if(restIds.length > 0){
+          const idsParam = restIds.map(id => encodeURIComponent(id)).join(',');
+          const resRest = await fetch(`${SUPABASE_URL}/${table}?id=in.(${idsParam})`, {
+            method: 'PATCH',
+            headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+            body: JSON.stringify({ nilai: 0 })
+          });
+          if(!resRest.ok) throw new Error('Gagal menyimpan (status ' + resRest.status + ')');
+        }
+
+        sukses++;
+      }catch(errRow){
+        console.error('Gagal menyimpan nilai kolektif:', label, errRow);
+        gagal.push(`${label}: gagal disimpan, coba lagi.`);
+      }
+    }
+    return { sukses, gagal };
+  }
+
+  function tampilkanHasilSimpanNilai(sukses, gagal){
+    if(gagal.length === 0){
+      uploadNilaiMsg.textContent = `Berhasil memperbarui nilai untuk ${sukses} siswa.`;
+      uploadNilaiMsg.className = 'form-msg success';
+    } else {
+      uploadNilaiMsg.innerHTML = `Berhasil: ${sukses} siswa. Gagal/dilewati: ${gagal.length}.<br>` +
+        gagal.slice(0, 8).map(g => escapeHtml(g)).join('<br>') +
+        (gagal.length > 8 ? `<br>...dan ${gagal.length - 8} lainnya.` : '');
+      uploadNilaiMsg.className = 'form-msg error';
+    }
+  }
+
+  // ================= Modal notifikasi: siswa belum di-mapping =================
+  const mappingWarningBackdrop = document.getElementById('mappingWarningBackdrop');
+  const mappingWarningList = document.getElementById('mappingWarningList');
+
+  function showMappingWarningModal(entriesBelumMapping){
+    mappingWarningList.innerHTML = (entriesBelumMapping && entriesBelumMapping.length)
+      ? '<b>Siswa yang belum ter-mapping:</b><br>' + entriesBelumMapping.map(e => escapeHtml(e.label)).join('<br>')
+      : '';
+    mappingWarningBackdrop.classList.add('open');
+  }
+  function closeMappingWarningModal(){
+    mappingWarningBackdrop.classList.remove('open');
+  }
+  document.getElementById('btnTutupMappingWarning').addEventListener('click', closeMappingWarningModal);
+  mappingWarningBackdrop.addEventListener('click', (e)=>{
+    if(e.target === mappingWarningBackdrop) closeMappingWarningModal();
+  });
+
+  // ---------- Pencocokan siswa dengan baris di tabel "daftarnilai" ----------
+  // Kunci pencocokan: Nama Siswa + NISN + Kelas + Mata Pelajaran (semua harus
+  // sama persis, tidak peka huruf besar/kecil & spasi di ujung diabaikan),
+  // sesuai baris yang sudah di-mapping guru lewat menu Daftar Nilai Siswa.
+  function buatKunciMappingNilai(namaSiswa, nisn, kelas, mataPelajaran){
+    return [namaSiswa, nisn, kelas, mataPelajaran]
+      .map(v => String(v ?? '').trim().toLowerCase())
+      .join('|');
+  }
+
+  async function lookupDaftarNilaiRows(entries){
+    const nisnUnik = [...new Set(entries.map(e => e.nisn).filter(v => v !== undefined && v !== null && v !== ''))];
+    const peta = new Map();
+    if(nisnUnik.length === 0) return peta;
+    const nisnFilter = nisnUnik.map(n => encodeURIComponent(n)).join(',');
+    const url = `${SUPABASE_URL}/${TABLE_DAFTARNILAI}?select=id,nama_siswa,nisn,kelas,mata_pelajaran&nisn=in.(${nisnFilter})`;
+    const res = await fetch(url, { headers: sbHeaders() });
+    if(!res.ok) throw new Error('Gagal memeriksa mapping siswa (status ' + res.status + ')');
+    const rows = await res.json();
+    rows.forEach(r => {
+      const key = buatKunciMappingNilai(r.nama_siswa, r.nisn, r.kelas, r.mata_pelajaran);
+      // Jika ada duplikat kunci (seharusnya tidak terjadi), baris terakhir yang dipakai.
+      peta.set(key, r.id);
+    });
+    return peta;
+  }
+
+  // ---------- Kirim nilai langsung dari tabel di modal ----------
+  btnSimpanTabelNilai.addEventListener('click', async ()=>{
+    if(!selectPenilaianNilai.value){
+      uploadNilaiMsg.textContent = 'Pilih jenis penilaian terlebih dahulu.';
+      uploadNilaiMsg.className = 'form-msg error';
+      return;
+    }
+    const config = currentJawabanConfig();
+    if(!config.table){
+      uploadNilaiMsg.textContent = 'Tabel jawaban untuk tab ini belum tersedia.';
+      uploadNilaiMsg.className = 'form-msg error';
+      return;
+    }
+
+    // Kolom tujuan di tabel "daftarnilai", diturunkan dari opsi Jenis
+    // Penilaian yang dipilih (UH1 -> uh1, UTS -> uts, UAS -> uas, dst).
+    const kolomNilai = selectPenilaianNilai.value.toLowerCase();
+
+    const inputs = tableUploadNilaiBody.querySelectorAll('.upload-nilai-input');
+    const entries = [];
+    let adaInputTidakValid = false;
+    inputs.forEach(input=>{
+      const val = input.value;
+      if(val === '' || val === null) return; // biarkan kosong -> tidak diubah
+      const idx = Number(input.dataset.idx);
+      const g = uploadNilaiSnapshot[idx];
+      const nilai = Number(val);
+      if(isNaN(nilai)){ adaInputTidakValid = true; return; }
+      entries.push({
+        kodeMapping: g.kode_mapping,
+        namaSiswa: g.nama_siswa,
+        nisn: g.nisn,
+        kelas: g.kelas,
+        mataPelajaran: g.mata_pelajaran,
+        nilai,
+        label: `${g.nama_siswa} (NISN ${g.nisn})`
+      });
+    });
+
+    if(adaInputTidakValid){
+      uploadNilaiMsg.textContent = 'Ada nilai yang tidak valid (bukan angka). Periksa kembali isian tabel.';
+      uploadNilaiMsg.className = 'form-msg error';
+      return;
+    }
+    if(entries.length === 0){
+      uploadNilaiMsg.textContent = 'Belum ada nilai yang diisi/diubah di tabel.';
+      uploadNilaiMsg.className = 'form-msg error';
+      return;
+    }
+
+    btnSimpanTabelNilai.disabled = true;
+    btnSimpanTabelNilai.textContent = 'Mengirim...';
+    uploadNilaiMsg.textContent = 'Mengirim...';
+    uploadNilaiMsg.className = 'form-msg';
+    try{
+      // 1) Cocokkan tiap siswa dengan baris mapping-nya di tabel "daftarnilai"
+      //    berdasarkan Nama Siswa + NISN + Kelas + Mata Pelajaran.
+      const petaDaftarNilai = await lookupDaftarNilaiRows(entries);
+      const entriesTerpetakan = [];
+      const entriesBelumMapping = [];
+      entries.forEach(e => {
+        const key = buatKunciMappingNilai(e.namaSiswa, e.nisn, e.kelas, e.mataPelajaran);
+        const idDaftarNilai = petaDaftarNilai.get(key);
+        if(idDaftarNilai){
+          entriesTerpetakan.push({ ...e, idDaftarNilai });
+        } else {
+          entriesBelumMapping.push(e);
+        }
+      });
+
+      // 2) Tulis HANYA nilainya ke kolom jenis penilaian terpilih (mis. uh1,
+      //    uts, uas) pada baris "daftarnilai" yang sudah cocok mapping-nya.
+      let suksesDaftarNilai = 0;
+      const gagalDaftarNilai = [];
+      for(const e of entriesTerpetakan){
+        try{
+          const resPatch = await fetch(`${SUPABASE_URL}/${TABLE_DAFTARNILAI}?id=eq.${encodeURIComponent(e.idDaftarNilai)}`, {
+            method: 'PATCH',
+            headers: sbHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+            body: JSON.stringify({ [kolomNilai]: e.nilai })
+          });
+          if(!resPatch.ok) throw new Error('Status ' + resPatch.status);
+          suksesDaftarNilai++;
+        }catch(errPatch){
+          console.error('Gagal menyimpan nilai ke daftarnilai:', e.label, errPatch);
+          gagalDaftarNilai.push(e.label);
+        }
+      }
+
+      // 3) Tetap perbarui juga total nilai di tabel jawaban (fitur lama)
+      //    supaya kolom "Nilai" pada Daftar Jawaban Siswa tidak berubah.
+      const entriesUntukJawaban = entries.map(e => ({ kodeMapping: e.kodeMapping, nisn: e.nisn, nilai: e.nilai, label: e.label }));
+      await saveNilaiKolektifBatch(entriesUntukJawaban, config.table);
+      await fetchJawaban();
+      // Muat ulang snapshot & tabel modal sesuai filter yang sama, supaya
+      // nilai yang baru tersimpan langsung terlihat.
+      uploadNilaiSnapshot = (lastJawabanGroupsForTemplate || []).slice();
+      renderUploadNilaiTable();
+
+      // 4) Ringkasan hasil pengiriman ke "daftarnilai"
+      const pesan = [];
+      if(suksesDaftarNilai > 0){
+        pesan.push(`Berhasil menyimpan nilai ${selectPenilaianNilai.value} ke Daftar Nilai untuk ${suksesDaftarNilai} siswa.`);
+      }
+      if(gagalDaftarNilai.length > 0){
+        pesan.push(`Gagal menyimpan untuk ${gagalDaftarNilai.length} siswa, coba lagi.`);
+      }
+      if(entriesBelumMapping.length > 0){
+        pesan.push(`${entriesBelumMapping.length} siswa belum ter-mapping di Daftar Nilai Siswa.`);
+      }
+      uploadNilaiMsg.innerHTML = pesan.length ? pesan.map(p => escapeHtml(p)).join('<br>') : 'Tidak ada nilai yang tersimpan.';
+      uploadNilaiMsg.className = (gagalDaftarNilai.length > 0 || entriesBelumMapping.length > 0) ? 'form-msg error' : 'form-msg success';
+
+      // 5) Jika ada siswa yang belum di-mapping, munculkan modal notifikasi.
+      if(entriesBelumMapping.length > 0){
+        showMappingWarningModal(entriesBelumMapping);
+      }
+    }catch(err){
+      console.error('Gagal mengirim nilai dari tabel:', err);
+      uploadNilaiMsg.textContent = 'Terjadi kesalahan saat mengirim. Silakan coba lagi.';
+      uploadNilaiMsg.className = 'form-msg error';
+    }finally{
+      btnSimpanTabelNilai.textContent = 'Kirim Nilai';
+      btnSimpanTabelNilai.disabled = !selectPenilaianNilai.value;
     }
   });
 
@@ -2512,6 +3076,7 @@
       closeJenisModal();
       closeForm();
       closeExamSettingModal();
+      closeMappingWarningModal();
     }
   });
 
