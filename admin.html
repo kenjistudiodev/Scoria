@@ -63,11 +63,37 @@
     object-fit:cover;
   }
   .nav-right{display:flex; align-items:center; gap:16px;}
+  .nav-schoolinfo{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:4px;
+  }
   .school-name{
     font-size:0.92rem;
     font-weight:500;
     color:var(--paper);
     max-width:32ch;
+  }
+  .term-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.66rem;
+    letter-spacing:0.02em;
+    color:var(--gold);
+    background:rgba(255,201,60,0.14);
+    border:1px solid rgba(255,201,60,0.4);
+    padding:2px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .term-badge .dot{
+    width:5px; height:5px;
+    border-radius:50%;
+    background:var(--gold);
+    flex-shrink:0;
   }
   .admin-account{
     display:flex; align-items:center; gap:8px;
@@ -279,7 +305,7 @@
 
   @media (max-width:520px){
     .menu-grid{grid-template-columns:repeat(3,1fr);}
-    .school-name{display:none;}
+    .nav-schoolinfo{display:none;}
   }
 </style>
 </head>
@@ -290,7 +316,10 @@
     <div class="school-logo" id="schoolLogo">SMA</div>
   </div>
   <div class="nav-right">
-    <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
     <div class="admin-account">
       <span class="avatar">AD</span>
       <span class="admin-name">Admin</span>
@@ -424,7 +453,7 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
 
     try{
-      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo&limit=1`, {
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, {
         headers:{
           "apikey": SUPABASE_ANON_KEY,
           "Authorization": "Bearer " + SUPABASE_ANON_KEY
@@ -438,6 +467,19 @@
       if(profil.nama_sekolah){
         document.getElementById('schoolName').textContent = profil.nama_sekolah;
       }
+
+      const termBadgeText = document.getElementById('termBadgeText');
+      if(termBadgeText){
+        const semester = (profil.semester || '').trim();
+        const tahunPelajaran = (profil.tahun_pelajaran || '').trim();
+        if(semester || tahunPelajaran){
+          termBadgeText.textContent = [semester ? 'Semester ' + semester : '', tahunPelajaran].filter(Boolean).join(' • ');
+        } else {
+          const termBadge = document.getElementById('termBadge');
+          if(termBadge) termBadge.style.display = 'none';
+        }
+      }
+
       if(profil.logo){
         const logoEl = document.getElementById('schoolLogo');
         logoEl.innerHTML = '';
@@ -480,6 +522,7 @@
       siswaValueEl.textContent = '0';
     }
   })();
+
   const sheetBackdrop = document.getElementById('sheetBackdrop');
   document.getElementById('openMenuBtn').addEventListener('click', () => {
     sheetBackdrop.classList.add('open');
