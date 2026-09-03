@@ -504,6 +504,7 @@
         }
         throw new Error(errBody || ('Status ' + res.status));
       }
+
       setFormMsg(editingId ? 'Perubahan berhasil disimpan.' : 'Rombel baru berhasil ditambahkan.', 'ok');
       enterAddMode();
       await loadRombel();
