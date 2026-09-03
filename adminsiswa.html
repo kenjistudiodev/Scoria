@@ -692,7 +692,7 @@
     <div class="panel panel-wide">
       <div class="panel-head">
         <h3>Daftar Nilaiku</h3>
-        <input type="text" class="panel-search" placeholder="Cari mata pelajaran...">
+        <input type="text" class="panel-search" id="cariNilaikuInput" placeholder="Cari mata pelajaran...">
       </div>
       <p class="scroll-hint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 6 15 12 9 18"/></svg>
@@ -701,25 +701,18 @@
       <div class="table-wrap">
         <table class="preview-table" id="tableNilaiku">
           <thead>
-            <tr><th>No</th><th>Mapel</th><th>Jenis Penilaian</th><th>Nilai</th><th>Status</th></tr>
+            <tr><th>No</th><th>Mapel</th><th>Semester</th><th>Nilai Akhir (NR)</th><th>Status</th></tr>
           </thead>
-          <tbody>
-            <tr><td>1</td><td>Matematika</td><td>Ulangan Harian</td><td>88</td><td><span class="badge badge-ok">Tuntas</span></td></tr>
-            <tr><td>2</td><td>Matematika</td><td>UTS</td><td>79</td><td><span class="badge badge-ok">Tuntas</span></td></tr>
-            <tr><td>3</td><td>Bahasa Indonesia</td><td>Ulangan Harian</td><td>65</td><td><span class="badge badge-no">Belum Tuntas</span></td></tr>
-            <tr><td>4</td><td>IPA</td><td>UTS</td><td>91</td><td><span class="badge badge-ok">Tuntas</span></td></tr>
-            <tr><td>5</td><td>IPS</td><td>Ulangan Harian</td><td>72</td><td><span class="badge badge-no">Belum Tuntas</span></td></tr>
+          <tbody id="tableNilaikuBody">
+            <tr><td colspan="5">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
       <div class="panel-foot">
-        <span>Menampilkan 1 - 5 dari 12 entri</span>
+        <span id="entriesInfoNilaiku">Menampilkan 0 entri</span>
         <div class="pager">
-          <button disabled>Sebelumnya</button>
-          <button class="active">1</button>
-          <button>2</button>
-          <button>3</button>
-          <button>Berikutnya</button>
+          <button type="button" id="btnPrevNilaiku" disabled>Sebelumnya</button>
+          <button type="button" id="btnNextNilaiku" disabled>Berikutnya</button>
         </div>
       </div>
     </div>
@@ -730,7 +723,7 @@
     <div class="panel panel-wide">
       <div class="panel-head">
         <h3>Riwayat Ujian</h3>
-        <input type="text" class="panel-search" placeholder="Cari ujian...">
+        <input type="text" class="panel-search" id="cariUjianInput" placeholder="Cari ujian...">
       </div>
       <p class="scroll-hint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 6 15 12 9 18"/></svg>
@@ -739,21 +732,18 @@
       <div class="table-wrap">
         <table class="preview-table" id="tableUjian">
           <thead>
-            <tr><th>No</th><th>Judul Ujian</th><th>Mapel</th><th>Tanggal</th><th>Nilai</th><th>Status</th></tr>
+            <tr><th>No</th><th>Kode Ujian</th><th>Mapel</th><th>Tanggal</th><th>Nilai</th><th>Status</th></tr>
           </thead>
-          <tbody>
-            <tr><td>1</td><td>Ulangan Harian Bab 1</td><td>Matematika</td><td>12 Agu 2026</td><td>88</td><td><span class="badge badge-ok">Selesai</span></td></tr>
-            <tr><td>2</td><td>UTS Semester Ganjil</td><td>Bahasa Indonesia</td><td>20 Agu 2026</td><td>65</td><td><span class="badge badge-ok">Selesai</span></td></tr>
-            <tr><td>3</td><td>Kuis Bab 2</td><td>IPA</td><td>28 Agu 2026</td><td>–</td><td><span class="badge badge-info">Belum Dikerjakan</span></td></tr>
+          <tbody id="tableUjianBody">
+            <tr><td colspan="6">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
       <div class="panel-foot">
-        <span>Menampilkan 1 - 3 dari 3 entri</span>
+        <span id="entriesInfoUjian">Menampilkan 0 entri</span>
         <div class="pager">
-          <button disabled>Sebelumnya</button>
-          <button class="active">1</button>
-          <button disabled>Berikutnya</button>
+          <button type="button" id="btnPrevUjian" disabled>Sebelumnya</button>
+          <button type="button" id="btnNextUjian" disabled>Berikutnya</button>
         </div>
       </div>
     </div>
@@ -949,6 +939,405 @@
       return null;
     }
   })();
+
+  // ================= Daftar Nilaiku (preview di Beranda) =================
+  // Sumber data: tabel "daftarnilai", difilter nama_siswa + nisn milik siswa
+  // yang sedang login saja (memakai identitas dari "datasiswa", bukan input
+  // bebas), supaya siswa lain tidak pernah ikut tampil di sini.
+  const NILAIKU_PAGE_SIZE = 5;
+  let currentPageNilaiku = 0;
+  let searchTermNilaiku = '';
+  let lastNilaikuRows = [];
+
+  const tableNilaikuBody = document.getElementById('tableNilaikuBody');
+  const entriesInfoNilaiku = document.getElementById('entriesInfoNilaiku');
+  const btnPrevNilaiku = document.getElementById('btnPrevNilaiku');
+  const btnNextNilaiku = document.getElementById('btnNextNilaiku');
+  const cariNilaikuInput = document.getElementById('cariNilaikuInput');
+
+  // NH & NR dihitung dengan rumus yang sama seperti di halaman guru:
+  // NH = rata-rata UH1..UH-sejumlah "Jumlah UH" (UH kosong dihitung 0).
+  // NR = (NH + UTS + UAS) : 3 (UTS/UAS kosong dihitung 0).
+  function hitungNHNilaiku(row){
+    const jumlahUh = Number(row.jumlah_uh);
+    if(!jumlahUh || jumlahUh < 1) return null;
+    const kolomUh = ['uh1','uh2','uh3','uh4','uh5','uh6'].slice(0, jumlahUh);
+    let total = 0;
+    kolomUh.forEach(k => {
+      const v = row[k];
+      const n = Number(v);
+      const valid = !(v === null || v === undefined || v === '' || isNaN(n));
+      total += valid ? n : 0;
+    });
+    return total / jumlahUh;
+  }
+
+  function hitungNRNilaiku(row){
+    const nh = hitungNHNilaiku(row);
+    const nhValid = (nh === null) ? 0 : nh;
+    const uts = Number(row.uts);
+    const utsValid = (row.uts === null || row.uts === undefined || row.uts === '' || isNaN(uts)) ? 0 : uts;
+    const uas = Number(row.uas);
+    const uasValid = (row.uas === null || row.uas === undefined || row.uas === '' || isNaN(uas)) ? 0 : uas;
+    return (nhValid + utsValid + uasValid) / 3;
+  }
+
+  function formatNilaiHitungNilaiku(v){
+    if(v === null || v === undefined || isNaN(v)) return '-';
+    const dibulatkan = Math.round(v * 100) / 100;
+    let str = dibulatkan.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+    return str.replace('.', ',');
+  }
+
+  // Status Tuntas/Belum Tuntas dibanding KKM. Kalau KKM belum diisi guru,
+  // status belum bisa ditentukan.
+  function hitungStatusNilaiku(row){
+    const kkm = Number(row.kkm);
+    if(row.kkm === null || row.kkm === undefined || row.kkm === '' || isNaN(kkm)) return null;
+    const nr = hitungNRNilaiku(row);
+    if(nr === null || isNaN(nr)) return null;
+    return nr < kkm ? 'Belum Tuntas' : 'Tuntas';
+  }
+
+  function statusBadgeNilaiku(status){
+    if(status === 'Tuntas') return '<span class="badge badge-ok">Tuntas</span>';
+    if(status === 'Belum Tuntas') return '<span class="badge badge-no">Belum Tuntas</span>';
+    return '<span class="badge badge-info">Menunggu Nilai</span>';
+  }
+
+  function escapeHtmlNilaiku(str){
+    if(str === null || str === undefined) return '';
+    return String(str)
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+      .replaceAll('"','&quot;');
+  }
+
+  async function fetchDaftarNilaikuRows(namaSiswa, nisn){
+    const url = `${SUPABASE_URL}/daftarnilai` +
+      `?select=mata_pelajaran,semester,tahun_pelajaran,kkm,jumlah_uh,uh1,uh2,uh3,uh4,uh5,uh6,uts,uas` +
+      `&nama_siswa=eq.${encodeURIComponent(namaSiswa)}` +
+      `&nisn=eq.${encodeURIComponent(nisn)}` +
+      `&order=tahun_pelajaran.desc,semester.desc,mata_pelajaran.asc`;
+    const res = await fetch(url, {
+      headers:{
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY
+      }
+    });
+    if(!res.ok) throw new Error('Status ' + res.status);
+    return await res.json();
+  }
+
+  function renderNilaikuTable(rows, offset){
+    if(!rows || rows.length === 0){
+      tableNilaikuBody.innerHTML = `<tr><td colspan="5">Belum ada data nilai untukmu.</td></tr>`;
+      return;
+    }
+    tableNilaikuBody.innerHTML = rows.map((r, idx) => {
+      const status = hitungStatusNilaiku(r);
+      return `
+        <tr>
+          <td>${offset + idx + 1}</td>
+          <td>${escapeHtmlNilaiku(r.mata_pelajaran ?? '-')}</td>
+          <td>${escapeHtmlNilaiku(r.semester ?? '-')}</td>
+          <td>${formatNilaiHitungNilaiku(hitungNRNilaiku(r))}</td>
+          <td>${statusBadgeNilaiku(status)}</td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function renderNilaikuFoot(offset, shownCount, total){
+    entriesInfoNilaiku.textContent = total === 0
+      ? 'Menampilkan 0 entri'
+      : `Menampilkan ${offset + 1} - ${offset + shownCount} dari ${total} entri`;
+    btnPrevNilaiku.disabled = currentPageNilaiku === 0;
+    btnNextNilaiku.disabled = offset + shownCount >= total;
+  }
+
+  function renderNilaikuPage(){
+    let rows = lastNilaikuRows;
+    const term = searchTermNilaiku.trim().toLowerCase();
+    if(term){
+      rows = rows.filter(r => String(r.mata_pelajaran ?? '').toLowerCase().includes(term));
+    }
+    const total = rows.length;
+    const offset = currentPageNilaiku * NILAIKU_PAGE_SIZE;
+    const pageRows = rows.slice(offset, offset + NILAIKU_PAGE_SIZE);
+    renderNilaikuTable(pageRows, offset);
+    renderNilaikuFoot(offset, pageRows.length, total);
+  }
+
+  async function loadDaftarNilaiku(){
+    tableNilaikuBody.innerHTML = `<tr><td colspan="5">Memuat data...</td></tr>`;
+    try{
+      const siswa = currentSiswaData || await siswaProfilePromise;
+      const namaSiswa = (siswa && siswa.nama_siswa) || siswaSession.nama_siswa || siswaSession.nama || '';
+      const nisn = (siswa && siswa.nisn) || siswaSession.nisn || '';
+
+      if(!namaSiswa || !nisn){
+        lastNilaikuRows = [];
+        tableNilaikuBody.innerHTML = `<tr><td colspan="5">Identitas siswa (nama/NISN) tidak ditemukan.</td></tr>`;
+        renderNilaikuFoot(0, 0, 0);
+        return;
+      }
+
+      lastNilaikuRows = await fetchDaftarNilaikuRows(namaSiswa, nisn);
+      currentPageNilaiku = 0;
+      renderNilaikuPage();
+    }catch(err){
+      console.error('Gagal memuat Daftar Nilaiku:', err);
+      tableNilaikuBody.innerHTML = `<tr><td colspan="5">Gagal memuat data nilai.</td></tr>`;
+      renderNilaikuFoot(0, 0, 0);
+    }
+  }
+
+  let cariNilaikuDebounce = null;
+  cariNilaikuInput.addEventListener('input', (e) => {
+    searchTermNilaiku = e.target.value;
+    clearTimeout(cariNilaikuDebounce);
+    cariNilaikuDebounce = setTimeout(() => {
+      currentPageNilaiku = 0;
+      renderNilaikuPage();
+    }, 300);
+  });
+
+  btnPrevNilaiku.addEventListener('click', () => {
+    if(currentPageNilaiku > 0){
+      currentPageNilaiku--;
+      renderNilaikuPage();
+    }
+  });
+  btnNextNilaiku.addEventListener('click', () => {
+    const term = searchTermNilaiku.trim().toLowerCase();
+    const total = term
+      ? lastNilaikuRows.filter(r => String(r.mata_pelajaran ?? '').toLowerCase().includes(term)).length
+      : lastNilaikuRows.length;
+    const maxPage = Math.floor(Math.max(total - 1, 0) / NILAIKU_PAGE_SIZE);
+    if(currentPageNilaiku < maxPage){
+      currentPageNilaiku++;
+      renderNilaikuPage();
+    }
+  });
+
+  loadDaftarNilaiku();
+
+  // ================= Riwayat Ujian (preview di Beranda) =================
+  // Sumber data: tabel "jawabanujianessay" dan "jawabanujianpilgan", yang
+  // masing-masing menyimpan SATU BARIS PER BUTIR SOAL untuk setiap ujian
+  // yang sudah dikerjakan siswa. Kedua tabel difilter nama_siswa + nisn
+  // milik siswa yang login, lalu dikelompokkan per "kode_mapping" supaya
+  // satu baris di tabel ini mewakili satu kali pengerjaan ujian.
+  // - "jawabanujianpilgan" punya kolom "nilai" per soal (dikoreksi otomatis
+  //   saat siswa submit), jadi Nilai = jumlah "nilai" semua butir soalnya.
+  // - "jawabanujianessay" tidak punya nilai otomatis (perlu dikoreksi guru),
+  //   jadi statusnya ditampilkan "Menunggu Penilaian".
+  const UJIAN_PAGE_SIZE = 5;
+  let currentPageUjian = 0;
+  let searchTermUjian = '';
+  let lastRiwayatUjianRows = [];
+
+  const tableUjianBody = document.getElementById('tableUjianBody');
+  const entriesInfoUjian = document.getElementById('entriesInfoUjian');
+  const btnPrevUjian = document.getElementById('btnPrevUjian');
+  const btnNextUjian = document.getElementById('btnNextUjian');
+  const cariUjianInput = document.getElementById('cariUjianInput');
+
+  function escapeHtmlUjian(str){
+    if(str === null || str === undefined) return '';
+    return String(str)
+      .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
+      .replaceAll('"','&quot;');
+  }
+
+  function formatTanggalUjian(iso){
+    if(!iso) return '-';
+    try{
+      const d = new Date(iso);
+      if(isNaN(d.getTime())) return '-';
+      return d.toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' });
+    }catch(e){
+      return '-';
+    }
+  }
+
+  async function fetchJawabanUjianRows(tabel, kolomSelect, namaSiswa, nisn){
+    const url = `${SUPABASE_URL}/${tabel}` +
+      `?select=${kolomSelect}` +
+      `&nama_siswa=eq.${encodeURIComponent(namaSiswa)}` +
+      `&nisn=eq.${encodeURIComponent(nisn)}`;
+    const res = await fetch(url, {
+      headers:{
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY
+      }
+    });
+    if(!res.ok) throw new Error('Status ' + res.status);
+    return await res.json();
+  }
+
+  // Kelompokkan baris-per-soal menjadi satu baris per pengerjaan ujian
+  // (per kode_mapping), lalu jumlahkan nilai (khusus pilgan yang punya nilai).
+  function kelompokkanRiwayatUjian(rowsPilgan, rowsEssay){
+    const map = new Map();
+
+    rowsPilgan.forEach(r => {
+      const key = 'pilgan|' + (r.kode_mapping || '');
+      if(!map.has(key)){
+        map.set(key, {
+          kode_mapping: r.kode_mapping || '-',
+          mata_pelajaran: r.mata_pelajaran || '-',
+          kkm: r.kkm,
+          jenis: 'pilgan',
+          nilai: 0,
+          waktu_pengiriman: r.waktu_pengiriman || null
+        });
+      }
+      const grup = map.get(key);
+      const n = Number(r.nilai);
+      grup.nilai += isNaN(n) ? 0 : n;
+      if(r.waktu_pengiriman && (!grup.waktu_pengiriman || r.waktu_pengiriman > grup.waktu_pengiriman)){
+        grup.waktu_pengiriman = r.waktu_pengiriman;
+      }
+    });
+
+    rowsEssay.forEach(r => {
+      const key = 'essay|' + (r.kode_mapping || '');
+      if(!map.has(key)){
+        map.set(key, {
+          kode_mapping: r.kode_mapping || '-',
+          mata_pelajaran: r.mata_pelajaran || '-',
+          kkm: r.kkm,
+          jenis: 'essay',
+          nilai: null,
+          waktu_pengiriman: r.waktu_pengiriman || null
+        });
+      } else {
+        const grup = map.get(key);
+        if(r.waktu_pengiriman && (!grup.waktu_pengiriman || r.waktu_pengiriman > grup.waktu_pengiriman)){
+          grup.waktu_pengiriman = r.waktu_pengiriman;
+        }
+      }
+    });
+
+    return Array.from(map.values()).sort((a, b) => {
+      const ta = a.waktu_pengiriman || '';
+      const tb = b.waktu_pengiriman || '';
+      return tb.localeCompare(ta);
+    });
+  }
+
+  function statusBadgeUjian(grup){
+    if(grup.jenis === 'essay'){
+      return '<span class="badge badge-info">Menunggu Penilaian</span>';
+    }
+    const kkm = Number(grup.kkm);
+    if(grup.kkm === null || grup.kkm === undefined || grup.kkm === '' || isNaN(kkm)){
+      return '<span class="badge badge-ok">Selesai</span>';
+    }
+    return grup.nilai >= kkm
+      ? '<span class="badge badge-ok">Tuntas</span>'
+      : '<span class="badge badge-no">Belum Tuntas</span>';
+  }
+
+  function renderRiwayatUjianTable(rows, offset){
+    if(!rows || rows.length === 0){
+      tableUjianBody.innerHTML = `<tr><td colspan="6">Belum ada riwayat ujian.</td></tr>`;
+      return;
+    }
+    tableUjianBody.innerHTML = rows.map((r, idx) => `
+      <tr>
+        <td>${offset + idx + 1}</td>
+        <td>${escapeHtmlUjian(r.kode_mapping)}</td>
+        <td>${escapeHtmlUjian(r.mata_pelajaran)}</td>
+        <td>${formatTanggalUjian(r.waktu_pengiriman)}</td>
+        <td>${r.nilai === null ? '–' : r.nilai}</td>
+        <td>${statusBadgeUjian(r)}</td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRiwayatUjianFoot(offset, shownCount, total){
+    entriesInfoUjian.textContent = total === 0
+      ? 'Menampilkan 0 entri'
+      : `Menampilkan ${offset + 1} - ${offset + shownCount} dari ${total} entri`;
+    btnPrevUjian.disabled = currentPageUjian === 0;
+    btnNextUjian.disabled = offset + shownCount >= total;
+  }
+
+  function riwayatUjianTerfilter(){
+    const term = searchTermUjian.trim().toLowerCase();
+    if(!term) return lastRiwayatUjianRows;
+    return lastRiwayatUjianRows.filter(r =>
+      String(r.kode_mapping ?? '').toLowerCase().includes(term) ||
+      String(r.mata_pelajaran ?? '').toLowerCase().includes(term)
+    );
+  }
+
+  function renderRiwayatUjianPage(){
+    const rows = riwayatUjianTerfilter();
+    const total = rows.length;
+    const offset = currentPageUjian * UJIAN_PAGE_SIZE;
+    const pageRows = rows.slice(offset, offset + UJIAN_PAGE_SIZE);
+    renderRiwayatUjianTable(pageRows, offset);
+    renderRiwayatUjianFoot(offset, pageRows.length, total);
+  }
+
+  async function loadRiwayatUjian(){
+    tableUjianBody.innerHTML = `<tr><td colspan="6">Memuat data...</td></tr>`;
+    try{
+      const siswa = currentSiswaData || await siswaProfilePromise;
+      const namaSiswa = (siswa && siswa.nama_siswa) || siswaSession.nama_siswa || siswaSession.nama || '';
+      const nisn = (siswa && siswa.nisn) || siswaSession.nisn || '';
+
+      if(!namaSiswa || !nisn){
+        lastRiwayatUjianRows = [];
+        tableUjianBody.innerHTML = `<tr><td colspan="6">Identitas siswa (nama/NISN) tidak ditemukan.</td></tr>`;
+        renderRiwayatUjianFoot(0, 0, 0);
+        return;
+      }
+
+      const [rowsPilgan, rowsEssay] = await Promise.all([
+        fetchJawabanUjianRows('jawabanujianpilgan', 'kode_mapping,mata_pelajaran,kkm,nilai,waktu_pengiriman', namaSiswa, nisn),
+        fetchJawabanUjianRows('jawabanujianessay', 'kode_mapping,mata_pelajaran,kkm,waktu_pengiriman', namaSiswa, nisn)
+      ]);
+
+      lastRiwayatUjianRows = kelompokkanRiwayatUjian(rowsPilgan, rowsEssay);
+      currentPageUjian = 0;
+      renderRiwayatUjianPage();
+    }catch(err){
+      console.error('Gagal memuat Riwayat Ujian:', err);
+      tableUjianBody.innerHTML = `<tr><td colspan="6">Gagal memuat data riwayat ujian.</td></tr>`;
+      renderRiwayatUjianFoot(0, 0, 0);
+    }
+  }
+
+  let cariUjianDebounce = null;
+  cariUjianInput.addEventListener('input', (e) => {
+    searchTermUjian = e.target.value;
+    clearTimeout(cariUjianDebounce);
+    cariUjianDebounce = setTimeout(() => {
+      currentPageUjian = 0;
+      renderRiwayatUjianPage();
+    }, 300);
+  });
+
+  btnPrevUjian.addEventListener('click', () => {
+    if(currentPageUjian > 0){
+      currentPageUjian--;
+      renderRiwayatUjianPage();
+    }
+  });
+  btnNextUjian.addEventListener('click', () => {
+    const total = riwayatUjianTerfilter().length;
+    const maxPage = Math.floor(Math.max(total - 1, 0) / UJIAN_PAGE_SIZE);
+    if(currentPageUjian < maxPage){
+      currentPageUjian++;
+      renderRiwayatUjianPage();
+    }
+  });
+
+  loadRiwayatUjian();
 
   // ---------- Ambil logo & nama sekolah dari tabel "profil" ----------
   (async function loadSchoolProfile(){
@@ -1285,14 +1674,44 @@
     infoStartError.textContent = '';
   }
 
-  // Cek apakah kode_mapping ini punya butir soal di tabel daftar_soal_essay
-  // atau daftar_soal_pilgan, untuk menentukan halaman ujian mana yang dituju.
+  // Tentukan halaman ujian & tabel soal berdasarkan akhiran Kode Mapping:
+  // "-PG" -> validasi & tarik soal dari tabel daftar_soal_pilgan (ujianpilihanganda.html)
+  // "-ES" -> validasi & tarik soal dari tabel daftar_soal_essay (ujianessay.html)
+  // Kalau Kode Mapping lama tidak punya akhiran -PG/-ES, tetap dicoba dengan
+  // cara lama (cek soal Essay dulu, baru Pilihan Ganda) supaya kode lama masih bisa dibuka.
   async function cariJenisSoal(kodeMapping){
     const headers = {
       "apikey": SUPABASE_ANON_KEY,
       "Authorization": "Bearer " + SUPABASE_ANON_KEY
     };
 
+    const kodeUpper = kodeMapping.toUpperCase();
+
+    if(kodeUpper.endsWith('-PG')){
+      const resPilgan = await fetch(
+        `${SUPABASE_URL}/daftar_soal_pilgan?kode_mapping=eq.${encodeURIComponent(kodeMapping)}&select=kode_soal&limit=1`,
+        { headers }
+      );
+      if(resPilgan.ok){
+        const rows = await resPilgan.json();
+        if(rows && rows.length > 0) return 'pilgan';
+      }
+      return null;
+    }
+
+    if(kodeUpper.endsWith('-ES')){
+      const resEssay = await fetch(
+        `${SUPABASE_URL}/daftar_soal_essay?kode_mapping=eq.${encodeURIComponent(kodeMapping)}&select=kode_soal&limit=1`,
+        { headers }
+      );
+      if(resEssay.ok){
+        const rows = await resEssay.json();
+        if(rows && rows.length > 0) return 'essay';
+      }
+      return null;
+    }
+
+    // Fallback untuk Kode Mapping lama tanpa akhiran -ES/-PG
     const resEssay = await fetch(
       `${SUPABASE_URL}/daftar_soal_essay?kode_mapping=eq.${encodeURIComponent(kodeMapping)}&select=kode_soal&limit=1`,
       { headers }
@@ -1329,7 +1748,8 @@
         window.location.href = `ujianessay.html?kode=${encodeURIComponent(kodeMapping)}`;
         return;
       } else if(jenis === 'pilgan'){
-        showInfoStartError('Ujian Pilihan Ganda untuk kode ini belum bisa dibuka, akan segera tersedia.');
+        window.location.href = `ujianpilihanganda.html?kode=${encodeURIComponent(kodeMapping)}`;
+        return;
       } else {
         showInfoStartError('Soal untuk ujian ini belum tersedia. Hubungi guru Anda.');
       }
