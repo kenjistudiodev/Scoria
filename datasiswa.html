@@ -773,6 +773,7 @@
         }
         throw new Error(errBody || ('Status ' + res.status));
       }
+
       setFormMsg(editingId ? 'Perubahan berhasil disimpan.' : 'Data siswa baru berhasil ditambahkan.', 'ok');
       enterAddMode();
       await loadSiswa();
