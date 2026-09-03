@@ -948,6 +948,7 @@
   }
 
   searchInput.addEventListener("input", renderList);
+
   async function loadGuru() {
     try {
       const res = await fetch(SUPABASE_REST + TABLE + "?select=*&order=tanggal_lahir.desc", {
