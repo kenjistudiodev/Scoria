@@ -649,10 +649,13 @@
     position:fixed; inset:0;
     background:rgba(59,46,99,0.45);
     opacity:0; visibility:hidden;
-    transition:opacity 0.2s ease;
+    transition:opacity 0.28s ease, visibility 0s linear 0.28s;
     z-index:40;
   }
-  .sheet-backdrop.open{opacity:1; visibility:visible;}
+  .sheet-backdrop.open{
+    opacity:1; visibility:visible;
+    transition:opacity 0.28s ease, visibility 0s linear 0s;
+  }
 
   .sheet{
     position:fixed;
@@ -663,7 +666,7 @@
     max-width:640px;
     margin:0 auto;
     transform:translateY(100%);
-    transition:transform 0.28s cubic-bezier(.2,.8,.3,1);
+    transition:transform 0.32s cubic-bezier(.32,.72,.33,1);
     z-index:41;
     max-height:78vh;
     overflow-y:auto;
@@ -787,43 +790,43 @@
     <div class="stat-card" style="--stat-bg:var(--green);">
       <div class="stat-top">
         <div>
-          <p class="stat-value" id="statTuntas">58</p>
+          <p class="stat-value" id="statTuntas">0</p>
           <p class="stat-label">Siswa Tuntas</p>
         </div>
         <span class="stat-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>
         </span>
       </div>
-      <div class="stat-bar"><div class="stat-bar-fill" style="width:73%;"></div></div>
-      <p class="stat-foot" id="statTuntasFoot">58/80 &middot; 73%</p>
+      <div class="stat-bar"><div class="stat-bar-fill" id="statTuntasBar" style="width:0%;"></div></div>
+      <p class="stat-foot" id="statTuntasFoot">0/0 &middot; 0%</p>
     </div>
 
     <div class="stat-card" style="--stat-bg:var(--brick);">
       <div class="stat-top">
         <div>
-          <p class="stat-value" id="statBelumTuntas">22</p>
+          <p class="stat-value" id="statBelumTuntas">0</p>
           <p class="stat-label">Siswa Belum Tuntas</p>
         </div>
         <span class="stat-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3.5l9.5 16.5H2.5z"/><line x1="12" y1="10" x2="12" y2="14.5"/><circle cx="12" cy="17.2" r="0.6" fill="currentColor" stroke="none"/></svg>
         </span>
       </div>
-      <div class="stat-bar"><div class="stat-bar-fill" style="width:27%;"></div></div>
-      <p class="stat-foot" id="statBelumTuntasFoot">22/80 &middot; 27%</p>
+      <div class="stat-bar"><div class="stat-bar-fill" id="statBelumTuntasBar" style="width:0%;"></div></div>
+      <p class="stat-foot" id="statBelumTuntasFoot">0/0 &middot; 0%</p>
     </div>
 
     <div class="stat-card" style="--stat-bg:var(--orange);">
       <div class="stat-top">
         <div>
-          <p class="stat-value" id="statRata">78</p>
+          <p class="stat-value" id="statRata">0</p>
           <p class="stat-label">Rata-rata Nilai</p>
         </div>
         <span class="stat-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="5" y1="20" x2="5" y2="12"/><line x1="12" y1="20" x2="12" y2="7"/><line x1="19" y1="20" x2="19" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
         </span>
       </div>
-      <div class="stat-bar"><div class="stat-bar-fill" style="width:78%;"></div></div>
-      <p class="stat-foot">KKM 75</p>
+      <div class="stat-bar"><div class="stat-bar-fill" id="statRataBar" style="width:0%;"></div></div>
+      <p class="stat-foot" id="statRataFoot">Belum ada data nilai</p>
     </div>
   </div>
 
@@ -832,7 +835,7 @@
     <div class="panel panel-wide">
       <div class="panel-head">
         <h3>Daftar Nilai Siswa</h3>
-        <input type="text" class="panel-search" placeholder="Cari nama siswa...">
+        <input type="text" class="panel-search" id="searchNilaiSiswa" placeholder="Cari nama siswa...">
       </div>
       <p class="scroll-hint">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 6 15 12 9 18"/></svg>
@@ -844,24 +847,15 @@
             <tr><th>No</th><th>Nama</th><th>Kelas</th><th>Mapel</th><th>Nilai</th><th>Status</th></tr>
           </thead>
           <tbody id="tbodyNilaiSiswa">
-            <tr><td>1</td><td>Rindha Sekar Lestari</td><td>7A</td><td>Matematika</td><td>88</td><td><span class="badge badge-ok">Tuntas</span></td></tr>
-            <tr><td>2</td><td>Susi Widyastuti</td><td>7A</td><td>Matematika</td><td>65</td><td><span class="badge badge-no">Belum Tuntas</span></td></tr>
-            <tr><td>3</td><td>Santi Puspo Rini</td><td>7B</td><td>Matematika</td><td>91</td><td><span class="badge badge-ok">Tuntas</span></td></tr>
-            <tr><td>4</td><td>Sisila Putri</td><td>7B</td><td>Matematika</td><td>72</td><td><span class="badge badge-no">Belum Tuntas</span></td></tr>
-            <tr><td>5</td><td>Tari Lestari</td><td>8A</td><td>Matematika</td><td>84</td><td><span class="badge badge-ok">Tuntas</span></td></tr>
+            <tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">Memuat data...</td></tr>
           </tbody>
         </table>
       </div>
       <div class="panel-foot">
-        <span id="footNilaiSiswa">Menampilkan 1 - 5 dari 80 entri</span>
+        <span id="footNilaiSiswa">Menampilkan 0 dari 0 entri</span>
         <div class="pager">
-          <button disabled>Sebelumnya</button>
-          <button class="active">1</button>
-          <button>2</button>
-          <button>3</button>
-          <span>...</span>
-          <button>16</button>
-          <button>Berikutnya</button>
+          <button type="button" id="btnPrevNilaiSiswa" disabled>Sebelumnya</button>
+          <button type="button" id="btnNextNilaiSiswa" disabled>Berikutnya</button>
         </div>
       </div>
     </div>
@@ -871,16 +865,16 @@
         <h3>Ketuntasan Siswa</h3>
       </div>
       <div class="donut-wrap">
-        <div class="donut" style="--p1:73; --c1:var(--green); --c2:var(--brick);"></div>
+        <div class="donut" id="ketuntasanDonut" style="--p1:0; --c1:var(--green); --c2:var(--brick);"></div>
       </div>
       <div class="legend">
         <span><i style="background:var(--green);"></i>Tuntas</span>
         <span><i style="background:var(--brick);"></i>Belum Tuntas</span>
       </div>
       <div class="badge-row">
-        <span class="pill pill-green">T: 58</span>
-        <span class="pill pill-brick">BT: 22</span>
-        <span class="pill pill-blue">Total: 80</span>
+        <span class="pill pill-green" id="pillTuntas">T: 0</span>
+        <span class="pill pill-brick" id="pillBelum">BT: 0</span>
+        <span class="pill pill-blue" id="pillTotalNilai">Total: 0</span>
       </div>
     </div>
   </div>
@@ -897,63 +891,8 @@
       </p>
       <div class="compare-scroll">
       <div class="compare-list" id="compareKelas">
-        <div class="compare-row">
-          <span class="compare-label">7A</span>
-          <div class="compare-track"><div class="compare-fill" style="width:82%; background:var(--blue);"></div></div>
-          <span class="compare-num">82</span>
-        </div>
-        <div class="compare-row">
-          <span class="compare-label">7B</span>
-          <div class="compare-track"><div class="compare-fill" style="width:76%; background:var(--purple);"></div></div>
-          <span class="compare-num">76</span>
-        </div>
-        <div class="compare-row">
-          <span class="compare-label">8A</span>
-          <div class="compare-track"><div class="compare-fill" style="width:88%; background:var(--green);"></div></div>
-          <span class="compare-num">88</span>
-        </div>
-        <div class="compare-row">
-          <span class="compare-label">8B</span>
-          <div class="compare-track"><div class="compare-fill" style="width:70%; background:var(--orange);"></div></div>
-          <span class="compare-num">70</span>
-        </div>
-        <div class="compare-row">
-          <span class="compare-label">9A</span>
-          <div class="compare-track"><div class="compare-fill" style="width:80%; background:var(--brick);"></div></div>
-          <span class="compare-num">80</span>
-        </div>
+        <p style="text-align:center; color:var(--ink-soft); font-size:0.85rem; padding:20px 0;" id="compareKelasEmpty">Memuat data...</p>
       </div>
-      </div>
-    </div>
-
-    <div class="panel panel-wide">
-      <div class="panel-head">
-        <h3>Daftar Penilaian</h3>
-        <input type="text" class="panel-search" placeholder="Cari penilaian...">
-      </div>
-      <p class="scroll-hint">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 6 15 12 9 18"/></svg>
-        Geser tabel ke samping untuk melihat kolom lainnya
-      </p>
-      <div class="table-wrap">
-        <table class="preview-table">
-          <thead>
-            <tr><th>No</th><th>Mapel</th><th>Jenis Penilaian</th><th>Bobot</th><th>KKM</th><th>Action</th></tr>
-          </thead>
-          <tbody id="tbodyPenilaian">
-            <tr><td>1</td><td>Matematika</td><td>Ulangan Harian</td><td>30%</td><td>75</td><td><button class="btn-mini btn-edit">Edit</button><button class="btn-mini btn-del">Hapus</button></td></tr>
-            <tr><td>2</td><td>Matematika</td><td>UTS</td><td>30%</td><td>75</td><td><button class="btn-mini btn-edit">Edit</button><button class="btn-mini btn-del">Hapus</button></td></tr>
-            <tr><td>3</td><td>Matematika</td><td>UAS</td><td>40%</td><td>75</td><td><button class="btn-mini btn-edit">Edit</button><button class="btn-mini btn-del">Hapus</button></td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="panel-foot">
-        <span id="footPenilaian">Menampilkan 1 - 3 dari 3 entri</span>
-        <div class="pager">
-          <button disabled>Sebelumnya</button>
-          <button class="active">1</button>
-          <button disabled>Berikutnya</button>
-        </div>
       </div>
     </div>
   </div>
@@ -1155,12 +1094,12 @@
 
       const mapelList = rows.map(r => r.nama_mapel).filter(Boolean);
       renderDummyPenilaian(mapelList);
-      renderDummyNilaiSiswa(mapelList);
+      loadNilaiSiswa(mapelList);
     }catch(err){
       console.error('Gagal memuat mata pelajaran diampu:', err);
       profileMapel.textContent = 'Gagal memuat data mata pelajaran';
       renderDummyPenilaian([]);
-      renderDummyNilaiSiswa([]);
+      loadNilaiSiswa([]);
     }
   }
 
@@ -1206,42 +1145,322 @@
     }
   }
 
-  // ---------- Dummy "Daftar Nilai Siswa" mengikuti mapel yang diampu guru ----------
-  // Catatan: nama siswa, kelas, dan nilai masih data contoh (dummy). Nilai
-  // sungguhan akan ditarik dari tabel "daftarnilai" setelah hasil ujian essay
-  // dikoreksi. Untuk sekarang, kolom Mapel hanya diisi mata pelajaran yang
-  // benar-benar diampu guru yang login.
-  function renderDummyNilaiSiswa(mapelList){
-    const tbody = document.getElementById('tbodyNilaiSiswa');
-    const foot = document.getElementById('footNilaiSiswa');
-    if(!tbody) return;
+  // ---------- Perhitungan NR & Keterangan (disamakan dengan Rekap Nilai Rombel) ----------
+  function hitungNH(row){
+    const jumlahUh = Number(row.jumlah_uh);
+    if(!jumlahUh || jumlahUh < 1) return null;
+    const kolomUh = ['uh1','uh2','uh3','uh4','uh5','uh6'].slice(0, jumlahUh);
+    let total = 0;
+    kolomUh.forEach(k => {
+      const v = row[k];
+      const n = Number(v);
+      const nilaiValid = !(v === null || v === undefined || v === '' || isNaN(n));
+      total += nilaiValid ? n : 0;
+    });
+    return total / jumlahUh;
+  }
 
+  function hitungNR(row){
+    const nh = hitungNH(row);
+    const nhValid = (nh === null) ? 0 : nh;
+
+    const uts = Number(row.uts);
+    const utsValid = (row.uts === null || row.uts === undefined || row.uts === '' || isNaN(uts)) ? 0 : uts;
+
+    const uas = Number(row.uas);
+    const uasValid = (row.uas === null || row.uas === undefined || row.uas === '' || isNaN(uas)) ? 0 : uas;
+
+    return (nhValid + utsValid + uasValid) / 3;
+  }
+
+  function hitungKeteranganNilai(row){
+    const kkm = Number(row.kkm);
+    if(row.kkm === null || row.kkm === undefined || row.kkm === '' || isNaN(kkm)) return null;
+    const nr = hitungNR(row);
+    if(nr === null || isNaN(nr)) return null;
+    return nr < kkm ? 'Belum Tuntas' : 'Tuntas';
+  }
+
+  function formatNilaiSiswa(v){
+    if(v === null || v === undefined || isNaN(v)) return '-';
+    const dibulatkan = Math.round(v * 100) / 100;
+    let str = dibulatkan.toFixed(2).replace(/0+$/,'').replace(/\.$/,'');
+    return str.replace('.', ',');
+  }
+
+  // ---------- "Daftar Nilai Siswa" ditarik langsung dari tabel "daftarnilai" di Supabase ----------
+  // Hanya menampilkan baris nilai untuk mata pelajaran yang benar-benar diampu guru ini,
+  // supaya guru lain tidak melihat data mapel yang bukan miliknya.
+  const TABLE_DAFTARNILAI = "daftarnilai";
+  const NILAI_SISWA_PAGE_SIZE = 10;
+
+  let nilaiSiswaRows = [];
+  let currentPageNilaiSiswa = 0;
+  let searchTermNilaiSiswa = '';
+
+  const tbodyNilaiSiswaEl = document.getElementById('tbodyNilaiSiswa');
+  const footNilaiSiswaEl = document.getElementById('footNilaiSiswa');
+  const btnPrevNilaiSiswaEl = document.getElementById('btnPrevNilaiSiswa');
+  const btnNextNilaiSiswaEl = document.getElementById('btnNextNilaiSiswa');
+  const searchNilaiSiswaEl = document.getElementById('searchNilaiSiswa');
+
+  function renderTabelNilaiSiswa(){
+    let rows = nilaiSiswaRows;
+    const term = searchTermNilaiSiswa.trim().toLowerCase();
+    if(term){
+      rows = rows.filter(r => String(r.nama_siswa ?? '').toLowerCase().includes(term));
+    }
+
+    const total = rows.length;
+    const offset = currentPageNilaiSiswa * NILAI_SISWA_PAGE_SIZE;
+    const pageRows = rows.slice(offset, offset + NILAI_SISWA_PAGE_SIZE);
+
+    if(pageRows.length === 0){
+      tbodyNilaiSiswaEl.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">Tidak ada data nilai yang sesuai.</td></tr>`;
+    } else {
+      tbodyNilaiSiswaEl.innerHTML = pageRows.map((r, idx) => {
+        const ket = hitungKeteranganNilai(r);
+        const badge = ket === 'Tuntas'
+          ? '<span class="badge badge-ok">Tuntas</span>'
+          : ket === 'Belum Tuntas'
+            ? '<span class="badge badge-no">Belum Tuntas</span>'
+            : '<span class="badge">-</span>';
+        return `<tr>
+          <td>${offset + idx + 1}</td>
+          <td>${escapeHtmlGuru(r.nama_siswa || '-')}</td>
+          <td>${escapeHtmlGuru(r.kelas || '-')}</td>
+          <td>${escapeHtmlGuru(r.mata_pelajaran || '-')}</td>
+          <td>${formatNilaiSiswa(hitungNR(r))}</td>
+          <td>${badge}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    if(footNilaiSiswaEl){
+      footNilaiSiswaEl.textContent = total === 0
+        ? 'Menampilkan 0 dari 0 entri'
+        : `Menampilkan ${offset + 1} - ${offset + pageRows.length} dari ${total} entri`;
+    }
+    if(btnPrevNilaiSiswaEl) btnPrevNilaiSiswaEl.disabled = currentPageNilaiSiswa === 0;
+    if(btnNextNilaiSiswaEl) btnNextNilaiSiswaEl.disabled = offset + pageRows.length >= total;
+  }
+
+  if(searchNilaiSiswaEl){
+    let searchDebounceTimerNilaiSiswa = null;
+    searchNilaiSiswaEl.addEventListener('input', (e) => {
+      searchTermNilaiSiswa = e.target.value;
+      clearTimeout(searchDebounceTimerNilaiSiswa);
+      searchDebounceTimerNilaiSiswa = setTimeout(() => {
+        currentPageNilaiSiswa = 0;
+        renderTabelNilaiSiswa();
+      }, 300);
+    });
+  }
+  if(btnPrevNilaiSiswaEl){
+    btnPrevNilaiSiswaEl.addEventListener('click', () => {
+      if(currentPageNilaiSiswa > 0){
+        currentPageNilaiSiswa--;
+        renderTabelNilaiSiswa();
+      }
+    });
+  }
+  if(btnNextNilaiSiswaEl){
+    btnNextNilaiSiswaEl.addEventListener('click', () => {
+      const term = searchTermNilaiSiswa.trim().toLowerCase();
+      const total = term
+        ? nilaiSiswaRows.filter(r => String(r.nama_siswa ?? '').toLowerCase().includes(term)).length
+        : nilaiSiswaRows.length;
+      const maxPage = Math.floor(Math.max(total - 1, 0) / NILAI_SISWA_PAGE_SIZE);
+      if(currentPageNilaiSiswa < maxPage){
+        currentPageNilaiSiswa++;
+        renderTabelNilaiSiswa();
+      }
+    });
+  }
+
+  async function loadNilaiSiswa(mapelList){
     if(!mapelList || mapelList.length === 0){
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted, #7A7191);">Belum ada mata pelajaran yang ditugaskan</td></tr>`;
-      if(foot) foot.textContent = 'Menampilkan 0 dari 0 entri';
+      nilaiSiswaRows = [];
+      currentPageNilaiSiswa = 0;
+      searchTermNilaiSiswa = '';
+      if(searchNilaiSiswaEl) searchNilaiSiswaEl.value = '';
+      tbodyNilaiSiswaEl.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">Belum ada mata pelajaran yang ditugaskan</td></tr>`;
+      if(footNilaiSiswaEl) footNilaiSiswaEl.textContent = 'Menampilkan 0 dari 0 entri';
+      if(btnPrevNilaiSiswaEl) btnPrevNilaiSiswaEl.disabled = true;
+      if(btnNextNilaiSiswaEl) btnNextNilaiSiswaEl.disabled = true;
+      updateStatTotalSiswa([]);
+      updateRingkasanFromNilai([]);
       return;
     }
 
-    const siswaDummy = [
-      { nama: 'Rindha Sekar Lestari', kelas: '7A', nilai: 88 },
-      { nama: 'Susi Widyastuti', kelas: '7A', nilai: 65 },
-      { nama: 'Santi Puspo Rini', kelas: '7B', nilai: 91 },
-      { nama: 'Sisila Putri', kelas: '7B', nilai: 72 },
-      { nama: 'Tari Lestari', kelas: '8A', nilai: 84 }
-    ];
-    const kkm = 75;
+    tbodyNilaiSiswaEl.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">Memuat data...</td></tr>`;
 
-    const html = siswaDummy.map((s, i) => {
-      const mapel = mapelList[i % mapelList.length];
-      const tuntas = s.nilai >= kkm;
-      const badge = tuntas
-        ? '<span class="badge badge-ok">Tuntas</span>'
-        : '<span class="badge badge-no">Belum Tuntas</span>';
-      return `<tr><td>${i + 1}</td><td>${escapeHtmlGuru(s.nama)}</td><td>${s.kelas}</td><td>${escapeHtmlGuru(mapel)}</td><td>${s.nilai}</td><td>${badge}</td></tr>`;
+    try{
+      const inValues = mapelList.map(m => `"${String(m).replace(/"/g, '\\"')}"`).join(',');
+      const url = `${SUPABASE_URL}/${TABLE_DAFTARNILAI}?select=*&mata_pelajaran=${encodeURIComponent('in.(' + inValues + ')')}&order=kelas.asc,nama_siswa.asc`;
+
+      const res = await fetch(url, {
+        headers:{
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        }
+      });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const rows = await res.json();
+
+      nilaiSiswaRows = Array.isArray(rows) ? rows : [];
+      currentPageNilaiSiswa = 0;
+      renderTabelNilaiSiswa();
+      updateStatTotalSiswa(nilaiSiswaRows);
+      updateRingkasanFromNilai(nilaiSiswaRows);
+    }catch(err){
+      console.error('Gagal memuat daftar nilai siswa:', err);
+      nilaiSiswaRows = [];
+      tbodyNilaiSiswaEl.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--ink-soft);">Gagal memuat data. Pastikan tabel "${TABLE_DAFTARNILAI}" sudah dibuat di Supabase.</td></tr>`;
+      if(footNilaiSiswaEl) footNilaiSiswaEl.textContent = 'Menampilkan 0 dari 0 entri';
+      if(btnPrevNilaiSiswaEl) btnPrevNilaiSiswaEl.disabled = true;
+      if(btnNextNilaiSiswaEl) btnNextNilaiSiswaEl.disabled = true;
+      updateStatTotalSiswa([]);
+      updateRingkasanFromNilai([]);
+    }
+  }
+
+  // ---------- Kartu "Siswa Tuntas / Belum Tuntas / Rata-rata Nilai" + donut + ----------
+  // ---------- perbandingan rata-rata nilai antar kelas, semuanya dari "daftarnilai" ----------
+  const statTuntasEl = document.getElementById('statTuntas');
+  const statTuntasFootEl = document.getElementById('statTuntasFoot');
+  const statTuntasBarEl = document.getElementById('statTuntasBar');
+  const statBelumTuntasEl = document.getElementById('statBelumTuntas');
+  const statBelumTuntasFootEl = document.getElementById('statBelumTuntasFoot');
+  const statBelumTuntasBarEl = document.getElementById('statBelumTuntasBar');
+  const statRataEl = document.getElementById('statRata');
+  const statRataFootEl = document.getElementById('statRataFoot');
+  const statRataBarEl = document.getElementById('statRataBar');
+  const ketuntasanDonutEl = document.getElementById('ketuntasanDonut');
+  const pillTuntasEl = document.getElementById('pillTuntas');
+  const pillBelumEl = document.getElementById('pillBelum');
+  const pillTotalNilaiEl = document.getElementById('pillTotalNilai');
+  const compareKelasEl = document.getElementById('compareKelas');
+
+  const COMPARE_KELAS_PALETTE = ['var(--blue)', 'var(--purple)', 'var(--green)', 'var(--orange)', 'var(--brick)', 'var(--turquoise)'];
+
+  function renderCompareKelas(kelasMap){
+    if(!compareKelasEl) return;
+
+    const entries = Array.from(kelasMap.entries())
+      .map(([kelas, v]) => ({ kelas, rata: v.count > 0 ? v.sum / v.count : 0 }))
+      .sort((a, b) => a.kelas.localeCompare(b.kelas, 'id', { numeric: true }));
+
+    if(entries.length === 0){
+      compareKelasEl.innerHTML = `<p style="text-align:center; color:var(--ink-soft); font-size:0.85rem; padding:20px 0;">Belum ada data nilai per kelas.</p>`;
+      return;
+    }
+
+    compareKelasEl.innerHTML = entries.map((e, i) => {
+      const color = COMPARE_KELAS_PALETTE[i % COMPARE_KELAS_PALETTE.length];
+      const width = Math.min(Math.max(e.rata, 0), 100);
+      return `<div class="compare-row">
+        <span class="compare-label">${escapeHtmlGuru(e.kelas)}</span>
+        <div class="compare-track"><div class="compare-fill" style="width:${width}%; background:${color};"></div></div>
+        <span class="compare-num">${formatNilaiSiswa(e.rata)}</span>
+      </div>`;
     }).join('');
+  }
 
-    tbody.innerHTML = html;
-    if(foot) foot.textContent = `Menampilkan 1 - ${siswaDummy.length} dari ${siswaDummy.length} entri`;
+  function updateRingkasanFromNilai(rows){
+    const list = rows || [];
+
+    let tuntasCount = 0;
+    let belumCount = 0;
+    const nrValues = [];
+    const kelasMap = new Map();
+
+    list.forEach(r => {
+      const ket = hitungKeteranganNilai(r);
+      if(ket === 'Tuntas') tuntasCount++;
+      else if(ket === 'Belum Tuntas') belumCount++;
+
+      const nr = hitungNR(r);
+      if(nr !== null && !isNaN(nr)){
+        nrValues.push(nr);
+        const kelas = String(r.kelas ?? '').trim();
+        if(kelas){
+          if(!kelasMap.has(kelas)) kelasMap.set(kelas, { sum: 0, count: 0 });
+          const entry = kelasMap.get(kelas);
+          entry.sum += nr;
+          entry.count += 1;
+        }
+      }
+    });
+
+    const denomKet = tuntasCount + belumCount;
+    const persenTuntas = denomKet > 0 ? Math.round((tuntasCount / denomKet) * 100) : 0;
+    const persenBelum = denomKet > 0 ? Math.round((belumCount / denomKet) * 100) : 0;
+
+    if(statTuntasEl) statTuntasEl.textContent = String(tuntasCount);
+    if(statTuntasFootEl) statTuntasFootEl.textContent = `${tuntasCount}/${denomKet} \u00b7 ${persenTuntas}%`;
+    if(statTuntasBarEl) statTuntasBarEl.style.width = persenTuntas + '%';
+
+    if(statBelumTuntasEl) statBelumTuntasEl.textContent = String(belumCount);
+    if(statBelumTuntasFootEl) statBelumTuntasFootEl.textContent = `${belumCount}/${denomKet} \u00b7 ${persenBelum}%`;
+    if(statBelumTuntasBarEl) statBelumTuntasBarEl.style.width = persenBelum + '%';
+
+    const rataRata = nrValues.length > 0 ? (nrValues.reduce((a, b) => a + b, 0) / nrValues.length) : null;
+    if(statRataEl) statRataEl.textContent = rataRata !== null ? formatNilaiSiswa(rataRata) : '0';
+    if(statRataBarEl) statRataBarEl.style.width = (rataRata !== null ? Math.min(Math.max(rataRata, 0), 100) : 0) + '%';
+    if(statRataFootEl) statRataFootEl.textContent = rataRata !== null ? `Dari ${nrValues.length} data nilai` : 'Belum ada data nilai';
+
+    if(ketuntasanDonutEl) ketuntasanDonutEl.style.setProperty('--p1', String(persenTuntas));
+    if(pillTuntasEl) pillTuntasEl.textContent = `T: ${tuntasCount}`;
+    if(pillBelumEl) pillBelumEl.textContent = `BT: ${belumCount}`;
+    if(pillTotalNilaiEl) pillTotalNilaiEl.textContent = `Total: ${denomKet}`;
+
+    renderCompareKelas(kelasMap);
+  }
+
+  // ---------- Statistik "Total Siswa Diampu" ditarik dari tabel "datasiswa" ----------
+  // Kelas yang dihitung adalah kelas-kelas yang muncul pada data nilai (daftarnilai)
+  // untuk mata pelajaran yang diampu guru ini, lalu jumlah siswanya diambil dari
+  // tabel "datasiswa" supaya angkanya sesuai data induk siswa, bukan sekadar
+  // baris nilai yang sudah diisi.
+  const TABLE_DATASISWA = "datasiswa";
+  const statTotalSiswaEl = document.getElementById('statTotalSiswa');
+  const statTotalSiswaFootEl = document.getElementById('statTotalSiswaFoot');
+
+  async function updateStatTotalSiswa(rows){
+    const kelasList = Array.from(new Set((rows || []).map(r => String(r.kelas ?? '')).filter(Boolean)));
+
+    if(kelasList.length === 0){
+      if(statTotalSiswaEl) statTotalSiswaEl.textContent = '0';
+      if(statTotalSiswaFootEl) statTotalSiswaFootEl.textContent = 'Belum ada kelas yang diampu';
+      return;
+    }
+
+    try{
+      const inValues = kelasList.map(k => `"${String(k).replace(/"/g, '\\"')}"`).join(',');
+      const url = `${SUPABASE_URL}/${TABLE_DATASISWA}?select=id&kelas=${encodeURIComponent('in.(' + inValues + ')')}`;
+
+      const res = await fetch(url, {
+        headers:{
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        }
+      });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const siswaRows = await res.json();
+      const total = Array.isArray(siswaRows) ? siswaRows.length : 0;
+
+      if(statTotalSiswaEl) statTotalSiswaEl.textContent = String(total);
+      if(statTotalSiswaFootEl){
+        statTotalSiswaFootEl.textContent = kelasList.length === 1
+          ? `Kelas ${kelasList[0]}`
+          : `${kelasList.length} kelas: ${kelasList.join(', ')}`;
+      }
+    }catch(err){
+      console.error('Gagal memuat total siswa dari datasiswa:', err);
+      if(statTotalSiswaEl) statTotalSiswaEl.textContent = '-';
+      if(statTotalSiswaFootEl) statTotalSiswaFootEl.textContent = 'Gagal memuat data siswa';
+    }
   }
 
   // ---------- Ambil logo & nama sekolah dari tabel "profil" ----------
