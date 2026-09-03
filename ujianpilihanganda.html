@@ -29,7 +29,12 @@
   html{overflow-x:hidden;}
   body{
     margin:0;
-    background:var(--paper);
+    background:
+      radial-gradient(900px 420px at 100% -8%, rgba(255,201,60,0.20), transparent 60%),
+      radial-gradient(700px 420px at -6% 8%, rgba(108,79,224,0.14), transparent 55%),
+      radial-gradient(600px 360px at 50% 100%, rgba(15,118,110,0.08), transparent 60%),
+      var(--paper);
+    background-attachment:fixed;
     color:var(--ink);
     font-family:'Inter',sans-serif;
     -webkit-font-smoothing:antialiased;
@@ -42,7 +47,9 @@
   /* ---------- Top bar ---------- */
   .exam-topbar{
     position:sticky; top:0; z-index:20;
-    background:var(--brand);
+    background:linear-gradient(120deg, #6C4FE0 0%, #7B5EEA 55%, #5B3FD1 100%);
+    box-shadow:0 8px 24px rgba(59,46,99,0.28);
+    border-bottom:3px solid var(--gold);
     color:#FFFFFF;
     padding:14px clamp(16px,4vw,40px);
     display:flex;
@@ -71,8 +78,9 @@
   .exam-kode-badge{
     font-family:'JetBrains Mono',monospace;
     font-size:0.7rem;
-    background:rgba(255,255,255,0.15);
-    border:1px solid rgba(255,255,255,0.3);
+    background:rgba(255,201,60,0.20);
+    border:1px solid rgba(255,201,60,0.55);
+    color:#FFF6DC;
     border-radius:4px;
     padding:1px 6px;
   }
@@ -90,9 +98,13 @@
     font-size:1.15rem;
     color:#FFFFFF;
     letter-spacing:0.02em;
+    background:rgba(255,255,255,0.14);
+    border-radius:20px;
+    padding:2px 12px;
+    transition:background 0.2s ease, color 0.2s ease;
   }
-  .exam-timer.warning .exam-timer-value{color:var(--gold);}
-  .exam-timer.danger .exam-timer-value{color:#FFB4C6;}
+  .exam-timer.warning .exam-timer-value{background:rgba(255,201,60,0.22); color:var(--gold);}
+  .exam-timer.danger .exam-timer-value{background:rgba(255,180,198,0.22); color:#FFB4C6;}
 
   /* ---------- Layout ---------- */
   main{
@@ -103,28 +115,46 @@
   .exam-meta{
     display:flex;
     flex-wrap:wrap;
-    gap:8px 18px;
+    gap:8px 10px;
     font-size:0.85rem;
     color:var(--ink-soft);
     margin-bottom:20px;
   }
+  .exam-meta span{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    padding:5px 13px;
+    border-radius:20px;
+    font-size:0.8rem;
+    background:var(--paper-deep);
+    border:1px solid var(--paper-line);
+  }
   .exam-meta strong{color:var(--ink); font-weight:600;}
+  .exam-meta span.meta-mapel{background:rgba(108,79,224,0.10); border-color:rgba(108,79,224,0.3);}
+  .exam-meta span.meta-kelas{background:rgba(15,118,110,0.10); border-color:rgba(15,118,110,0.3);}
+  .exam-meta span.meta-jenis{background:rgba(242,153,74,0.14); border-color:rgba(242,153,74,0.35);}
+  .exam-meta span.meta-kkm{background:rgba(47,128,237,0.10); border-color:rgba(47,128,237,0.3);}
+  .exam-meta span.meta-jumlah{background:rgba(255,201,60,0.18); border-color:rgba(255,201,60,0.5);}
 
   /* ---------- Identitas siswa ---------- */
   .siswa-card{
     display:flex;
     align-items:center;
     gap:12px;
-    background:var(--paper-deep);
+    background:linear-gradient(135deg, var(--paper-deep), #FFF6E5);
     border:1px solid var(--paper-line);
+    border-left:4px solid var(--gold);
     border-radius:10px;
     padding:12px 16px;
     margin-bottom:18px;
+    box-shadow:0 2px 10px rgba(255,201,60,0.14);
   }
   .siswa-avatar{
     width:38px; height:38px;
     border-radius:50%;
-    background:var(--gold);
+    background:linear-gradient(135deg, var(--gold), #FFA928);
+    box-shadow:0 2px 8px rgba(255,201,60,0.45);
     color:#221a06;
     display:flex; align-items:center; justify-content:center;
     font-family:'JetBrains Mono',monospace;
@@ -163,6 +193,7 @@
   .soal-nav{
     background:var(--paper-deep);
     border:1px solid var(--paper-line);
+    border-top:4px solid var(--brand);
     border-radius:10px;
     padding:16px;
     position:sticky;
@@ -200,16 +231,18 @@
     display:flex; align-items:center; justify-content:center;
     transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   }
-  .soal-nav-btn:hover{border-color:var(--brand);}
+  .soal-nav-btn:hover{border-color:var(--brand); transform:translateY(-1px);}
   .soal-nav-btn.answered{
-    background:rgba(26,135,84,0.12);
-    border-color:rgba(26,135,84,0.4);
+    background:linear-gradient(135deg, rgba(26,135,84,0.20), rgba(26,135,84,0.08));
+    border-color:rgba(26,135,84,0.45);
     color:var(--green);
   }
   .soal-nav-btn.current{
-    background:var(--brand);
+    background:linear-gradient(135deg, var(--brand), var(--purple));
     border-color:var(--brand);
     color:#FFFFFF;
+    box-shadow:0 3px 10px rgba(108,79,224,0.45);
+    transform:scale(1.06);
   }
   .soal-nav-legend{
     margin-top:14px;
@@ -229,10 +262,31 @@
 
   /* ---------- Soal card ---------- */
   .soal-card{
+    position:relative;
+    overflow:hidden;
     background:#FFFFFF;
     border:1px solid var(--paper-line);
     border-radius:10px;
     padding:24px clamp(18px,3vw,30px);
+    box-shadow:0 3px 16px rgba(59,46,99,0.07);
+  }
+  .soal-card::before{
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:5px;
+    background:linear-gradient(90deg, var(--brand), var(--turquoise), var(--gold));
+  }
+  @keyframes soalFadeOut{
+    from{opacity:1;}
+    to{opacity:0;}
+  }
+  @keyframes soalFadeIn{
+    from{opacity:0;}
+    to{opacity:1;}
+  }
+  .soal-card.fade-keluar{animation:soalFadeOut 0.18s ease forwards;}
+  .soal-card.fade-masuk{animation:soalFadeIn 0.28s ease;}
+  @media (prefers-reduced-motion:reduce){
+    .soal-card.fade-keluar, .soal-card.fade-masuk{animation:none;}
   }
   .soal-card-head{
     display:flex;
@@ -246,13 +300,17 @@
     font-size:0.78rem;
     font-weight:700;
     color:var(--brand);
-    background:rgba(108,79,224,0.1);
-    border-radius:4px;
-    padding:3px 9px;
+    background:linear-gradient(135deg, rgba(108,79,224,0.16), rgba(123,94,234,0.08));
+    border-radius:20px;
+    padding:4px 12px;
   }
   .soal-bobot{
     font-size:0.78rem;
-    color:var(--ink-soft);
+    font-weight:600;
+    color:var(--amber);
+    background:rgba(242,153,74,0.16);
+    border-radius:20px;
+    padding:4px 12px;
   }
   .soal-text{
     font-size:1rem;
@@ -305,10 +363,11 @@
     cursor:pointer;
     transition:background 0.15s ease, border-color 0.15s ease;
   }
-  .pilihan-item:hover{border-color:var(--brand);}
+  .pilihan-item:hover{border-color:var(--brand); background:rgba(108,79,224,0.05);}
   .pilihan-item.selected{
-    background:rgba(108,79,224,0.08);
+    background:linear-gradient(135deg, rgba(108,79,224,0.12), rgba(123,94,234,0.05));
     border-color:var(--brand);
+    box-shadow:0 2px 10px rgba(108,79,224,0.18);
   }
   .pilihan-letter{
     flex-shrink:0;
@@ -321,9 +380,10 @@
     font-weight:700;
     font-size:0.82rem;
     display:flex; align-items:center; justify-content:center;
+    transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   }
   .pilihan-item.selected .pilihan-letter{
-    background:var(--brand);
+    background:linear-gradient(135deg, var(--brand), var(--purple));
     border-color:var(--brand);
     color:#FFFFFF;
   }
@@ -350,7 +410,7 @@
     padding:11px 18px;
     cursor:pointer;
     border:1px solid transparent;
-    transition:background 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+    transition:background 0.2s ease, opacity 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
     white-space:nowrap;
   }
   .exam-btn:disabled{opacity:0.5; cursor:not-allowed;}
@@ -359,17 +419,19 @@
     border-color:var(--paper-line);
     color:var(--ink-soft);
   }
-  .exam-btn-ghost:hover:not(:disabled){border-color:var(--ink-soft); color:var(--ink);}
+  .exam-btn-ghost:hover:not(:disabled){border-color:var(--brand); color:var(--brand); background:rgba(108,79,224,0.05);}
   .exam-btn-primary{
-    background:var(--brand);
+    background:linear-gradient(135deg, var(--brand), var(--purple));
     color:#FFFFFF;
+    box-shadow:0 3px 10px rgba(108,79,224,0.3);
   }
-  .exam-btn-primary:hover:not(:disabled){background:#5B3FD1;}
+  .exam-btn-primary:hover:not(:disabled){background:linear-gradient(135deg,#5B3FD1,#6C4FE0); box-shadow:0 4px 14px rgba(108,79,224,0.4); transform:translateY(-1px);}
   .exam-btn-finish{
-    background:var(--brick);
+    background:linear-gradient(135deg, var(--brick), #F2508A);
     color:#FFFFFF;
+    box-shadow:0 3px 10px rgba(214,51,108,0.3);
   }
-  .exam-btn-finish:hover:not(:disabled){background:#B32A5C;}
+  .exam-btn-finish:hover:not(:disabled){box-shadow:0 4px 14px rgba(214,51,108,0.4); transform:translateY(-1px);}
 
   /* ---------- States: loading / error ---------- */
   .state-box{
@@ -387,9 +449,10 @@
   .state-spinner{
     width:34px; height:34px;
     margin:0 auto 18px;
-    border:3px solid var(--paper-line);
-    border-top-color:var(--brand);
     border-radius:50%;
+    background:conic-gradient(var(--brand), var(--turquoise), var(--gold), var(--brand));
+    -webkit-mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+    mask:radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
     animation:spin 0.8s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg);}}
@@ -414,11 +477,13 @@
     width:100%;
     max-width:400px;
     border-radius:8px;
+    border-top:4px solid var(--brand);
     padding:26px 24px 24px;
-    box-shadow:0 20px 60px rgba(0,0,0,0.35);
+    box-shadow:0 20px 60px rgba(59,46,99,0.35);
     transform:translateY(10px);
     transition:transform 0.2s ease;
   }
+  #timeUpBackdrop .exam-modal{border-top-color:var(--brick);}
   .exam-modal-backdrop.open .exam-modal{transform:translateY(0);}
   .exam-modal h3{
     font-family:'Newsreader',serif;
@@ -457,15 +522,25 @@
 
   /* ---------- Layar selesai ---------- */
   .done-screen{
+    position:relative;
     max-width:440px;
     margin:70px auto;
     text-align:center;
     padding:0 20px;
   }
+  .done-screen::before, .done-screen::after{
+    content:'';
+    position:absolute;
+    width:10px; height:10px;
+    border-radius:50%;
+  }
+  .done-screen::before{background:var(--gold); top:6px; left:calc(50% - 70px);}
+  .done-screen::after{background:var(--turquoise); top:26px; left:calc(50% + 60px); width:8px; height:8px;}
   .done-icon{
     width:56px; height:56px;
     border-radius:50%;
-    background:rgba(26,135,84,0.12);
+    background:linear-gradient(135deg, rgba(26,135,84,0.20), rgba(15,118,110,0.10));
+    box-shadow:0 4px 16px rgba(26,135,84,0.25);
     color:var(--green);
     display:flex; align-items:center; justify-content:center;
     margin:0 auto 16px;
@@ -475,6 +550,10 @@
     font-family:'Newsreader',serif;
     font-weight:600;
     margin-bottom:8px;
+    background:linear-gradient(120deg, var(--green), var(--turquoise));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
   }
   .done-screen p{color:var(--ink-soft); font-size:0.92rem; line-height:1.6; margin-bottom:22px;}
 
@@ -490,12 +569,17 @@
     font-weight:600;
     margin:0 0 6px;
     font-size:1.4rem;
+    background:linear-gradient(120deg, var(--brand), var(--turquoise));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
   }
   .preview-head p{color:var(--ink-soft); font-size:0.88rem; margin:0; line-height:1.55;}
 
   .preview-identitas{
-    background:var(--paper-deep);
+    background:linear-gradient(135deg, var(--paper-deep), #FFF6E5);
     border:1px solid var(--paper-line);
+    border-left:4px solid var(--brand);
     border-radius:10px;
     padding:14px 16px;
     display:flex;
@@ -533,11 +617,16 @@
     margin-bottom:2px;
   }
   .preview-summary-item .lbl{font-size:0.74rem; color:var(--ink-soft);}
+  .preview-summary-item.benar{background:rgba(26,135,84,0.10); border-color:rgba(26,135,84,0.35);}
   .preview-summary-item.benar .num{color:var(--green);}
+  .preview-summary-item.salah{background:rgba(214,51,108,0.10); border-color:rgba(214,51,108,0.35);}
   .preview-summary-item.salah .num{color:var(--brick);}
+  .preview-summary-item.nilai{background:rgba(108,79,224,0.10); border-color:rgba(108,79,224,0.35);}
   .preview-summary-item.nilai .num{color:var(--brand);}
   .preview-summary-item.status .num{font-size:1.05rem;}
+  .preview-summary-item.status.lulus{background:rgba(26,135,84,0.10); border-color:rgba(26,135,84,0.35);}
   .preview-summary-item.status.lulus .num{color:var(--green);}
+  .preview-summary-item.status.belum{background:rgba(214,51,108,0.10); border-color:rgba(214,51,108,0.35);}
   .preview-summary-item.status.belum .num{color:var(--brick);}
 
   .preview-list{display:flex; flex-direction:column; gap:10px; margin-bottom:24px;}
@@ -548,8 +637,8 @@
     border-radius:8px;
     padding:14px 16px;
   }
-  .preview-item.benar{border-left-color:var(--green);}
-  .preview-item.salah{border-left-color:var(--brick);}
+  .preview-item.benar{border-left-color:var(--green); background:linear-gradient(90deg, rgba(26,135,84,0.06), #FFFFFF 16%);}
+  .preview-item.salah{border-left-color:var(--brick); background:linear-gradient(90deg, rgba(214,51,108,0.06), #FFFFFF 16%);}
   .preview-item-head{
     display:flex;
     justify-content:space-between;
@@ -673,7 +762,7 @@
       </div>
     </nav>
 
-    <section class="soal-card">
+    <section class="soal-card" id="soalCard">
       <div class="soal-card-head">
         <span class="soal-number" id="soalNumberBadge">Soal 1</span>
         <span class="soal-bobot" id="soalBobot"></span>
@@ -1056,8 +1145,19 @@
 
   function pindahKeSoal(idx){
     if(idx < 0 || idx >= daftarSoal.length) return;
-    currentIndex = idx;
-    renderSoal();
+    const soalCard = document.getElementById('soalCard');
+
+    soalCard.classList.remove('fade-masuk');
+    soalCard.classList.add('fade-keluar');
+
+    setTimeout(() => {
+      currentIndex = idx;
+      renderSoal();
+
+      soalCard.classList.remove('fade-keluar');
+      void soalCard.offsetWidth; // paksa reflow agar animasi masuk selalu terpicu
+      soalCard.classList.add('fade-masuk');
+    }, 180);
   }
 
   btnSoalSebelumnya.addEventListener('click', () => pindahKeSoal(currentIndex - 1));
@@ -1430,11 +1530,11 @@
       topbarKelasJenis.textContent = [ujianAktif.kelas, ujianAktif.jenis_penilaian].filter(Boolean).join(' · ');
 
       const metaParts = [];
-      if(ujianAktif.mata_pelajaran) metaParts.push(`<span><strong>Mapel:</strong> ${ujianAktif.mata_pelajaran}</span>`);
-      if(ujianAktif.kelas) metaParts.push(`<span><strong>Kelas:</strong> ${ujianAktif.kelas}</span>`);
-      if(ujianAktif.jenis_penilaian) metaParts.push(`<span><strong>Jenis:</strong> ${ujianAktif.jenis_penilaian}</span>`);
-      if(ujianAktif.kkm !== null && ujianAktif.kkm !== undefined && ujianAktif.kkm !== '') metaParts.push(`<span><strong>KKM:</strong> ${ujianAktif.kkm}</span>`);
-      metaParts.push(`<span><strong>Jumlah Soal:</strong> ${daftarSoal.length}</span>`);
+      if(ujianAktif.mata_pelajaran) metaParts.push(`<span class="meta-mapel"><strong>Mapel:</strong> ${ujianAktif.mata_pelajaran}</span>`);
+      if(ujianAktif.kelas) metaParts.push(`<span class="meta-kelas"><strong>Kelas:</strong> ${ujianAktif.kelas}</span>`);
+      if(ujianAktif.jenis_penilaian) metaParts.push(`<span class="meta-jenis"><strong>Jenis:</strong> ${ujianAktif.jenis_penilaian}</span>`);
+      if(ujianAktif.kkm !== null && ujianAktif.kkm !== undefined && ujianAktif.kkm !== '') metaParts.push(`<span class="meta-kkm"><strong>KKM:</strong> ${ujianAktif.kkm}</span>`);
+      metaParts.push(`<span class="meta-jumlah"><strong>Jumlah Soal:</strong> ${daftarSoal.length}</span>`);
       examMeta.innerHTML = metaParts.join('');
 
       loadingState.hidden = true;
