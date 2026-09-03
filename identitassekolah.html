@@ -288,6 +288,20 @@
         </div>
 
         <div class="field">
+          <label for="semester">Semester</label>
+          <select id="semester">
+            <option value="">Pilih semester</option>
+            <option value="Ganjil">Ganjil</option>
+            <option value="Genap">Genap</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="tahun_pelajaran">Tahun Pelajaran</label>
+          <input type="text" id="tahun_pelajaran" placeholder="cth. 2025/2026">
+        </div>
+
+        <div class="field">
           <label for="nama_kepsek">Nama Kepala Sekolah</label>
           <input type="text" id="nama_kepsek">
         </div>
@@ -373,7 +387,7 @@ const logoInput = document.getElementById("logoInput");
 const togglePw = document.getElementById("togglePw");
 const passwordInput = document.getElementById("password");
 
-const fields = ["nama_sekolah","npsn","status","nama_kepsek","nip_kepsek","alamat","email","tlp","username","password"];
+const fields = ["nama_sekolah","npsn","status","semester","tahun_pelajaran","nama_kepsek","nip_kepsek","alamat","email","tlp","username","password"];
 
 function setMsg(text, type){
   msgText.textContent = text || "";
