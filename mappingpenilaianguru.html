@@ -502,6 +502,14 @@
           <label for="inputKkm">KKM</label>
           <input type="number" id="inputKkm" min="0" max="100" step="1" required placeholder="Mis. 75">
         </div>
+        <div class="form-group">
+          <label for="inputBentukSoal">Bentuk Soal</label>
+          <select id="inputBentukSoal" required>
+            <option value="" disabled selected>Pilih bentuk soal</option>
+            <option value="Essay">Essay</option>
+            <option value="Pilihan Ganda">Pilihan Ganda</option>
+          </select>
+        </div>
         <div class="form-group full">
           <label for="inputKode">Kode Mapping</label>
           <div class="kode-row">
@@ -793,6 +801,7 @@
   const inputKelas = document.getElementById('inputKelas');
   const inputJenis = document.getElementById('inputJenis');
   const inputKkm = document.getElementById('inputKkm');
+  const inputBentukSoal = document.getElementById('inputBentukSoal');
   const inputTujuan = document.getElementById('inputTujuan');
   const inputCapaian = document.getElementById('inputCapaian');
 
@@ -835,6 +844,7 @@
         inputKelas.value = row.kelas || '';
         inputJenis.value = row.jenis_penilaian || '';
         inputKkm.value = row.kkm ?? '';
+        inputBentukSoal.value = row.bentuk_soal || '';
         inputTujuan.value = row.tujuan_pembelajaran || '';
         inputCapaian.value = row.capaian_pembelajaran || '';
         setFormMsg('');
@@ -868,18 +878,56 @@
     const clean = text.trim().toUpperCase().replace(/[^A-Z]/g,'');
     return clean.slice(0,3) || 'MPL';
   }
-  document.getElementById('btnBuatKode').addEventListener('click', ()=>{
+  document.getElementById('btnBuatKode').addEventListener('click', async ()=>{
     const mapel = inputMapel.value.trim();
     const kelas = inputKelas.value.trim();
     const jenis = inputJenis.value.trim();
-    if(!mapel || !kelas || !jenis){
-      setFormMsg('Pilih Mata Pelajaran, Kelas, dan Jenis Penilaian dahulu untuk membuat kode otomatis.', 'error');
+    const bentukSoal = inputBentukSoal.value;
+    if(!mapel || !kelas || !jenis || !bentukSoal){
+      setFormMsg('Pilih Mata Pelajaran, Kelas, Jenis Penilaian, dan Bentuk Soal dahulu untuk membuat kode otomatis.', 'error');
       return;
     }
-    const kode = [abbrMapel(mapel), kelas.toUpperCase().replace(/\s+/g,''), abbrJenis(jenis)].filter(Boolean).join('-');
-    inputKode.value = kode;
-    setFormMsg('');
+    const baseKode = [abbrMapel(mapel), kelas.toUpperCase().replace(/\s+/g,''), abbrJenis(jenis)].filter(Boolean).join('-');
+    const suffixBentuk = bentukSoal === 'Pilihan Ganda' ? 'PG' : 'ES';
+
+    const btnBuatKode = document.getElementById('btnBuatKode');
+    btnBuatKode.disabled = true;
+    setFormMsg('Membuat kode unik...', '');
+    try{
+      const kode = await buatKodeMappingUnik(baseKode, suffixBentuk);
+      inputKode.value = kode;
+      setFormMsg('');
+    }catch(err){
+      console.error('Gagal membuat kode mapping unik:', err);
+      // Fallback: tetap beri angka acak walau pengecekan ke server gagal
+      const rand = String(Math.floor(Math.random() * 900 + 100));
+      inputKode.value = `${baseKode}-${rand}-${suffixBentuk}`;
+      setFormMsg('Gagal memeriksa keunikan kode ke server. Periksa kembali sebelum menyimpan.', 'error');
+    }finally{
+      btnBuatKode.disabled = false;
+    }
   });
+
+  // Buat kode mapping dengan akhiran 3 digit acak + kode bentuk soal
+  // (mis. MTK-7A-UH1-042-PG) yang dipastikan belum pernah dipakai
+  // dengan mengecek ke Supabase.
+  async function buatKodeMappingUnik(baseKode, suffixBentuk){
+    for(let attempt = 0; attempt < 20; attempt++){
+      const rand = String(Math.floor(Math.random() * 900 + 100)); // 3 digit: 100-999
+      const kandidat = `${baseKode}-${rand}-${suffixBentuk}`;
+      const res = await fetch(
+        `${SUPABASE_URL}/${TABLE}?kode_mapping=eq.${encodeURIComponent(kandidat)}&select=kode_mapping&limit=1`,
+        { headers: sbHeaders() }
+      );
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const rows = await res.json();
+      if(rows.length === 0){
+        return kandidat; // belum dipakai, aman digunakan
+      }
+      // kalau kebetulan sudah dipakai, ulangi dengan angka acak baru
+    }
+    throw new Error('Gagal menemukan kode unik setelah beberapa percobaan.');
+  }
 
 
   // ---------- Submit form (tambah / edit) ----------
@@ -891,11 +939,12 @@
       kelas: inputKelas.value.trim(),
       jenis_penilaian: inputJenis.value.trim(),
       kkm: inputKkm.value === '' ? null : Number(inputKkm.value),
+      bentuk_soal: inputBentukSoal.value,
       tujuan_pembelajaran: inputTujuan.value.trim(),
       capaian_pembelajaran: inputCapaian.value.trim()
     };
 
-    if(!payload.kode_mapping || !payload.mata_pelajaran || !payload.kelas || !payload.jenis_penilaian || payload.kkm === null){
+    if(!payload.kode_mapping || !payload.mata_pelajaran || !payload.kelas || !payload.jenis_penilaian || payload.kkm === null || !payload.bentuk_soal){
       setFormMsg('Mohon lengkapi semua field yang wajib diisi.', 'error');
       return;
     }
