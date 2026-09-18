@@ -3720,7 +3720,9 @@
         const kodeSoalBaris = soalItems.length > 1
           ? `${baseKodeSoal}-${String(it.no_soal ?? '').padStart(2, '0')}`
           : baseKodeSoal;
-        return buildRowPayload(it, kodeSoalBaris);
+        // Soal yang baru dibuat defaultnya berstatus "Non Aktif" di kolom
+        // status, sampai guru mengaktifkannya sendiri lewat toggle di tabel.
+        return { ...buildRowPayload(it, kodeSoalBaris), status: 'Non Aktif' };
       });
 
       setFormMsg('Menyimpan...', '');
