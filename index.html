@@ -722,14 +722,18 @@
   }
 
   async function loginSiswa(namaSiswa, nisn){
-    const url = `${SUPABASE_URL}/datasiswa?nama_siswa=eq.${encodeURIComponent(namaSiswa)}&nisn=eq.${encodeURIComponent(nisn)}&select=id,nama_siswa&limit=1`;
+    const url = `${SUPABASE_URL}/datasiswa?nama_siswa=eq.${encodeURIComponent(namaSiswa)}&nisn=eq.${encodeURIComponent(nisn)}&select=*&limit=1`;
     const res = await fetch(url, {
       headers:{
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": "Bearer " + SUPABASE_ANON_KEY
       }
     });
-    if(!res.ok) throw new Error('Gagal menghubungi server.');
+    if(!res.ok){
+      const detail = await res.text().catch(() => '');
+      console.error('loginSiswa gagal:', res.status, detail);
+      throw new Error('Gagal menghubungi server.');
+    }
     const rows = await res.json();
     return rows && rows.length > 0 ? rows[0] : null;
   }
@@ -816,7 +820,7 @@
       try{
         const siswa = await loginSiswa(namaSiswa, password);
         if(siswa){
-          localStorage.setItem('siswa_session', JSON.stringify({ id: siswa.id, nama_siswa: siswa.nama_siswa }));
+          localStorage.setItem('siswa_session', JSON.stringify(siswa));
           showWelcomeAndRedirect(siswa.nama_siswa, 'adminsiswa.html');
         } else {
           showLoginError('Nama siswa atau kata sandi (NISN) salah.');
