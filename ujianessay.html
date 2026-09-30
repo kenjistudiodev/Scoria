@@ -254,6 +254,16 @@
     font-size:0.78rem;
     color:var(--ink-soft);
   }
+  .soal-gambar{
+    display:block; width:100%; max-height:420px;
+    object-fit:contain;
+    margin:0 0 16px;
+    border:1px solid var(--paper-line);
+    border-radius:8px;
+    background:#fbf8f0;
+    cursor:zoom-in;
+  }
+  .soal-gambar[hidden]{display:none;}
   .soal-text{
     font-size:1rem;
     line-height:1.65;
@@ -505,6 +515,7 @@
         <span class="soal-bobot" id="soalBobot"></span>
       </div>
       <p class="soal-warning" id="soalWarning" hidden></p>
+      <img class="soal-gambar" id="soalGambar" alt="Gambar soal" hidden>
       <p class="soal-text" id="soalText">Memuat soal...</p>
       <label class="soal-jawaban-label" for="soalJawaban">Jawaban Anda</label>
       <textarea class="soal-jawaban" id="soalJawaban" placeholder="Tuliskan jawabanmu di sini..."></textarea>
@@ -658,6 +669,13 @@
   const soalBobot = document.getElementById('soalBobot');
   const soalWarning = document.getElementById('soalWarning');
   const soalText = document.getElementById('soalText');
+  const soalGambar = document.getElementById('soalGambar');
+  // Gambar soal: sembunyikan jika gagal dimuat, klik untuk melihat ukuran penuh di tab baru
+  soalGambar.addEventListener('error', () => { soalGambar.hidden = true; });
+  soalGambar.addEventListener('click', () => {
+    if(soalGambar.getAttribute('src')) window.open(soalGambar.src, '_blank', 'noopener');
+  });
+
   const soalJawaban = document.getElementById('soalJawaban');
   const autosaveNote = document.getElementById('autosaveNote');
   const btnSoalSebelumnya = document.getElementById('btnSoalSebelumnya');
@@ -816,6 +834,13 @@
       : '';
     soalWarning.hidden = true;
     soalWarning.textContent = '';
+    if(s.gambar){
+      soalGambar.src = s.gambar;
+      soalGambar.hidden = false;
+    } else {
+      soalGambar.hidden = true;
+      soalGambar.removeAttribute('src');
+    }
     soalText.textContent = s.soal || '(Teks soal tidak tersedia)';
     soalJawaban.value = jawabanMap[s.kode_soal] || '';
     autosaveNote.textContent = jawabanMap[s.kode_soal] ? 'Tersimpan otomatis' : '';
@@ -988,7 +1013,7 @@
 
   async function muatDaftarSoalEssay(){
     const url = `${SUPABASE_URL}/daftar_soal_essay?kode_mapping=eq.${encodeURIComponent(kodeMapping)}` +
-      `&select=kode_soal,nomor_soal,soal,bobot_nilai&order=nomor_soal.asc`;
+      `&select=kode_soal,nomor_soal,soal,gambar,bobot_nilai&order=nomor_soal.asc`;
     const res = await fetch(url, { headers: sbHeaders() });
     if(!res.ok) throw new Error('Status ' + res.status);
     return await res.json();
