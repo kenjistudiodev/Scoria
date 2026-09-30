@@ -508,6 +508,7 @@
             <option value="" disabled selected>Pilih bentuk soal</option>
             <option value="Essay">Essay</option>
             <option value="Pilihan Ganda">Pilihan Ganda</option>
+            <option value="Drag & Drop">Drag &amp; Drop</option>
           </select>
         </div>
         <div class="form-group full">
@@ -888,7 +889,7 @@
       return;
     }
     const baseKode = [abbrMapel(mapel), kelas.toUpperCase().replace(/\s+/g,''), abbrJenis(jenis)].filter(Boolean).join('-');
-    const suffixBentuk = bentukSoal === 'Pilihan Ganda' ? 'PG' : 'ES';
+    const suffixBentuk = bentukSoal === 'Pilihan Ganda' ? 'PG' : (bentukSoal === 'Drag & Drop' ? 'DD' : 'ES');
 
     const btnBuatKode = document.getElementById('btnBuatKode');
     btnBuatKode.disabled = true;
