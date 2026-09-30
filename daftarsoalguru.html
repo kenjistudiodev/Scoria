@@ -448,7 +448,7 @@
 
   .jenis-choice-grid{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
     gap:14px;
   }
   .jenis-choice{
@@ -473,6 +473,8 @@
   .jenis-choice svg{width:34px; height:34px; color:var(--brand);}
   .jenis-choice.pg:hover{border-color:var(--brick); background:#FFE3EE;}
   .jenis-choice.pg:hover svg{color:var(--brick);}
+  .jenis-choice.dd:hover{border-color:var(--turquoise); background:#DDF3F0;}
+  .jenis-choice.dd:hover svg{color:var(--turquoise);}
   .jenis-choice-desc{font-size:0.74rem; font-weight:400; color:var(--ink-soft);}
 
   /* ---------- Modal (center) ---------- */
@@ -908,7 +910,7 @@
 
 <main>
   <h1 class="page-heading">Daftar Soal</h1>
-  <p class="page-sub">Kelola soal-soal yang sudah Anda buat, baik Essay maupun Pilihan Ganda.</p>
+  <p class="page-sub">Kelola soal-soal yang sudah Anda buat, baik Essay, Pilihan Ganda, maupun Drag and Drop.</p>
 
   <div class="panel panel-soal">
     <div class="panel-head">
@@ -923,6 +925,7 @@
     <div class="tab-bar" id="tabBarSoal" role="tablist">
       <button type="button" class="tab-btn active" id="tabEssay" data-tab="essay" role="tab" aria-selected="true">Essay</button>
       <button type="button" class="tab-btn" id="tabPilgan" data-tab="pilgan" role="tab" aria-selected="false">Pilihan Ganda</button>
+      <button type="button" class="tab-btn" id="tabDragdrop" data-tab="dragdrop" role="tab" aria-selected="false">Drag and Drop</button>
     </div>
 
     <p class="scroll-hint">
@@ -1019,6 +1022,11 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
         Pilihan Ganda
         <span class="jenis-choice-desc">Soal dengan opsi jawaban</span>
+      </button>
+      <button type="button" class="jenis-choice dd" id="btnJenisDD">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5" stroke-dasharray="3 2"/><path d="M11 7h3a3 3 0 0 1 3 3v3"/><polyline points="15 11 17 13 19 11"/></svg>
+        Drag and Drop
+        <span class="jenis-choice-desc">Soal seret dan lepas</span>
       </button>
     </div>
     <div class="form-actions">
@@ -1281,6 +1289,7 @@
   // Tabel tujuan penyimpanan saat "Simpan" ditekan, tergantung jenis soal.
   const TABLE_ESSAY = "daftar_soal_essay";
   const TABLE_PILGAN = "daftar_soal_pilgan";
+  const TABLE_DRAGDROP = "daftar_soal_dragdrop";
   // Tabel rekap nilai siswa (diisi guru lewat menu Daftar Nilai Siswa >
   // Mapping Peserta). "Kirim Nilai" pada modal Upload Nilai Kolektif akan
   // menulis skor ke kolom UH1..UH6/UTS/UAS pada tabel ini, dicocokkan
@@ -1406,7 +1415,7 @@
   let currentPage = 0;
   let searchTerm = '';
   let totalRows = 0;
-  let activeTab = 'essay'; // 'essay' | 'pilgan'
+  let activeTab = 'essay'; // 'essay' | 'pilgan' | 'dragdrop'
 
   // Konfigurasi tiap tab: tabel sumber & kolom yang ditampilkan di tabel.
   // Daftar Soal ditampilkan per Kode Mapping (1 baris = 1 Kode Mapping),
@@ -1425,6 +1434,17 @@
     },
     pilgan: {
       table: TABLE_PILGAN,
+      columns: [
+        { key: 'kode_mapping', label: 'Kode Mapping' },
+        { key: 'mata_pelajaran', label: 'Mata Pelajaran' },
+        { key: 'kelas', label: 'Kelas' },
+        { key: 'jenis_penilaian', label: 'Jenis Penilaian' },
+        { key: 'jumlah_soal', label: 'Jumlah Soal' },
+        { key: 'status', label: 'Status' }
+      ]
+    },
+    dragdrop: {
+      table: TABLE_DRAGDROP,
       columns: [
         { key: 'kode_mapping', label: 'Kode Mapping' },
         { key: 'mata_pelajaran', label: 'Mata Pelajaran' },
@@ -1608,7 +1628,7 @@
 
     tableBody.querySelectorAll('.btn-edit').forEach(btn=>{
       btn.addEventListener('click', ()=>{
-        const jenisSoal = activeTab === 'pilgan' ? 'Pilihan Ganda' : 'Essay';
+        const jenisSoal = activeTab === 'pilgan' ? 'Pilihan Ganda' : (activeTab === 'dragdrop' ? 'Drag and Drop' : 'Essay');
         openEditForm(btn.dataset.kodeMapping, jenisSoal, currentConfig().table);
       });
     });
@@ -3150,6 +3170,10 @@
     closeJenisModal();
     openAddForm('Pilihan Ganda');
   });
+  document.getElementById('btnJenisDD').addEventListener('click', ()=>{
+    closeJenisModal();
+    openAddForm('Drag and Drop');
+  });
 
   // ---------- Modal: Tambah Soal ----------
   const formBackdrop = document.getElementById('formBackdrop');
@@ -3367,9 +3391,50 @@ ${gambarBlockHtml(data)}
       </div>`;
   }
 
+  function buildDDItemHtml(idx, data){
+    data = data || {};
+    const originalAttr = data.originalKode ? ` data-original-kode="${escapeHtml(data.originalKode)}"` : '';
+    return `
+      <div class="soal-item-card" data-item-index="${idx}" data-item-type="dd"${originalAttr}>
+        <div class="soal-item-head">
+          <span>Soal ${idx + 1}</span>
+          <div class="soal-item-actions">
+          <button type="button" class="btn-icon-remove" data-remove-item>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Hapus
+          </button>
+          </div>
+        </div>
+        <div class="soal-item-grid">
+          <div class="form-group">
+            <label>Kode Soal</label>
+            <input type="text" class="f-kode-soal" readonly value="">
+          </div>
+          <div class="form-group">
+            <label>Nomor Soal</label>
+            <input type="number" min="1" class="f-no-soal" value="${data.nomor_soal ?? (idx + 1)}">
+          </div>
+          <div class="form-group">
+            <label>Bobot Nilai</label>
+            <input type="number" min="0" class="f-bobot" placeholder="Mis. 10" value="${data.bobot_nilai ?? ''}">
+          </div>
+          <div class="form-group full">
+            <label>Soal</label>
+            <textarea class="f-soal" placeholder="Tuliskan soal...">${escapeHtml(data.soal)}</textarea>
+          </div>
+          <div class="form-group full">
+            <label>Jawaban</label>
+            <textarea class="f-jawaban" placeholder="Tuliskan jawaban...">${escapeHtml(data.jawaban)}</textarea>
+          </div>
+        </div>
+      </div>`;
+  }
+
   function addSoalItem(data){
     const idx = itemCounter++;
-    const html = currentJenisSoal === 'Pilihan Ganda' ? buildPGItemHtml(idx, data) : buildEssayItemHtml(idx, data);
+    const html = currentJenisSoal === 'Pilihan Ganda' ? buildPGItemHtml(idx, data)
+      : currentJenisSoal === 'Drag and Drop' ? buildDDItemHtml(idx, data)
+      : buildEssayItemHtml(idx, data);
     soalItemsContainer.insertAdjacentHTML('beforeend', html);
     updateRemoveButtonsVisibility();
     refreshEssayKodeSoalDisplays();
@@ -3625,6 +3690,7 @@ ${gambarBlockHtml(data)}
         pilihan_d: row.pilihan_d,
         pilihan_e: row.pilihan_e,
         gambar: row.gambar,
+        jawaban: row.jawaban,
         originalKode: row.kode_soal
       }));
     } else {
@@ -3652,6 +3718,14 @@ ${gambarBlockHtml(data)}
           bobot_nilai: card.querySelector('.f-bobot').value === '' ? null : Number(card.querySelector('.f-bobot').value),
           gambar: card.dataset.gambar || null,
           gambarFile: card._gambarFile || null
+        });
+      } else if(card.dataset.itemType === 'dd'){
+        items.push({
+          originalKode: card.dataset.originalKode || null,
+          no_soal: Number(card.querySelector('.f-no-soal').value) || null,
+          soal: card.querySelector('.f-soal').value.trim(),
+          jawaban: card.querySelector('.f-jawaban').value.trim(),
+          bobot_nilai: card.querySelector('.f-bobot').value === '' ? null : Number(card.querySelector('.f-bobot').value)
         });
       } else {
         items.push({
@@ -3829,7 +3903,7 @@ ${gambarBlockHtml(data)}
     e.preventDefault();
 
     const baseKodeSoal = inputKodeSoal.value.trim();
-    const jenisSoal = inputJenisSoal.value; // 'Essay' atau 'Pilihan Ganda'
+    const jenisSoal = inputJenisSoal.value; // 'Essay', 'Pilihan Ganda', atau 'Drag and Drop'
 
     const dataUmum = {
       kode_mapping: inputKodeMapping.value,
@@ -3852,8 +3926,10 @@ ${gambarBlockHtml(data)}
       targetTable = TABLE_ESSAY;
     } else if(jenisSoal === 'Pilihan Ganda'){
       targetTable = TABLE_PILGAN;
+    } else if(jenisSoal === 'Drag and Drop'){
+      targetTable = TABLE_DRAGDROP;
     } else {
-      setFormMsg('Jenis soal tidak valid. Pilih ulang jenis soal (Essay/Pilihan Ganda).', 'error');
+      setFormMsg('Jenis soal tidak valid. Pilih ulang jenis soal (Essay/Pilihan Ganda/Drag and Drop).', 'error');
       return;
     }
 
@@ -3863,9 +3939,23 @@ ${gambarBlockHtml(data)}
       setFormMsg('Mohon lengkapi isian setiap butir soal (minimal kolom Soal).', 'error');
       return;
     }
+    if(jenisSoal === 'Drag and Drop' && soalItems.some(it => !it.jawaban)){
+      setFormMsg('Mohon isi kolom Jawaban pada setiap butir soal Drag and Drop.', 'error');
+      return;
+    }
 
     // ---------- Fungsi bantu: susun 1 baris payload untuk 1 butir soal ----------
     function buildRowPayload(it, kodeSoalBaris){
+      if(jenisSoal === 'Drag and Drop'){
+        return {
+          kode_soal: kodeSoalBaris,
+          ...dataUmum,
+          nomor_soal: it.no_soal,
+          soal: it.soal,
+          jawaban: it.jawaban,
+          bobot_nilai: it.bobot_nilai
+        };
+      }
       if(jenisSoal === 'Essay'){
         return {
           kode_soal: kodeSoalBaris,
