@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bahan Ajar Guru — SCORIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#3B2E63; --ink-soft:#7A7191;
+    --paper:#FFFAF0; --paper-deep:#FFEFD6; --paper-line:#F5DDAE;
+    --brand:#6C4FE0; --gold:#FFC93C; --brick:#D6336C;
+    --green:#1A8754; --turquoise:#0F766E; --purple:#7B5EEA; --blue:#2F80ED;
+  }
+  *{box-sizing:border-box;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
+    overflow-x:hidden; max-width:100vw; padding-bottom:40px;
+  }
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--brand); color:#fff;
+    padding:14px clamp(16px,4vw,40px);
+  }
+  .nav-left{display:flex; align-items:center; gap:10px; min-width:0;}
+  .school-logo{
+    width:38px; height:38px; border-radius:50%;
+    background:var(--paper); color:var(--brand);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.75rem;
+    flex-shrink:0; overflow:hidden;
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .school-name{font-size:0.92rem; font-weight:500; color:var(--paper); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .back-btn{
+    display:inline-flex; align-items:center; gap:6px;
+    color:#fff; text-decoration:none; font-size:0.85rem; font-weight:600;
+    border:1px solid rgba(255,255,255,0.45); border-radius:999px; padding:6px 14px;
+    flex-shrink:0; transition:background .15s ease;
+  }
+  .back-btn:hover{background:rgba(255,255,255,0.18);}
+  .back-btn svg{width:16px; height:16px;}
+
+  main{max-width:1100px; margin:0 auto; padding:32px clamp(16px,4vw,40px) 12px;}
+  .page-heading{font-family:'Newsreader',serif; font-weight:500; font-size:clamp(1.4rem,2.6vw,1.85rem); margin:0 0 4px;}
+  .page-sub{font-size:0.92rem; color:var(--ink-soft); margin:0 0 24px;}
+
+  .panel{
+    background:#fffdf7; border:1px solid var(--paper-line);
+    border-radius:10px; padding:18px 20px; margin-bottom:18px;
+  }
+  .filters{display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr; gap:14px;}
+  .field{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .field label{font-size:0.7rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft);}
+  .field select,.field input{
+    font-family:inherit; font-size:0.92rem; color:var(--ink);
+    background:#fff; border:1px solid var(--paper-line); border-radius:8px;
+    padding:10px 12px; width:100%;
+  }
+  .field select:focus,.field input:focus{border-color:var(--brand); outline:none; box-shadow:0 0 0 3px rgba(108,79,224,0.15);}
+
+  .summary-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  .summary-text{font-size:0.88rem; color:var(--ink-soft);}
+  .summary-text b{color:var(--ink);}
+  .reset-btn{
+    font-family:inherit; font-size:0.8rem; font-weight:600; color:var(--ink);
+    background:none; border:none; border-bottom:1px solid var(--ink); padding:0 0 1px; cursor:pointer;
+  }
+  .reset-btn:hover{color:var(--brick); border-color:var(--brick);}
+
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px;}
+  .card{
+    background:#fffdf7; border:1px solid var(--paper-line); border-radius:10px;
+    padding:16px 18px; display:flex; flex-direction:column; gap:10px; min-width:0;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(59,46,99,0.12);}
+  .card-title{font-family:'Newsreader',serif; font-weight:600; font-size:1.05rem; margin:0; line-height:1.3; overflow-wrap:anywhere;}
+  .card-desc{
+    font-size:0.85rem; color:var(--ink-soft); margin:0; line-height:1.5;
+    display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .tags{display:flex; flex-wrap:wrap; gap:6px;}
+  .tag{font-size:0.7rem; font-weight:600; color:#fff; border-radius:5px; padding:3px 9px;}
+  .tag.mapel{background:var(--green);}
+  .tag.kelas{background:var(--blue);}
+  .tag.jenis{background:var(--purple);}
+  .tag.video{background:var(--brick);}
+  .tag.tautan{background:var(--turquoise);}
+  .tag.nonaktif{background:var(--ink-soft);}
+  .card{cursor:pointer;}
+  .card-more{font-size:0.75rem; font-weight:600; color:var(--brand);}
+
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    background:rgba(59,46,99,0.5);
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    opacity:0; visibility:hidden;
+    transition:opacity .22s ease, visibility 0s linear .22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity .22s ease, visibility 0s linear 0s;}
+  .modal{
+    background:var(--paper); border-radius:14px;
+    width:100%; max-width:720px; max-height:88vh;
+    display:flex; flex-direction:column; overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,0.3);
+    transform:translateY(14px) scale(.98);
+    transition:transform .25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal-head{
+    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
+    padding:18px 20px 14px; border-bottom:1px solid var(--paper-line); background:#fffdf7;
+  }
+  .modal-title{font-family:'Newsreader',serif; font-weight:600; font-size:1.25rem; margin:0 0 8px; line-height:1.3; overflow-wrap:anywhere;}
+  .modal-close{
+    flex-shrink:0; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--paper-line); background:#fff; color:var(--ink);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close:hover{background:#FFE3EE; border-color:var(--brick); color:var(--brick);}
+  .modal-close svg{width:16px; height:16px;}
+  .modal-body{padding:18px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:16px;}
+  .modal-meta{display:flex; align-items:center; gap:10px;}
+  .modal-meta .avatar{width:34px; height:34px; font-size:0.75rem;}
+  .id-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:0 20px;
+    background:#fffdf7; border:1px solid var(--paper-line); border-radius:10px; padding:4px 16px;
+  }
+  .id-item{display:flex; flex-direction:column; gap:2px; padding:10px 0; border-bottom:1px solid var(--paper-line); min-width:0;}
+  .id-item.full{grid-column:1 / -1;}
+  .id-item:nth-last-child(-n+1){border-bottom:none;}
+  .id-label{font-size:0.66rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft);}
+  .id-value{font-size:0.9rem; font-weight:500; overflow-wrap:anywhere;}
+  .id-value.mono{font-family:'JetBrains Mono',monospace; font-size:0.8rem;}
+  .badge-status{display:inline-block; font-size:0.72rem; font-weight:700; color:#fff; border-radius:5px; padding:3px 9px;}
+  .badge-status.aktif{background:var(--green);}
+  .badge-status.nonaktif{background:var(--ink-soft);}
+  @media (max-width:520px){ .id-grid{grid-template-columns:1fr;} .id-item:nth-last-child(-n+1){border-bottom:none;} }
+  .modal-section h4{
+    margin:0 0 6px; font-size:0.7rem; font-weight:600; letter-spacing:0.04em;
+    text-transform:uppercase; color:var(--ink-soft);
+  }
+  .modal-section p,.modal-text{margin:0; font-size:0.92rem; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere;}
+  .modal-text{background:#fffdf7; border:1px solid var(--paper-line); border-radius:8px; padding:14px 16px;}
+  .video-wrap{position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; background:#000;}
+  .video-wrap iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+  .modal-foot{padding:12px 20px; border-top:1px solid var(--paper-line); background:#fffdf7; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;}
+  .btn{
+    font-family:inherit; font-size:0.85rem; font-weight:600; border-radius:8px;
+    padding:9px 16px; cursor:pointer; text-decoration:none; display:inline-block;
+  }
+  .btn-primary{background:var(--brand); color:#fff; border:1px solid var(--brand);}
+  .btn-primary:hover{background:#5a3fd0;}
+  .btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--paper-line);}
+  .btn-ghost:hover{border-color:var(--brick); color:var(--brick);}
+  @media (max-width:520px){ .modal{max-height:92vh;} .modal-body{padding:14px;} .modal-head{padding:14px;} }
+  details.teks{font-size:0.82rem; color:var(--ink);}
+  details.teks summary{cursor:pointer; font-weight:600; color:var(--brand);}
+  details.teks div{margin-top:8px; white-space:pre-wrap; line-height:1.55; max-height:220px; overflow:auto; background:var(--paper-deep); border-radius:8px; padding:10px 12px;}
+  .card-foot{
+    margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding-top:10px; border-top:1px dashed var(--paper-line);
+  }
+  .guru{display:flex; align-items:center; gap:8px; min-width:0;}
+  .avatar{
+    width:28px; height:28px; border-radius:50%; background:var(--gold); color:#221a06;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.68rem; flex-shrink:0;
+  }
+  .guru-info{display:flex; flex-direction:column; min-width:0;}
+  .guru-name{font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .date{font-family:'JetBrains Mono',monospace; font-size:0.66rem; color:var(--ink-soft);}
+  .open-link{
+    font-size:0.78rem; font-weight:600; color:var(--brand); text-decoration:none;
+    border-bottom:1px solid var(--brand); white-space:nowrap; flex-shrink:0;
+  }
+  .open-link:hover{color:var(--brick); border-color:var(--brick);}
+
+  .state{
+    text-align:center; color:var(--ink-soft); font-size:0.92rem;
+    padding:44px 16px; background:#fffdf7; border:1px dashed var(--paper-line); border-radius:10px;
+  }
+  .state.error{color:var(--brick); border-color:var(--brick);}
+  .spinner{
+    width:26px; height:26px; margin:0 auto 12px; border-radius:50%;
+    border:3px solid var(--paper-line); border-top-color:var(--brand);
+    animation:spin .8s linear infinite;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  @media (max-width:900px){ .filters{grid-template-columns:1fr 1fr;} }
+  @media (max-width:720px){
+    .filters{grid-template-columns:1fr;}
+    main{padding-left:12px; padding-right:12px;}
+    .school-name{max-width:40vw;}
+  }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <div class="school-logo" id="schoolLogo">SMA</div>
+    <span class="school-name" id="schoolName">SCORIA</span>
+  </div>
+  <a class="back-btn" href="admin.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+    Dashboard
+  </a>
+</header>
+
+<main>
+  <h1 class="page-heading">Bahan Ajar Guru</h1>
+  <p class="page-sub">Daftar materi ajar yang diunggah guru. Pilih nama guru untuk melihat bahan ajarnya.</p>
+
+  <section class="panel">
+    <div class="filters">
+      <div class="field">
+        <label for="filterGuru">Nama Guru</label>
+        <select id="filterGuru"><option value="">Semua guru</option></select>
+      </div>
+      <div class="field">
+        <label for="filterMapel">Mata Pelajaran</label>
+        <select id="filterMapel"><option value="">Semua mapel</option></select>
+      </div>
+      <div class="field">
+        <label for="filterStatus">Status</label>
+        <select id="filterStatus"><option value="">Semua status</option><option>Aktif</option><option>Nonaktif</option></select>
+      </div>
+      <div class="field">
+        <label for="filterSearch">Cari judul</label>
+        <input id="filterSearch" type="search" placeholder="Ketik judul materi...">
+      </div>
+    </div>
+  </section>
+
+  <div class="summary-row">
+    <span class="summary-text" id="summaryText">Memuat data...</span>
+    <button class="reset-btn" id="resetBtn" type="button">Reset filter</button>
+  </div>
+
+  <div id="content"><div class="state"><div class="spinner"></div>Memuat bahan ajar...</div></div>
+</main>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <div style="min-width:0;">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="tags" id="modalTags"></div>
+      </div>
+      <button class="modal-close" id="modalClose" type="button" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<script>
+  // ====== KONFIGURASI ======
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+
+  // Tabel yang sama dengan materiajarguru.html
+  const TABEL_MATERI = "materiajar";
+  // =========================
+
+  const $ = id => document.getElementById(id);
+  let semuaData = [];
+  let daftarGuru = [];
+  let hasilTampil = [];
+
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const inisial = n => (String(n).trim().split(/\s+/).slice(0,2).map(w => w[0]).join("") || "G").toUpperCase();
+  const safeUrl = u => /^(https?:)?\/\//i.test(u) ? u : (u ? "https://" + u : "");
+
+  function fmtTanggal(v){
+    if(!v) return "";
+    const d = new Date(v);
+    return isNaN(d) ? String(v) : d.toLocaleDateString("id-ID",{day:"numeric",month:"short",year:"numeric"});
+  }
+
+  function fmtTanggalWaktu(v){
+    if(!v) return "-";
+    const d = new Date(v);
+    return isNaN(d) ? String(v)
+      : d.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"}) + ", " +
+        d.toLocaleTimeString("id-ID",{hour:"2-digit",minute:"2-digit"}).replace(".", ":") + " WIB";
+  }
+
+  const headers = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+
+  // Logo & nama sekolah
+  (async function(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo&limit=1`, {headers});
+      if(!res.ok) return;
+      const p = (await res.json())[0];
+      if(!p) return;
+      if(p.nama_sekolah) $("schoolName").textContent = p.nama_sekolah;
+      if(p.logo){
+        const el = $("schoolLogo"); el.innerHTML = "";
+        const img = document.createElement("img"); img.src = p.logo; img.alt = "Logo Sekolah";
+        el.appendChild(img);
+      }
+    }catch(e){ console.error(e); }
+  })();
+
+  async function muatData(){
+    try{
+      const [resMateri, resGuru] = await Promise.all([
+        fetch(`${SUPABASE_URL}/${TABEL_MATERI}?select=*&order=created_at.desc`, {headers}),
+        fetch(`${SUPABASE_URL}/dataguru?select=nama_guru&order=nama_guru.asc`, {headers}).catch(() => null)
+      ]);
+      if(!resMateri.ok) throw new Error("Status " + resMateri.status + " — cek tabel '" + TABEL_MATERI + "' dan izin akses (RLS)");
+      semuaData = await resMateri.json();
+      if(resGuru && resGuru.ok){
+        daftarGuru = (await resGuru.json()).map(r => r.nama_guru);
+      }
+      isiDropdown();
+      render();
+    }catch(err){
+      console.error(err);
+      $("summaryText").textContent = "Gagal memuat data.";
+      $("content").innerHTML = `<div class="state error">Gagal memuat bahan ajar.<br><small>${esc(err.message)}</small></div>`;
+    }
+  }
+
+  function isiDropdown(){
+    const opsi = (sel, values, label) => {
+      const cur = sel.value;
+      const uniq = [...new Set(values.map(v => String(v ?? "").trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b,"id"));
+      sel.innerHTML = `<option value="">${label}</option>` + uniq.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+      sel.value = uniq.includes(cur) ? cur : "";
+    };
+    // semua guru terdaftar + guru yang sudah punya materi
+    opsi($("filterGuru"), [...daftarGuru, ...semuaData.map(d => d.nama_guru)], "Semua guru");
+    opsi($("filterMapel"), semuaData.map(d => d.mata_pelajaran), "Semua mapel");
+  }
+
+  function render(){
+    const guru = $("filterGuru").value;
+    const mapel = $("filterMapel").value;
+    const status = $("filterStatus").value;
+    const q = $("filterSearch").value.trim().toLowerCase();
+
+    const hasil = semuaData.filter(d =>
+      (!guru || (d.nama_guru || "").trim() === guru) &&
+      (!mapel || d.mata_pelajaran === mapel) &&
+      (!status || d.status === status) &&
+      (!q || String(d.judul_materi ?? "").toLowerCase().includes(q))
+    );
+
+    $("summaryText").innerHTML = `Menampilkan <b>${hasil.length}</b> dari ${semuaData.length} bahan ajar` +
+      (guru ? ` &middot; guru: <b>${esc(guru)}</b>` : "");
+
+    if(!hasil.length){
+      $("content").innerHTML = `<div class="state">${guru ? "Guru ini belum memiliki bahan ajar yang sesuai filter." : "Tidak ada bahan ajar yang cocok dengan filter."}</div>`;
+      return;
+    }
+
+    hasilTampil = hasil;
+    $("content").innerHTML = `<div class="grid">` + hasil.map((d, i) => {
+      const url = safeUrl(String(d.url_konten || "").trim());
+      const jenisCls = d.jenis_materi === "Video" ? "video" : d.jenis_materi === "Tautan" ? "tautan" : "jenis";
+      return `
+      <article class="card" data-i="${i}" tabindex="0" role="button" aria-label="Lihat isi ${esc(d.judul_materi || 'bahan ajar')}">
+        <h3 class="card-title">${esc(d.judul_materi || "(Tanpa judul)")}</h3>
+        <div class="tags">
+          ${d.mata_pelajaran ? `<span class="tag mapel">${esc(d.mata_pelajaran)}</span>` : ""}
+          ${d.kelas ? `<span class="tag kelas">${esc(d.kelas)}</span>` : ""}
+          ${d.jenis_materi ? `<span class="tag ${jenisCls}">${esc(d.jenis_materi)}</span>` : ""}
+          ${d.status === "Nonaktif" ? `<span class="tag nonaktif">Nonaktif</span>` : ""}
+        </div>
+        ${d.deskripsi ? `<p class="card-desc">${esc(d.deskripsi)}</p>` : ""}
+        <div class="card-foot">
+          <div class="guru">
+            <span class="avatar">${esc(inisial(d.nama_guru))}</span>
+            <div class="guru-info">
+              <span class="guru-name">${esc(d.nama_guru || "Tanpa nama")}</span>
+              <span class="date">${esc(fmtTanggal(d.created_at))}</span>
+            </div>
+          </div>
+          <span class="card-more">Lihat isi &rarr;</span>
+        </div>
+      </article>`;
+    }).join("") + `</div>`;
+  }
+
+  function youtubeId(u){
+    try{
+      const x = new URL(u);
+      if(x.hostname.includes("youtu.be")) return x.pathname.slice(1).split("/")[0];
+      if(x.hostname.includes("youtube.com")){
+        if(x.searchParams.get("v")) return x.searchParams.get("v");
+        const m = x.pathname.match(/^\/(embed|shorts|live)\/([\w-]+)/);
+        if(m) return m[2];
+      }
+    }catch(e){}
+    return "";
+  }
+
+  const backdrop = $("modalBackdrop");
+  function bukaModal(d){
+    const url = safeUrl(String(d.url_konten || "").trim());
+    const jenisCls = d.jenis_materi === "Video" ? "video" : d.jenis_materi === "Tautan" ? "tautan" : "jenis";
+
+    $("modalTitle").textContent = d.judul_materi || "(Tanpa judul)";
+    $("modalTags").innerHTML =
+      (d.mata_pelajaran ? `<span class="tag mapel">${esc(d.mata_pelajaran)}</span>` : "") +
+      (d.kelas ? `<span class="tag kelas">${esc(d.kelas)}</span>` : "") +
+      (d.jenis_materi ? `<span class="tag ${jenisCls}">${esc(d.jenis_materi)}</span>` : "") +
+      (d.status === "Nonaktif" ? `<span class="tag nonaktif">Nonaktif</span>` : "");
+
+    const val = v => (v === null || v === undefined || String(v).trim() === "") ? "-" : esc(v);
+    const item = (label, html, cls = "") => `<div class="id-item ${cls}"><span class="id-label">${label}</span><span class="id-value ${cls.includes("mono") ? "mono" : ""}">${html}</span></div>`;
+    const statusHtml = d.status
+      ? `<span class="badge-status ${d.status === "Aktif" ? "aktif" : "nonaktif"}">${esc(d.status)}</span>` : "-";
+
+    let body = `<div class="modal-section"><h4>Identitas Bahan Ajar</h4><div class="id-grid">` +
+      item("Judul Materi", val(d.judul_materi), "full") +
+      item("Mata Pelajaran", val(d.mata_pelajaran)) +
+      item("Kelas", val(d.kelas)) +
+      item("Jenis Materi", val(d.jenis_materi)) +
+      item("Status", statusHtml) +
+      item("Nama Guru", val(d.nama_guru)) +
+      item("NIP Guru", val(d.nip_guru), "mono") +
+      item("Tanggal Dibuat", esc(fmtTanggalWaktu(d.created_at))) +
+      (d.updated_at ? item("Terakhir Diperbarui", esc(fmtTanggalWaktu(d.updated_at))) : "") +
+      item("ID Materi", val(d.id), "mono") +
+      `</div></div>`;
+
+    if(d.deskripsi) body += `<div class="modal-section"><h4>Deskripsi</h4><p>${esc(d.deskripsi)}</p></div>`;
+
+    if(d.jenis_materi === "Video" && url){
+      const id = youtubeId(url);
+      if(id) body += `<div class="video-wrap"><iframe src="https://www.youtube.com/embed/${encodeURIComponent(id)}" title="Video materi" allow="accelerometer; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
+    }
+    if(d.isi_teks) body += `<div class="modal-section"><h4>Isi Materi</h4><div class="modal-text">${esc(d.isi_teks)}</div></div>`;
+    if(url) body += `<div class="modal-section"><h4>Tautan</h4><p><a class="open-link" href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a></p></div>`;
+    if(!d.deskripsi && !d.isi_teks && !url) body += `<div class="state">Materi ini belum memiliki isi.</div>`;
+
+    $("modalBody").innerHTML = body;
+    $("modalFoot").innerHTML =
+      (url ? `<a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka konten</a>` : "") +
+      `<button class="btn btn-ghost" type="button" id="modalTutup">Tutup</button>`;
+    $("modalTutup").addEventListener("click", tutupModal);
+
+    backdrop.classList.add("open");
+    document.body.style.overflow = "hidden";
+    $("modalBody").scrollTop = 0;
+  }
+  function tutupModal(){
+    backdrop.classList.remove("open");
+    document.body.style.overflow = "";
+    $("modalBody").innerHTML = "";   // hentikan video yang sedang diputar
+  }
+
+  $("content").addEventListener("click", e => {
+    const card = e.target.closest(".card");
+    if(card) bukaModal(hasilTampil[Number(card.dataset.i)]);
+  });
+  $("content").addEventListener("keydown", e => {
+    if((e.key === "Enter" || e.key === " ") && e.target.classList.contains("card")){
+      e.preventDefault();
+      bukaModal(hasilTampil[Number(e.target.dataset.i)]);
+    }
+  });
+  $("modalClose").addEventListener("click", tutupModal);
+  backdrop.addEventListener("click", e => { if(e.target === backdrop) tutupModal(); });
+  document.addEventListener("keydown", e => { if(e.key === "Escape") tutupModal(); });
+
+  ["filterGuru","filterMapel","filterStatus"].forEach(id => $(id).addEventListener("change", render));
+  $("filterSearch").addEventListener("input", render);
+  $("resetBtn").addEventListener("click", () => {
+    $("filterGuru").value = ""; $("filterMapel").value = ""; $("filterStatus").value = ""; $("filterSearch").value = "";
+    render();
+  });
+
+  muatData();
+</script>
+</body>
+</html>
