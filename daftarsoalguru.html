@@ -822,6 +822,59 @@
   .btn-add-soal:hover{background:#5A3FCB;}
   .btn-add-soal svg{width:16px; height:16px;}
 
+  /* ---------- Gambar per butir soal ---------- */
+  .soal-item-actions{display:flex; align-items:center; gap:8px;}
+  .btn-gambar{
+    position:relative;
+    width:30px; height:30px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    background:#FFFFFF; color:var(--brand);
+    border:1px solid var(--paper-line);
+    cursor:pointer; padding:0;
+    transition:background .15s ease, color .15s ease;
+  }
+  .btn-gambar svg{width:16px; height:16px;}
+  .btn-gambar:hover,.btn-gambar:focus-visible{background:var(--brand); color:#FFFFFF;}
+  .btn-gambar.has-img{background:var(--brand); color:#FFFFFF;}
+  .btn-gambar::after{
+    content:attr(data-tip);
+    position:absolute; top:calc(100% + 7px); right:0;
+    background:var(--ink); color:#FFFFFF;
+    font-size:0.7rem; font-weight:600; white-space:nowrap;
+    padding:4px 9px; border-radius:6px;
+    opacity:0; visibility:hidden; transform:translateY(-3px);
+    transition:opacity .15s ease, transform .15s ease, visibility 0s linear .15s;
+    pointer-events:none; z-index:5;
+  }
+  .btn-gambar:hover::after,.btn-gambar:focus-visible::after{
+    opacity:1; visibility:visible; transform:none;
+    transition:opacity .15s ease, transform .15s ease, visibility 0s linear 0s;
+  }
+  .soal-gambar-wrap.is-hidden{display:none !important;}
+  .gambar-preview{
+    width:100%;
+    display:flex; flex-direction:column; gap:8px;
+    padding:9px 11px;
+    border:1px solid var(--paper-line);
+    border-radius:6px;
+    background:#fbf8f0;
+  }
+  .gambar-preview img{
+    display:block; width:100%; max-height:240px;
+    object-fit:contain;
+    border-radius:4px; background:var(--paper-deep);
+    cursor:zoom-in;
+  }
+  .gambar-bar{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  .gambar-info{flex:1; min-width:0; display:flex; flex-direction:column; gap:2px;}
+  .gambar-name{font-size:0.78rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .gambar-status{font-size:0.7rem; color:var(--ink-soft);}
+  .btn-hapus-gambar{
+    background:none; border:none; cursor:pointer; padding:4px 6px; flex-shrink:0;
+    color:var(--brick); font-family:inherit; font-size:0.72rem; font-weight:600;
+  }
+  .btn-hapus-gambar:hover{text-decoration:underline;}
+
   @media (max-width:560px){
     .soal-item-grid{grid-template-columns:1fr;}
   }
@@ -1217,6 +1270,8 @@
     </div>
   </div>
 </div>
+
+<input type="file" id="fileGambarSoal" accept="image/*" style="display:none">
 
 <script>
   const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
@@ -3139,17 +3194,97 @@
 
   const HURUF_PILIHAN = ['A','B','C','D','E'];
 
+  // ---------- Gambar soal: file di bucket Storage "aset", URL-nya di kolom "gambar" ----------
+  const STORAGE_URL = SUPABASE_URL.replace('/rest/v1', '/storage/v1');
+  const BUCKET_ASET = 'aset';
+  const MAX_GAMBAR_BYTES = 5 * 1024 * 1024; // 5 MB
+
+  function gambarBtnHtml(data){
+    const has = !!(data && data.gambar);
+    const tip = has ? 'Ganti Gambar' : 'Tambah Gambar';
+    return `<button type="button" class="btn-gambar${has ? ' has-img' : ''}" data-tip="${tip}" aria-label="${tip}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.6"/><polyline points="21 15 16 10 5 21"/></svg>
+            </button>`;
+  }
+
+  function gambarBlockHtml(data){
+    const url = (data && data.gambar) || '';
+    return `
+          <div class="form-group full soal-gambar-wrap${url ? '' : ' is-hidden'}">
+            <label>Gambar Soal</label>
+            <div class="gambar-preview">
+              <img src="${escapeHtml(url)}" alt="Gambar soal">
+              <div class="gambar-bar">
+                <div class="gambar-info">
+                  <span class="gambar-name">${escapeHtml(url ? url.split('/').pop() : '')}</span>
+                  <span class="gambar-status">${url ? 'Tersimpan' : ''}</span>
+                </div>
+                <button type="button" class="btn-hapus-gambar" data-remove-gambar>Hapus gambar</button>
+              </div>
+            </div>
+          </div>`;
+  }
+
+  function renderCardGambar(card){
+    const file = card._gambarFile;
+    const url = card.dataset.gambar || '';
+    let src = url;
+    if(file){
+      if(!card._gambarObjUrl) card._gambarObjUrl = URL.createObjectURL(file);
+      src = card._gambarObjUrl;
+    }
+    const has = !!src;
+    const wrap = card.querySelector('.soal-gambar-wrap');
+    const btn = card.querySelector('.btn-gambar');
+    wrap.classList.toggle('is-hidden', !has);
+    const img = wrap.querySelector('img');
+    if(has) img.src = src; else img.removeAttribute('src');
+    wrap.querySelector('.gambar-name').textContent = file ? file.name : (url ? url.split('/').pop() : '');
+    wrap.querySelector('.gambar-status').textContent = file ? 'Akan diunggah saat disimpan' : (url ? 'Tersimpan' : '');
+    const tip = has ? 'Ganti Gambar' : 'Tambah Gambar';
+    btn.classList.toggle('has-img', has);
+    btn.dataset.tip = tip;
+    btn.setAttribute('aria-label', tip);
+  }
+
+  function clearCardGambar(card){
+    if(card._gambarObjUrl){ URL.revokeObjectURL(card._gambarObjUrl); card._gambarObjUrl = null; }
+    card._gambarFile = null;
+    card.dataset.gambar = '';
+    renderCardGambar(card);
+  }
+
+  async function uploadGambarSoal(file, jenisSoal, kodeMapping){
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '') || 'png';
+    const folder = (jenisSoal === 'Essay' ? 'essay' : 'pilgan') + '/' + String(kodeMapping).replace(/[^A-Za-z0-9_-]/g, '_');
+    const path = `soal/${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const res = await fetch(`${STORAGE_URL}/object/${BUCKET_ASET}/${path}`, {
+      method: 'POST',
+      headers: sbHeaders({ 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'false' }),
+      body: file
+    });
+    if(!res.ok){
+      let detail = '';
+      try{ const j = await res.json(); detail = j.message || j.error || ''; }catch(_){}
+      throw new Error(detail || ('status ' + res.status));
+    }
+    return `${STORAGE_URL}/object/public/${BUCKET_ASET}/${path}`;
+  }
+
   function buildEssayItemHtml(idx, data){
     data = data || {};
     const originalAttr = data.originalKode ? ` data-original-kode="${escapeHtml(data.originalKode)}"` : '';
     return `
-      <div class="soal-item-card" data-item-index="${idx}" data-item-type="essay"${originalAttr}>
+      <div class="soal-item-card" data-item-index="${idx}" data-item-type="essay"${originalAttr} data-gambar="${escapeHtml(data.gambar || '')}">
         <div class="soal-item-head">
           <span>Soal ${idx + 1}</span>
+          <div class="soal-item-actions">
+          ${gambarBtnHtml(data)}
           <button type="button" class="btn-icon-remove" data-remove-item>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Hapus
           </button>
+          </div>
         </div>
         <div class="soal-item-grid">
           <div class="form-group">
@@ -3164,6 +3299,7 @@
             <label>Bobot Nilai</label>
             <input type="number" min="0" class="f-bobot" placeholder="Mis. 10" value="${data.bobot_nilai ?? ''}">
           </div>
+${gambarBlockHtml(data)}
           <div class="form-group full">
             <label>Soal</label>
             <textarea class="f-soal" placeholder="Tuliskan pertanyaan...">${escapeHtml(data.soal)}</textarea>
@@ -3190,13 +3326,16 @@
     }).join('');
     const kunciOptions = HURUF_PILIHAN.map(h => `<option value="${h}"${data.kunci_jawaban === h ? ' selected' : ''}>${h}</option>`).join('');
     return `
-      <div class="soal-item-card" data-item-index="${idx}" data-item-type="pg"${originalAttr}>
+      <div class="soal-item-card" data-item-index="${idx}" data-item-type="pg"${originalAttr} data-gambar="${escapeHtml(data.gambar || '')}">
         <div class="soal-item-head">
           <span>Soal ${idx + 1}</span>
+          <div class="soal-item-actions">
+          ${gambarBtnHtml(data)}
           <button type="button" class="btn-icon-remove" data-remove-item>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             Hapus
           </button>
+          </div>
         </div>
         <div class="soal-item-grid">
           <div class="form-group">
@@ -3211,6 +3350,7 @@
             <label>Bobot Nilai</label>
             <input type="number" min="0" class="f-bobot" placeholder="Mis. 10" value="${data.bobot_nilai ?? ''}">
           </div>
+${gambarBlockHtml(data)}
           <div class="form-group full">
             <label>Soal</label>
             <textarea class="f-soal" placeholder="Tuliskan pertanyaan...">${escapeHtml(data.soal)}</textarea>
@@ -3303,6 +3443,46 @@
   });
 
   btnAddSoalItem.addEventListener('click', ()=> addSoalItem());
+
+  // ---------- Tambah / ganti / hapus gambar per butir soal ----------
+  const fileGambarSoal = document.getElementById('fileGambarSoal');
+  let gambarTargetCard = null;
+
+  soalItemsContainer.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.btn-gambar');
+    if(btn){
+      gambarTargetCard = btn.closest('.soal-item-card');
+      fileGambarSoal.click();
+      return;
+    }
+    const rm = e.target.closest('[data-remove-gambar]');
+    if(rm){
+      clearCardGambar(rm.closest('.soal-item-card'));
+      return;
+    }
+    const img = e.target.closest('.gambar-preview img');
+    if(img && img.getAttribute('src')) window.open(img.src, '_blank', 'noopener');
+  });
+
+  fileGambarSoal.addEventListener('change', ()=>{
+    const file = fileGambarSoal.files && fileGambarSoal.files[0];
+    const card = gambarTargetCard;
+    fileGambarSoal.value = '';
+    gambarTargetCard = null;
+    if(!file || !card) return;
+    if(!file.type.startsWith('image/')){
+      setFormMsg('File harus berupa gambar (JPG, PNG, WEBP, dll).', 'error');
+      return;
+    }
+    if(file.size > MAX_GAMBAR_BYTES){
+      setFormMsg('Ukuran gambar maksimal 5 MB.', 'error');
+      return;
+    }
+    setFormMsg('');
+    if(card._gambarObjUrl){ URL.revokeObjectURL(card._gambarObjUrl); card._gambarObjUrl = null; }
+    card._gambarFile = file;
+    renderCardGambar(card);
+  });
 
   // ---------- Export Template Soal (Excel) — Essay & Pilihan Ganda ----------
   function exportTemplateSoalEssay(){
@@ -3444,6 +3624,7 @@
         pilihan_c: row.pilihan_c,
         pilihan_d: row.pilihan_d,
         pilihan_e: row.pilihan_e,
+        gambar: row.gambar,
         originalKode: row.kode_soal
       }));
     } else {
@@ -3468,7 +3649,9 @@
           soal: card.querySelector('.f-soal').value.trim(),
           ...pilihan,
           kunci_jawaban: card.querySelector('.f-kunci').value,
-          bobot_nilai: card.querySelector('.f-bobot').value === '' ? null : Number(card.querySelector('.f-bobot').value)
+          bobot_nilai: card.querySelector('.f-bobot').value === '' ? null : Number(card.querySelector('.f-bobot').value),
+          gambar: card.dataset.gambar || null,
+          gambarFile: card._gambarFile || null
         });
       } else {
         items.push({
@@ -3476,7 +3659,9 @@
           no_soal: Number(card.querySelector('.f-no-soal').value) || null,
           soal: card.querySelector('.f-soal').value.trim(),
           kunci_jawaban: card.querySelector('.f-kunci').value.trim(),
-          bobot_nilai: card.querySelector('.f-bobot').value === '' ? null : Number(card.querySelector('.f-bobot').value)
+          bobot_nilai: card.querySelector('.f-bobot').value === '' ? null : Number(card.querySelector('.f-bobot').value),
+          gambar: card.dataset.gambar || null,
+          gambarFile: card._gambarFile || null
         });
       }
     });
@@ -3688,7 +3873,8 @@
           nomor_soal: it.no_soal,
           soal: it.soal,
           kunci_jawaban: it.kunci_jawaban,
-          bobot_nilai: it.bobot_nilai
+          bobot_nilai: it.bobot_nilai,
+          gambar: it.gambar || null
         };
       }
       // Pilihan Ganda — perhatikan nama kolom "pilhan_b" (bukan "pilihan_b")
@@ -3704,12 +3890,29 @@
         pilihan_d: it.pilihan_d,
         pilihan_e: it.pilihan_e,
         kunci_jawaban: it.kunci_jawaban,
-        bobot_nilai: it.bobot_nilai
+        bobot_nilai: it.bobot_nilai,
+        gambar: it.gambar || null
       };
     }
 
     const btnSimpan = btnSimpanSoal;
     btnSimpan.disabled = true;
+
+    // Unggah gambar baru ke bucket "aset" (jika ada), lalu simpan URL-nya di kolom "gambar".
+    try{
+      const perluUpload = soalItems.filter(it => it.gambarFile);
+      if(perluUpload.length > 0){
+        setFormMsg(`Mengunggah ${perluUpload.length} gambar...`, '');
+        for(const it of perluUpload){
+          it.gambar = await uploadGambarSoal(it.gambarFile, jenisSoal, dataUmum.kode_mapping);
+        }
+      }
+    }catch(err){
+      console.error('Gagal mengunggah gambar:', err);
+      setFormMsg(`Gagal mengunggah gambar (${err.message}). Pastikan bucket "${BUCKET_ASET}" sudah ada dan policy Storage mengizinkan upload.`, 'error');
+      btnSimpan.disabled = false;
+      return;
+    }
 
     if(!editMode){
       // ================= MODE TAMBAH (create) =================
