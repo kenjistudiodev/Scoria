@@ -1472,7 +1472,27 @@
     });
     if(!res.ok) throw new Error('Status ' + res.status);
     const rows = await res.json();
-    return rows && rows.length > 0;
+    if(rows && rows.length > 0) return true;
+
+    // Ujian Drag and Drop menyimpan jawabannya di tabel "jawabanujiandragdrop".
+    // Jika tabel belum dibuat / tidak bisa dibaca, abaikan (jangan blokir ujian lain).
+    try{
+      const resDD = await fetch(
+        `${SUPABASE_URL}/jawabanujiandragdrop` +
+        `?kode_mapping=eq.${encodeURIComponent(kodeMapping)}` +
+        `&nama_siswa=eq.${encodeURIComponent(namaSiswa)}` +
+        `&nisn=eq.${encodeURIComponent(nisn)}` +
+        `&select=id_jawaban&limit=1`,
+        { headers:{ "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY } }
+      );
+      if(resDD.ok){
+        const rowsDD = await resDD.json();
+        if(rowsDD && rowsDD.length > 0) return true;
+      }
+    }catch(e){
+      console.warn('Cek jawabanujiandragdrop dilewati:', e);
+    }
+    return false;
   }
 
   examCodeForm.addEventListener('submit', async (e) => {
@@ -1685,6 +1705,7 @@
   // Tentukan halaman ujian & tabel soal berdasarkan akhiran Kode Mapping:
   // "-PG" -> validasi & tarik soal dari tabel daftar_soal_pilgan (ujianpilihanganda.html)
   // "-ES" -> validasi & tarik soal dari tabel daftar_soal_essay (ujianessay.html)
+  // "-DD" -> validasi & tarik soal dari tabel daftar_soal_dragdrop (ujiandragdrop.html)
   // Kalau Kode Mapping lama tidak punya akhiran -PG/-ES, tetap dicoba dengan
   // cara lama (cek soal Essay dulu, baru Pilihan Ganda) supaya kode lama masih bisa dibuka.
   async function cariJenisSoal(kodeMapping){
@@ -1694,6 +1715,25 @@
     };
 
     const kodeUpper = kodeMapping.toUpperCase();
+
+    // Cek apakah Kode Mapping ini punya soal di tabel daftar_soal_dragdrop.
+    const adaDragDrop = async () => {
+      try{
+        const r = await fetch(
+          `${SUPABASE_URL}/daftar_soal_dragdrop?kode_mapping=eq.${encodeURIComponent(kodeMapping)}&select=kode_soal&limit=1`,
+          { headers }
+        );
+        if(r.ok){
+          const rows = await r.json();
+          return !!(rows && rows.length > 0);
+        }
+      }catch(e){ console.warn('Cek soal drag and drop dilewati:', e); }
+      return false;
+    };
+
+    if(kodeUpper.endsWith('-DD')){
+      return (await adaDragDrop()) ? 'dragdrop' : null;
+    }
 
     if(kodeUpper.endsWith('-PG')){
       const resPilgan = await fetch(
@@ -1738,6 +1778,8 @@
       if(rows && rows.length > 0) return 'pilgan';
     }
 
+    if(await adaDragDrop()) return 'dragdrop';
+
     return null;
   }
 
@@ -1757,6 +1799,9 @@
         return;
       } else if(jenis === 'pilgan'){
         window.location.href = `ujianpilihanganda.html?kode=${encodeURIComponent(kodeMapping)}`;
+        return;
+      } else if(jenis === 'dragdrop'){
+        window.location.href = `ujiandragdrop.html?kode=${encodeURIComponent(kodeMapping)}`;
         return;
       } else {
         showInfoStartError('Soal untuk ujian ini belum tersedia. Hubungi guru Anda.');
