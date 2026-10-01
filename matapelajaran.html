@@ -3,741 +3,659 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mata Pelajaran</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Mata Pelajaran — SCORIA</title>
 <style>
+
   :root{
-    --paper:#FFFBF2;
-    --card:#FFFFFF;
-    --ink:#2B2013;
-    --muted:#9C8E77;
-    --line:#EFE4CC;
-
-    --marigold:#F5A623;
-    --marigold-dark:#DB8F14;
-    --teal:#1C8C74;
-    --teal-dark:#146E5B;
-    --coral:#E8552F;
-    --sky:#2E8FB0;
-    --lavender:#7C6FCB;
-    --pink:#D6558C;
-
-    --dot-1:#F5A623;
-    --dot-2:#1C8C74;
-    --dot-3:#E8552F;
-    --dot-4:#2E8FB0;
-    --dot-5:#7C6FCB;
-    --dot-6:#D6558C;
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
+    --turquoise:#0F766E;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
   }
   *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
   body{
     margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Inter', sans-serif;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
     -webkit-font-smoothing:antialiased;
-  }
-
-  /* ---------- hero ---------- */
-  .hero{
+    padding-bottom:calc(var(--footer-h) + 24px);
     background:
-      radial-gradient(circle at 14% 25%, rgba(46,143,176,0.18), transparent 42%),
-      radial-gradient(circle at 88% 12%, rgba(124,111,203,0.16), transparent 45%),
-      radial-gradient(circle at 70% 90%, rgba(28,140,116,0.14), transparent 45%),
-      var(--paper);
-    border-bottom:1px solid var(--line);
-    padding:52px 24px 40px;
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
   }
-  .hero-inner{
-    max-width:900px;
-    margin:0 auto;
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-between;
-    gap:24px;
-    flex-wrap:wrap;
-  }
-  .eyebrow{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-size:12.5px;
-    font-weight:600;
-    color:var(--teal-dark);
-    background:#E4F3EE;
-    border:1px solid #CDE9DF;
-    padding:6px 14px 6px 10px;
-    border-radius:100px;
-    margin-bottom:16px;
-  }
-  .eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--teal);}
-  .hero h1{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:44px;
-    line-height:1.05;
-    margin:0 0 10px;
-    letter-spacing:-0.01em;
-  }
-  .hero p{
-    margin:0;
-    color:#6B5F49;
-    font-size:15.5px;
-    max-width:48ch;
-  }
-  .hero-actions{
-    display:flex;
-    align-items:center;
-    gap:12px;
-  }
-  .btn-back{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-family:'Inter', sans-serif;
-    font-size:15px;
-    font-weight:700;
-    color:var(--teal-dark);
-    background:#fff;
-    border:1.5px solid #CDE9DF;
-    padding:13px 22px;
-    border-radius:10px;
-    cursor:pointer;
-    white-space:nowrap;
-    text-decoration:none;
-    transition:background .15s ease, border-color .15s ease, transform .15s ease;
-  }
-  .btn-back:hover{background:#E4F3EE; border-color:var(--teal); transform:translateY(-1px);}
-  .btn-add{
-    font-family:'Inter', sans-serif;
-    font-size:15px;
-    font-weight:700;
-    color:#fff;
-    background:linear-gradient(135deg, var(--sky), var(--lavender));
-    border:none;
-    padding:14px 26px;
-    border-radius:10px;
-    cursor:pointer;
-    white-space:nowrap;
-    box-shadow:0 8px 20px -8px rgba(124,111,203,0.55);
-    transition:transform .15s ease, box-shadow .15s ease;
-  }
-  .btn-add:hover{transform:translateY(-1px); box-shadow:0 10px 22px -6px rgba(124,111,203,0.6);}
-  .btn-add:active{transform:translateY(0);}
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
 
-  .wrap{
-    max-width:900px;
-    margin:0 auto;
-    padding:36px 24px 80px;
-  }
-
-  /* ---------- toolbar ---------- */
-  .toolbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    margin-bottom:22px;
-    flex-wrap:wrap;
-  }
-  .count{
-    font-size:13.5px;
-    color:var(--muted);
-    font-weight:500;
-  }
-  .count b{color:var(--teal-dark);}
-  .search-wrap{position:relative;}
-  .search-wrap svg{
-    position:absolute; left:13px; top:50%; transform:translateY(-50%);
-    color:var(--muted);
-  }
-  .search{
-    font-family:'Inter', sans-serif;
-    font-size:14px;
-    padding:10px 14px 10px 36px;
-    border:1px solid var(--line);
-    border-radius:10px;
-    background:var(--card);
-    color:var(--ink);
-    outline:none;
-    width:260px;
-    transition:border-color .15s ease, box-shadow .15s ease;
-  }
-  .search:focus{border-color:var(--sky); box-shadow:0 0 0 3px rgba(46,143,176,0.15);}
-
-  /* ---------- list ---------- */
-  .list{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:14px;
-    overflow:hidden;
-  }
-  .row{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    padding:16px 22px;
-    border-top:1px solid var(--line);
-    cursor:pointer;
-    transition:background .15s ease;
-  }
-  .row:first-child{border-top:none;}
-  .row:hover{background:#FFFBF0;}
-  .row .num{
-    width:30px;
-    text-align:center;
-    font-family:'Fraunces', serif;
+  /* ---------- Menu bar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
     font-size:13px;
-    font-weight:600;
-    color:var(--muted);
-    flex-shrink:0;
   }
-  .row .rdot{
-    width:10px;height:10px;border-radius:50%;
-    background:var(--dot-1);
-    flex-shrink:0;
+  .navbar-brand{
+    display:flex; align-items:center; gap:8px;
+    font-weight:700; color:var(--text);
   }
-  .row .rname{
-    flex:1;
-    font-size:15px;
-    font-weight:500;
-    color:var(--ink);
+  .brand-icon{
+    width:18px; height:18px; border-radius:5px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  .row .rname .rsub{
-    display:block;
-    font-size:12px;
-    font-weight:400;
-    color:var(--muted);
-    margin-top:2px;
-  }
-  .row .rarrow{
-    color:var(--muted);
-    flex-shrink:0;
-    transition:transform .15s ease, color .15s ease;
-  }
-  .row:hover .rarrow{transform:translateX(3px); color:var(--sky);}
+  .navbar-hint{color:var(--text-dim); font-weight:500;}
 
-  .empty-state{
-    padding:64px 24px;
-    text-align:center;
-    color:var(--muted);
-    font-size:14px;
-  }
-  .empty-state b{
-    display:block;
-    font-family:'Fraunces', serif;
-    font-size:20px;
-    color:var(--ink);
-    font-weight:600;
-    margin-bottom:6px;
-  }
-
-  /* ---------- modal ---------- */
-  .overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(43,32,19,0.45);
-    backdrop-filter:blur(2px);
-    display:none;
-    align-items:flex-start;
-    justify-content:center;
-    padding:48px 20px;
-    overflow-y:auto;
-    z-index:50;
-  }
-  .overlay.open{display:flex;}
-  .modal{
-    background:var(--card);
-    border-radius:18px;
-    width:100%;
-    max-width:440px;
-    padding:0;
-    position:relative;
+  /* ---------- Window ---------- */
+  main{max-width:860px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
     overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
   }
-  .modal-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    padding:26px 30px 20px;
-    background:linear-gradient(135deg, #E9F3FA, #EFEBFB);
-    border-bottom:1px solid var(--line);
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
   }
-  .modal-head h2{
-    font-family:'Fraunces', serif;
-    font-weight:600;
-    font-size:22px;
-    margin:0 0 4px;
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
   }
-  .modal-head p{
-    margin:0;
-    font-size:13.5px;
-    color:#7A6C52;
-  }
-  .modal-close{
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 28px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 22px;}
+
+  .table-header{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px;}
+  .table-header h2{margin:0; font-size:15px; font-weight:600;}
+  .table-count{font-size:12px; color:var(--text-dim);}
+  .page-msg{font-size:13px; margin:0 0 10px;}
+  .page-msg.err{color:var(--err);}
+
+  /* ---------- Tabel ala Finder ---------- */
+  .table-wrap{
+    overflow-x:auto;
     background:#fff;
-    border:1px solid var(--line);
-    width:32px;height:32px;
-    border-radius:50%;
-    font-size:18px;
-    line-height:1;
-    color:var(--muted);
-    cursor:pointer;
-    display:flex;align-items:center;justify-content:center;
-    flex-shrink:0;
+    border:1px solid var(--field-border);
+    border-radius:10px;
   }
-  .modal-close:hover{color:var(--coral); border-color:var(--coral);}
-
-  .modal-body{padding:26px 30px 28px;}
-
-  .field{
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-    margin-bottom:6px;
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  thead th{
+    text-align:left; font-size:12px; font-weight:600; color:var(--text-dim);
+    padding:9px 14px; background:rgba(120,120,128,0.06);
+    border-bottom:1px solid var(--hairline); white-space:nowrap;
   }
-  label{font-size:13px; font-weight:600; color:var(--ink);}
-  input[type=text],select{
-    font-family:'Inter', sans-serif;
-    font-size:15px;
-    padding:11px 13px;
-    border:1.5px solid var(--line);
-    border-radius:9px;
-    background:#FFFDF8;
-    color:var(--ink);
+  tbody td{padding:11px 14px; border-bottom:1px solid var(--hairline); vertical-align:middle;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:rgba(0,122,255,0.025);}
+  tbody tr:hover{background:rgba(0,122,255,0.08);}
+  td.id-col{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:var(--text-dim);}
+  td.num-col{font-variant-numeric:tabular-nums;}
+  .row-actions{display:flex; gap:6px; justify-content:flex-end;}
+  .icon-btn{
+    font-family:inherit; font-size:12.5px; font-weight:500;
+    padding:4px 11px; border-radius:6px; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border);
+    color:var(--text);
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .icon-btn.edit:hover{background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .icon-btn.delete:hover{background:var(--err); border-color:var(--err); color:#fff;}
+  .empty-state{text-align:center; color:var(--text-dim); font-size:13.5px; padding:30px 0; margin:0;}
+
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
+  }
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac:disabled{
+    background:#e6e6ea; border-color:var(--field-border); color:#a1a1a6;
+    box-shadow:none; cursor:not-allowed;
+  }
+
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600;
+    width:160px; cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .footer-btn:hover{background:rgba(255,255,255,0.16);}
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green{--c1:#6CE37F; --c2:#28B94A;}
+
+  /* ---------- Modal Tambah / Ubah Rombel ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:520px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
+
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .label-hint{font-weight:400; opacity:0.8;}
+  input{
+    font-family:inherit; font-size:14px;
+    padding:9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
     outline:none;
-    transition:border-color .15s ease, box-shadow .15s ease;
-    width:100%;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
   }
-  select{cursor:pointer; appearance:none; -webkit-appearance:none;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B5F49' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
-    background-repeat:no-repeat; background-position:right 13px center; padding-right:34px;
-  }
-  input[readonly]{background:#F1EEE3; color:#6B5F49; cursor:not-allowed;}
-  input:focus,select:focus{
-    border-color:var(--sky);
-    box-shadow:0 0 0 3px rgba(46,143,176,0.15);
-    background:#fff;
-  }
+  input:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  input:disabled{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
+  .id-row{display:flex; gap:8px;}
+  .id-row input{flex:1;}
+  .btn-regen{padding:8px 14px; font-size:13px; white-space:nowrap; flex-shrink:0;}
 
   .modal-actions{
-    margin-top:22px;
-    padding-top:20px;
-    border-top:1px solid var(--line);
-    display:flex;
-    align-items:center;
-    gap:14px;
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:6px; padding-top:18px; border-top:1px solid var(--hairline);
   }
-  button.submit{
-    font-family:'Inter', sans-serif;
-    font-size:14.5px; font-weight:700; color:#fff;
-    background:linear-gradient(135deg, var(--sky), var(--lavender));
-    border:none;
-    padding:12px 24px; border-radius:10px; cursor:pointer;
-    box-shadow:0 8px 18px -8px rgba(124,111,203,0.5);
-    transition:transform .15s ease;
-  }
-  button.submit:hover{transform:translateY(-1px);}
-  button.submit:disabled{background:var(--muted); box-shadow:none; cursor:not-allowed; transform:none;}
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+  .form-msg{font-size:13px;}
+  .form-msg.ok{color:var(--ok);}
+  .form-msg.err{color:var(--err);}
 
-  .btn-cancel{
-    font-family:'Inter', sans-serif;
-    font-size:14.5px; font-weight:600; color:#6B5F49;
-    background:#fff; border:1.5px solid var(--line);
-    padding:11px 20px; border-radius:10px; cursor:pointer;
-    transition:border-color .15s ease, color .15s ease;
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
   }
-  .btn-cancel:hover{border-color:#D8C9A0; color:var(--ink);}
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
 
-  .btn-delete{
-    font-family:'Inter', sans-serif;
-    font-size:14px; font-weight:600; color:var(--coral);
-    background:#FDECE6; border:1.5px solid #F7CFC0;
-    padding:10px 16px; border-radius:10px; cursor:pointer;
-    transition:background .15s ease;
+  @media (max-width:560px){
+    .window-body{padding:20px 16px 22px;}
+    .navbar-hint{display:none;}
+    .row-actions{flex-direction:column; align-items:flex-end;}
+    .mac-icon{width:52px; height:52px;}
+    .modal-buttons{flex-direction:column-reverse;}
   }
-  .btn-delete:hover{background:#FADED1;}
-  .btn-delete:disabled{opacity:.6; cursor:not-allowed;}
 
-  .status{font-size:13px; flex:1; font-weight:500;}
-  .status.ok{color:var(--teal-dark);}
-  .status.err{color:var(--coral);}
-
-  @media (max-width:640px){
-    .hero{padding:40px 20px 32px;}
-    .hero h1{font-size:32px;}
-    .hero-actions{width:100%;}
-    .hero-actions .btn-add, .hero-actions .btn-back{flex:1; justify-content:center;}
-    .toolbar{flex-direction:column; align-items:stretch;}
-    .search{width:100%;}
-    .modal-head, .modal-body{padding-left:22px; padding-right:22px;}
+  /* ---------- Tambahan khusus Mata Pelajaran ---------- */
+  .toolbar{margin:0 0 12px;}
+  .search-wrap{position:relative; max-width:320px;}
+  .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-dim); pointer-events:none;}
+  .search-wrap input{padding-left:34px; border-radius:999px; background:rgba(255,255,255,0.9);}
+  select{
+    font-family:inherit; font-size:14px;
+    padding:9px 34px 9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none; cursor:pointer;
+    appearance:none; -webkit-appearance:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
   }
+  select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  input[readonly]{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
+  input[readonly]:focus{border-color:var(--field-border); box-shadow:none;}
+  td.name-col{font-weight:600;}
+  td.dim-col{color:var(--text-dim);}
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="hero-inner">
-    <div>
-      <span class="eyebrow"><span class="dot"></span>Sistem data sekolah</span>
-      <h1>Mata Pelajaran</h1>
-      <p>Kelola daftar mata pelajaran yang tersedia di sekolah.</p>
+<header class="navbar">
+  <span class="navbar-brand"><span class="brand-icon">S</span>SCORIA</span>
+  <span class="navbar-hint">Mata Pelajaran</span>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Mata Pelajaran</div>
     </div>
-    <div class="hero-actions">
-      <a class="btn-back" href="admin.html">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-        Dashboard
-      </a>
-      <button class="btn-add" id="btnOpenModal">+ Tambah mapel</button>
-    </div>
-  </div>
-</div>
+    <div class="window-body">
+      <h1 class="page-title">Mata Pelajaran</h1>
+      <p class="page-sub">Tambah, ubah, atau hapus data mata pelajaran beserta guru pengajarnya. Untuk menambah mata pelajaran baru, gunakan tombol Tambah Mapel di bagian bawah.</p>
 
-<div class="wrap">
-
-  <div class="toolbar">
-    <span class="count" id="countLabel">Memuat data...</span>
-    <div class="search-wrap">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-      <input type="text" class="search" id="searchInput" placeholder="Cari mata pelajaran...">
-    </div>
-  </div>
-
-  <div class="list" id="listWrap">
-    <div id="listBody"></div>
-  </div>
-
-</div>
-
-<!-- Modal -->
-<div class="overlay" id="overlay">
-  <div class="modal">
-    <div class="modal-head">
-      <div>
-        <h2 id="modalTitle">Tambah mapel</h2>
-        <p id="modalDesc">Masukkan nama mata pelajaran baru.</p>
+      <div class="table-header">
+        <h2>Daftar Mata Pelajaran</h2>
+        <span class="table-count" id="tableCount">0 mata pelajaran</span>
       </div>
-      <button class="modal-close" id="btnCloseModal" type="button">&times;</button>
-    </div>
-
-    <div class="modal-body">
-      <form id="formMapel" autocomplete="off">
-        <div class="field">
-          <label for="nama_mapel">Nama mata pelajaran</label>
-          <input type="text" id="nama_mapel" name="nama_mapel" required placeholder="cth. Matematika">
+      <p class="page-msg" id="pageMsg"></p>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Cari mata pelajaran atau guru..." aria-label="Cari mata pelajaran" autocomplete="off">
         </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>No</th>
+              <th>Mata Pelajaran</th>
+              <th>Guru Pengajar</th>
+              <th>NIP / NIY</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="mapelBody"></tbody>
+        </table>
+        <p class="empty-state" id="emptyState" hidden>Belum ada data mata pelajaran. Tambahkan lewat tombol Tambah Mapel di bawah.</p>
+      </div>
+    </div>
+  </div>
+</main>
 
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnOpenAdd">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-width="2.4"/></svg></span>
+    Tambah Mapel
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    Dashboard
+  </a>
+</div>
+
+<!-- Modal Tambah / Ubah Mapel -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="formHeading">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" id="btnCloseModal" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title" id="modalTitle">Mapel Baru</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="formHeading">Tambah Mata Pelajaran</h2>
+      <p class="modal-sub" id="modalSub">Isi data mata pelajaran di bawah ini.</p>
+      <form id="mapelForm" autocomplete="off">
         <div class="field">
-          <label for="guru_pengajar">Guru pengajar</label>
-          <select id="guru_pengajar" name="guru_pengajar" required>
-            <option value="" disabled selected>Pilih guru pengajar</option>
+          <label for="namaMapel">Nama Mata Pelajaran</label>
+          <input type="text" id="namaMapel" placeholder="Contoh: Matematika" required>
+        </div>
+        <div class="field">
+          <label for="guruPengajar">Guru Pengajar</label>
+          <select id="guruPengajar" required>
+            <option value="" disabled selected>Memuat data guru...</option>
           </select>
         </div>
-
         <div class="field">
-          <label for="nip">NIP / NIY</label>
-          <input type="text" id="nip" name="nip" readonly placeholder="Terisi otomatis setelah memilih guru">
+          <label for="nip">NIP / NIY <span class="label-hint">(otomatis)</span></label>
+          <input type="text" id="nip" readonly placeholder="Terisi otomatis setelah memilih guru">
         </div>
-
         <div class="modal-actions">
-          <button type="button" class="btn-delete" id="btnDelete" style="display:none;">Hapus</button>
-          <span class="status" id="statusMsg"></span>
-          <button type="button" class="btn-cancel" id="btnCancel">Batal</button>
-          <button type="submit" class="submit" id="btnSubmit">Simpan</button>
+          <div class="modal-buttons">
+            <button type="submit" class="btn-mac" id="btnSubmit">Simpan</button>
+            <button type="button" class="btn-mac" id="btnCancelModal">Batal</button>
+          </div>
+          <span class="form-msg" id="formMsg"></span>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<script>
-  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co";
-  const SUPABASE_REST = SUPABASE_URL + "/rest/v1/";
-  const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
-  const TABLE = "datamapel";
-  const DOT_COLORS = ["var(--dot-1)","var(--dot-2)","var(--dot-3)","var(--dot-4)","var(--dot-5)","var(--dot-6)"];
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-  const overlay = document.getElementById("overlay");
-  const btnOpenModal = document.getElementById("btnOpenModal");
-  const btnCloseModal = document.getElementById("btnCloseModal");
-  const btnCancel = document.getElementById("btnCancel");
-  const btnDelete = document.getElementById("btnDelete");
-  const form = document.getElementById("formMapel");
-  const btnSubmit = document.getElementById("btnSubmit");
-  const statusMsg = document.getElementById("statusMsg");
-  const namaInput = document.getElementById("nama_mapel");
-  const guruSelect = document.getElementById("guru_pengajar");
-  const nipInput = document.getElementById("nip");
-  const listBody = document.getElementById("listBody");
-  const countLabel = document.getElementById("countLabel");
-  const searchInput = document.getElementById("searchInput");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDesc = document.getElementById("modalDesc");
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const TABLE = "datamapel";
+  const GURU_TABLE = "dataguru";
+
+  const headersBase = {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY
+  };
+
+  const form = document.getElementById('mapelForm');
+  const namaInput = document.getElementById('namaMapel');
+  const guruSelect = document.getElementById('guruPengajar');
+  const nipInput = document.getElementById('nip');
+  const formHeading = document.getElementById('formHeading');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalSub = document.getElementById('modalSub');
+  const btnSubmit = document.getElementById('btnSubmit');
+  const formMsg = document.getElementById('formMsg');
+  const pageMsg = document.getElementById('pageMsg');
+  const mapelBody = document.getElementById('mapelBody');
+  const emptyState = document.getElementById('emptyState');
+  const tableCount = document.getElementById('tableCount');
+  const searchInput = document.getElementById('searchInput');
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const toast = document.getElementById('toast');
 
   let allMapel = [];
   let allGuru = [];
-  let editingMapel = null; // null = mode tambah, object = mode edit
+  let editingId = null; // null = mode tambah, terisi = mode ubah
+  let toastTimer = null;
 
-  /* ---------- guru pengajar (tabel dataguru) ---------- */
-  async function loadGuruOptions() {
-    try {
-      const res = await fetch(SUPABASE_REST + "dataguru?select=nama_guru,nip&order=nama_guru.asc", {
-        headers: {
-          "apikey": ANON_KEY,
-          "Authorization": "Bearer " + ANON_KEY
-        }
-      });
-      if (!res.ok) throw new Error(await res.text());
-      allGuru = await res.json();
+  /* ---------- Util ---------- */
+  function escapeHtml(str){
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+  function setFormMsg(text, type){
+    formMsg.textContent = text || '';
+    formMsg.className = 'form-msg' + (type ? ' ' + type : '');
+  }
+  function setPageMsg(text, type){
+    pageMsg.textContent = text || '';
+    pageMsg.className = 'page-msg' + (type ? ' ' + type : '');
+  }
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+  function genId(){
+    if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+  }
 
-      guruSelect.innerHTML = `<option value="" disabled>Pilih guru pengajar</option>` +
-        allGuru.map(g => `<option value="${escapeHtml(g.nama_guru || "")}">${escapeHtml(g.nama_guru || "-")}</option>`).join("");
-    } catch (err) {
+  /* ---------- Guru pengajar (tabel dataguru) ---------- */
+  async function loadGuruOptions(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${GURU_TABLE}?select=nama_guru,nip&order=nama_guru.asc`, { headers: headersBase });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      allGuru = (await res.json()) || [];
+      guruSelect.innerHTML = '<option value="" disabled selected>Pilih guru pengajar</option>' +
+        allGuru.map(g => `<option value="${escapeHtml(g.nama_guru || '')}">${escapeHtml(g.nama_guru || '-')}</option>`).join('');
+    }catch(err){
       console.error(err);
-      guruSelect.innerHTML = `<option value="" disabled selected>Gagal memuat data guru</option>`;
+      guruSelect.innerHTML = '<option value="" disabled selected>Gagal memuat data guru</option>';
     }
   }
 
-  // Saat guru dipilih, isi NIP otomatis sesuai data dari tabel dataguru.
-  guruSelect.addEventListener("change", () => {
+  // Saat guru dipilih, NIP terisi otomatis dari tabel dataguru
+  guruSelect.addEventListener('change', () => {
     const guru = allGuru.find(g => g.nama_guru === guruSelect.value);
-    nipInput.value = guru ? (guru.nip || "") : "";
+    nipInput.value = guru ? (guru.nip || '') : '';
   });
 
-  /* ---------- modal open/close ---------- */
-  function openModal() {
-    overlay.classList.add("open");
-    document.body.style.overflow = "hidden";
-    setTimeout(() => namaInput.focus(), 50);
+  /* ---------- Modal ---------- */
+  function openModal(){
+    modalBackdrop.classList.add('open');
+    setTimeout(() => namaInput.focus(), 150);
   }
-  function closeModal() {
-    overlay.classList.remove("open");
-    document.body.style.overflow = "";
+  function closeModal(){
+    modalBackdrop.classList.remove('open');
+    enterAddMode();
+    setFormMsg('', '');
+  }
+  document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+  document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+  modalBackdrop.addEventListener('click', (e) => { if(e.target === modalBackdrop) closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && modalBackdrop.classList.contains('open')) closeModal();
+  });
+  document.getElementById('btnOpenAdd').addEventListener('click', () => {
+    enterAddMode();
+    setFormMsg('', '');
+    openModal();
+  });
+
+  function enterAddMode(){
+    editingId = null;
+    formHeading.textContent = 'Tambah Mata Pelajaran';
+    modalTitle.textContent = 'Mapel Baru';
+    modalSub.textContent = 'Isi data mata pelajaran di bawah ini.';
+    btnSubmit.textContent = 'Simpan';
     form.reset();
-    editingMapel = null;
-    setStatus("", "");
+    guruSelect.selectedIndex = 0;
+    nipInput.value = '';
   }
 
-  function openAddModal() {
-    editingMapel = null;
-    modalTitle.textContent = "Tambah mapel";
-    modalDesc.textContent = "Masukkan nama mata pelajaran baru.";
-    btnSubmit.textContent = "Simpan";
-    btnDelete.style.display = "none";
-    namaInput.value = "";
-    guruSelect.value = "";
-    nipInput.value = "";
+  function enterEditMode(row){
+    editingId = row.id;
+    formHeading.textContent = 'Ubah Mata Pelajaran';
+    modalTitle.textContent = 'Ubah Mapel';
+    modalSub.textContent = 'Perbarui data mata pelajaran di bawah ini.';
+    btnSubmit.textContent = 'Simpan Perubahan';
+    namaInput.value = row.nama_mapel ?? '';
+
+    // Jika guru lama sudah tidak ada di dataguru, tetap tampilkan agar tidak hilang diam-diam
+    const guru = row.guru_pengajar || '';
+    if(guru && ![...guruSelect.options].some(o => o.value === guru)){
+      const opt = document.createElement('option');
+      opt.value = guru; opt.textContent = guru;
+      guruSelect.appendChild(opt);
+    }
+    guruSelect.value = guru;
+    nipInput.value = row.nip || '';
+    setFormMsg('', '');
     openModal();
   }
 
-  function openEditModal(mapel) {
-    editingMapel = mapel;
-    modalTitle.textContent = "Edit mapel";
-    modalDesc.textContent = "Perbarui nama mata pelajaran, atau hapus.";
-    btnSubmit.textContent = "Simpan perubahan";
-    btnDelete.style.display = "inline-block";
-    namaInput.value = mapel.nama_mapel || "";
-    guruSelect.value = mapel.guru_pengajar || "";
-    nipInput.value = mapel.nip || "";
-    openModal();
-  }
-
-  btnOpenModal.addEventListener("click", openAddModal);
-  btnCloseModal.addEventListener("click", closeModal);
-  btnCancel.addEventListener("click", closeModal);
-  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeModal(); });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && overlay.classList.contains("open")) closeModal();
-  });
-
-  btnDelete.addEventListener("click", async () => {
-    if (!editingMapel) return;
-    const ok = confirm(`Hapus mata pelajaran "${editingMapel.nama_mapel}"? Tindakan ini tidak dapat dibatalkan.`);
-    if (!ok) return;
-
-    btnDelete.disabled = true;
-    btnDelete.textContent = "Menghapus...";
-    try {
-      await deleteMapel(editingMapel.id);
-      allMapel = allMapel.filter(m => m.id !== editingMapel.id);
-      renderList();
-      closeModal();
-    } catch (err) {
-      console.error(err);
-      setStatus(err.message || "Gagal menghapus data.", "err");
-    } finally {
-      btnDelete.disabled = false;
-      btnDelete.textContent = "Hapus";
-    }
-  });
-
-  function setStatus(text, type) {
-    statusMsg.textContent = text;
-    statusMsg.className = "status" + (type ? " " + type : "");
-  }
-
-  function genId() {
-    if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
-    return "id-" + Date.now() + "-" + Math.random().toString(16).slice(2);
-  }
-
-  async function insertMapel(data) {
-    const res = await fetch(SUPABASE_REST + TABLE, {
-      method: "POST",
-      headers: {
-        "apikey": ANON_KEY,
-        "Authorization": "Bearer " + ANON_KEY,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error("Gagal menyimpan data: " + (await res.text()));
-    return res.json();
-  }
-
-  async function updateMapel(id, data) {
-    const res = await fetch(SUPABASE_REST + TABLE + "?id=eq." + encodeURIComponent(id), {
-      method: "PATCH",
-      headers: {
-        "apikey": ANON_KEY,
-        "Authorization": "Bearer " + ANON_KEY,
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-      },
-      body: JSON.stringify(data)
-    });
-    if (!res.ok) throw new Error("Gagal memperbarui data: " + (await res.text()));
-    return res.json();
-  }
-
-  async function deleteMapel(id) {
-    const res = await fetch(SUPABASE_REST + TABLE + "?id=eq." + encodeURIComponent(id), {
-      method: "DELETE",
-      headers: {
-        "apikey": ANON_KEY,
-        "Authorization": "Bearer " + ANON_KEY
-      }
-    });
-    if (!res.ok) throw new Error("Gagal menghapus data: " + (await res.text()));
-  }
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    setStatus("", "");
-    btnSubmit.disabled = true;
-    const originalLabel = btnSubmit.textContent;
-    const isEdit = !!editingMapel;
-
-    try {
-      const payload = {
-        nama_mapel: namaInput.value.trim(),
-        guru_pengajar: guruSelect.value.trim(),
-        nip: nipInput.value.trim() || null
-      };
-
-      if (!isEdit) {
-        payload.id = genId();
-        const inserted = await insertMapel(payload);
-        if (Array.isArray(inserted) && inserted.length) {
-          allMapel.unshift(inserted[0]);
-        } else {
-          allMapel.unshift(payload);
-        }
-      } else {
-        const updated = await updateMapel(editingMapel.id, payload);
-        const newData = (Array.isArray(updated) && updated.length) ? updated[0] : { ...editingMapel, ...payload };
-        const idx = allMapel.findIndex(m => m.id === editingMapel.id);
-        if (idx !== -1) allMapel[idx] = newData;
-      }
-
-      renderList();
-      setStatus(isEdit ? "Perubahan berhasil disimpan." : "Mata pelajaran berhasil ditambahkan.", "ok");
-      setTimeout(closeModal, 600);
-
-    } catch (err) {
-      console.error(err);
-      setStatus(err.message || "Terjadi kesalahan, coba lagi.", "err");
-    } finally {
-      btnSubmit.disabled = false;
-      btnSubmit.textContent = originalLabel;
-    }
-  });
-
-  /* ---------- list rendering ---------- */
-  function colorFor(str) {
-    let hash = 0;
-    for (let i = 0; i < (str || "").length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
-    return DOT_COLORS[hash % DOT_COLORS.length];
-  }
-
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, s => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-    }[s]));
-  }
-
-  function renderList() {
+  /* ---------- Tabel ---------- */
+  function renderRows(){
     const q = searchInput.value.trim().toLowerCase();
-    const filtered = q
-      ? allMapel.filter(m => (m.nama_mapel || "").toLowerCase().includes(q) || (m.guru_pengajar || "").toLowerCase().includes(q))
+    const rows = q
+      ? allMapel.filter(m => (m.nama_mapel || '').toLowerCase().includes(q) || (m.guru_pengajar || '').toLowerCase().includes(q))
       : allMapel;
 
-    countLabel.innerHTML = allMapel.length === 0
-      ? "Belum ada data mapel"
-      : `<b>${filtered.length}</b> dari ${allMapel.length} mata pelajaran`;
+    mapelBody.innerHTML = '';
+    tableCount.textContent = q && allMapel.length
+      ? `${rows.length} dari ${allMapel.length} mata pelajaran`
+      : `${allMapel.length} mata pelajaran`;
 
-    if (allMapel.length === 0) {
-      listBody.innerHTML = `<div class="empty-state"><b>Belum ada data</b>Tambahkan mata pelajaran pertama lewat tombol "Tambah mapel".</div>`;
+    if(rows.length === 0){
+      emptyState.textContent = allMapel.length === 0
+        ? 'Belum ada data mata pelajaran. Tambahkan lewat tombol Tambah Mapel di bawah.'
+        : 'Tidak ada mata pelajaran yang cocok dengan pencarian.';
+      emptyState.hidden = false;
       return;
     }
-    if (filtered.length === 0) {
-      listBody.innerHTML = `<div class="empty-state">Tidak ada mata pelajaran yang cocok dengan pencarian.</div>`;
-      return;
-    }
+    emptyState.hidden = true;
 
-    listBody.innerHTML = filtered.map((m, i) => `
-      <div class="row" data-id="${escapeHtml(m.id)}">
-        <span class="num">${i + 1}</span>
-        <span class="rdot" style="background:${colorFor(m.nama_mapel || m.id || '')}"></span>
-        <span class="rname">${escapeHtml(m.nama_mapel || "-")}${m.guru_pengajar ? `<span class="rsub">${escapeHtml(m.guru_pengajar)}${m.nip ? " · NIP " + escapeHtml(m.nip) : ""}</span>` : ""}</span>
-        <svg class="rarrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-    `).join("");
-
-    listBody.querySelectorAll(".row").forEach(row => {
-      row.addEventListener("click", () => {
-        const id = row.getAttribute("data-id");
-        const mapel = allMapel.find(m => String(m.id) === id);
-        if (mapel) openEditModal(mapel);
-      });
+    rows.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="num-col">${i + 1}</td>
+        <td class="name-col">${escapeHtml(row.nama_mapel)}</td>
+        <td>${escapeHtml(row.guru_pengajar || '-')}</td>
+        <td class="id-col">${escapeHtml(row.nip || '-')}</td>
+        <td>
+          <div class="row-actions">
+            <button type="button" class="icon-btn edit">Ubah</button>
+            <button type="button" class="icon-btn delete">Hapus</button>
+          </div>
+        </td>
+      `;
+      tr.querySelector('.edit').addEventListener('click', () => enterEditMode(row));
+      tr.querySelector('.delete').addEventListener('click', () => deleteMapel(row));
+      mapelBody.appendChild(tr);
     });
   }
 
-  searchInput.addEventListener("input", renderList);
+  searchInput.addEventListener('input', renderRows);
 
-  async function loadMapel() {
-    try {
-      const res = await fetch(SUPABASE_REST + TABLE + "?select=*&order=nama_mapel.asc", {
-        headers: {
-          "apikey": ANON_KEY,
-          "Authorization": "Bearer " + ANON_KEY
-        }
-      });
-      if (!res.ok) throw new Error(await res.text());
-      allMapel = await res.json();
-      renderList();
-    } catch (err) {
+  async function loadMapel(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${TABLE}?select=*&order=nama_mapel.asc`, { headers: headersBase });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      allMapel = (await res.json()) || [];
+      setPageMsg('', '');
+      renderRows();
+    }catch(err){
       console.error(err);
-      countLabel.textContent = "Gagal memuat data mata pelajaran";
-      listBody.innerHTML = `<div class="empty-state">Tidak dapat memuat data. Periksa koneksi atau pengaturan Supabase.</div>`;
+      setPageMsg('Gagal memuat daftar mata pelajaran: ' + err.message, 'err');
     }
   }
 
-  loadMapel();
+  async function deleteMapel(row){
+    const ok = confirm(`Hapus mata pelajaran "${row.nama_mapel}"? Tindakan ini tidak bisa dibatalkan.`);
+    if(!ok) return;
+
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${TABLE}?id=eq.${encodeURIComponent(row.id)}`, {
+        method: 'DELETE',
+        headers: { ...headersBase, 'Prefer': 'return=representation' }
+      });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const deleted = await res.json();
+      if(!deleted || deleted.length === 0) throw new Error('tidak ada baris yang dihapus, periksa policy DELETE (RLS)');
+
+      if(editingId === row.id) closeModal();
+      showToast('Mata pelajaran berhasil dihapus.');
+      await loadMapel();
+    }catch(err){
+      console.error(err);
+      alert('Gagal menghapus data: ' + err.message);
+    }
+  }
+
+  /* ---------- Simpan ---------- */
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setFormMsg('', '');
+
+    const nama_mapel = namaInput.value.trim();
+    const guru_pengajar = guruSelect.value.trim();
+    const nip = nipInput.value.trim() || null;
+
+    if(!nama_mapel || !guru_pengajar){
+      setFormMsg('Nama mata pelajaran dan guru pengajar wajib diisi.', 'err');
+      return;
+    }
+
+    const wasEditing = !!editingId;
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = 'Menyimpan...';
+
+    try{
+      let res;
+      const headers = { ...headersBase, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
+      if(editingId){
+        res = await fetch(`${SUPABASE_URL}/${TABLE}?id=eq.${encodeURIComponent(editingId)}`, {
+          method: 'PATCH', headers,
+          body: JSON.stringify({ nama_mapel, guru_pengajar, nip })
+        });
+      }else{
+        res = await fetch(`${SUPABASE_URL}/${TABLE}`, {
+          method: 'POST', headers,
+          body: JSON.stringify({ id: genId(), nama_mapel, guru_pengajar, nip })
+        });
+      }
+      if(!res.ok){
+        throw new Error((await res.text()) || ('Status ' + res.status));
+      }
+      const saved = await res.json();
+      if(!saved || saved.length === 0){
+        throw new Error('tidak ada baris yang tersimpan, periksa policy RLS pada tabel "datamapel"');
+      }
+
+      closeModal();
+      showToast(wasEditing ? 'Perubahan berhasil disimpan.' : 'Mata pelajaran baru berhasil ditambahkan.');
+      await loadMapel();
+    }catch(err){
+      console.error(err);
+      setFormMsg('Gagal menyimpan: ' + err.message, 'err');
+    }finally{
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = editingId ? 'Simpan Perubahan' : 'Simpan';
+    }
+  });
+
+  enterAddMode();
   loadGuruOptions();
+  loadMapel();
 </script>
 
 </body>
