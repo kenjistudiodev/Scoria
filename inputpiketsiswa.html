@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Input Piket Siswa — SCORIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* dipakai oleh footer & slide-up bar (menu tidak diubah) */
+    --ink:#3B2E63;
+    --gold:#FFC93C;
+    --turquoise:#0F766E;
+    --footer-h:72px;
+    /* palet macOS untuk halaman */
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --green:#34C759;
+    --brick:#FF3B30;
+    --blue:#007AFF;
+    --hairline:rgba(0,0,0,0.1);
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0;
+    color:var(--text);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 20px);
+    overflow-x:hidden;
+    max-width:100vw;
+    min-height:100vh;
+    /* wallpaper ala macOS */
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .navbar :focus-visible, main :focus-visible{outline-color:var(--mac-blue);}
+
+  /* ---------- Menu bar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    height:30px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
+    color:var(--text);
+  }
+  .nav-left{display:flex; align-items:center; gap:8px;}
+  .school-logo{
+    width:20px; height:20px;
+    border-radius:6px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700;
+    flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .nav-right{display:flex; align-items:center; gap:14px; min-width:0;}
+  .nav-schoolinfo{display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0;}
+  .school-name{
+    font-size:13px; font-weight:700; color:var(--text);
+    max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .term-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:500; color:var(--text-dim);
+    background:rgba(0,0,0,0.06);
+    padding:2px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .term-badge .dot{width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0;}
+  .admin-account{
+    display:flex; align-items:center; gap:7px;
+    padding-left:12px; border-left:1px solid var(--hairline);
+  }
+  .avatar{
+    width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,#B0B0B8,#7C7C84);
+    color:#fff; font-size:8px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .admin-name{font-size:13px; font-weight:500; color:var(--text);}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:34px clamp(12px,3vw,32px) 12px;}
+  .window{
+    background:rgba(255,255,255,0.78);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span{width:12px; height:12px; border-radius:50%; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);}
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px clamp(14px,3vw,30px) 30px;}
+
+  .page-heading{font-size:clamp(1.5rem,3vw,1.9rem); font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{font-size:0.92rem; color:var(--text-dim); line-height:1.5; margin:0 0 22px;}
+
+  /* ---------- Kartu identitas sekolah (hero) ---------- */
+  .profile-card{
+    display:flex; align-items:center; gap:22px;
+    background:linear-gradient(135deg,#5E5CE6 0%,#0A84FF 55%,#64D2FF 120%);
+    border-radius:16px;
+    padding:24px clamp(18px,3vw,32px);
+    margin-bottom:26px;
+    box-shadow:0 10px 30px rgba(10,132,255,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+    position:relative; overflow:hidden;
+  }
+  .profile-card::after{
+    content:""; position:absolute; top:-40%; right:-10%;
+    width:240px; height:240px;
+    background:radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+    pointer-events:none;
+  }
+  .profile-photo{
+    flex-shrink:0; width:96px; height:96px; border-radius:22px;
+    background:#fff; color:#007AFF;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1.5rem;
+    border:3px solid rgba(255,255,255,0.6);
+    box-shadow:0 6px 16px rgba(0,0,0,0.22);
+    overflow:hidden; position:relative; z-index:1;
+  }
+  .profile-photo img{width:100%; height:100%; object-fit:cover;}
+  .profile-info{position:relative; z-index:1; flex:1; min-width:0;}
+  .profile-tag{font-size:0.7rem; font-weight:700; letter-spacing:0.08em; color:rgba(255,255,255,0.8); margin:0 0 4px;}
+  .profile-name{
+    font-weight:700; letter-spacing:-0.01em;
+    font-size:clamp(1.2rem,2.4vw,1.55rem);
+    color:#fff; margin:0 0 14px; line-height:1.2;
+  }
+  .profile-meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px 24px;}
+  .profile-meta-item{display:flex; flex-direction:column; gap:2px;}
+  .profile-meta-item.full{grid-column:1 / -1;}
+  .meta-label{font-size:0.68rem; font-weight:600; letter-spacing:0.04em; color:rgba(255,255,255,0.72); text-transform:uppercase;}
+  .meta-value{font-size:0.95rem; color:#fff; font-weight:600;}
+  .profile-link{
+    display:inline-block; margin-top:16px;
+    font-size:0.82rem; font-weight:600; color:#fff; text-decoration:none;
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.35);
+    padding:6px 14px; border-radius:999px;
+    position:relative; z-index:1;
+    transition:background 0.15s ease;
+  }
+  .profile-link:hover{background:rgba(255,255,255,0.34);}
+
+  @media (max-width:560px){
+    main{padding-left:5px; padding-right:5px;}
+    .navbar{padding-left:10px; padding-right:10px;}
+    .window-body{padding:20px 12px 22px;}
+    .panel-row{grid-template-columns:1fr;}
+    .panel{padding:16px 12px;}
+    .profile-card{flex-direction:column; text-align:left; align-items:stretch;}
+    .profile-photo{margin:0 auto 4px;}
+    .profile-tag{text-align:center;}
+    .profile-name{text-align:center;}
+    .profile-meta{
+      display:block;
+      background:rgba(0,0,0,0.14);
+      border-radius:12px;
+      padding:4px 12px;
+    }
+    .profile-meta-item{
+      flex-direction:row; justify-content:space-between; align-items:baseline;
+      gap:10px; padding:9px 0;
+      border-bottom:1px solid rgba(255,255,255,0.16);
+    }
+    .profile-meta-item:last-child{border-bottom:none;}
+    .profile-meta-item .meta-label{flex:0 0 auto; white-space:nowrap;}
+    .profile-meta-item .meta-value{text-align:right;}
+  }
+
+  .section-heading{font-size:1.05rem; font-weight:700; letter-spacing:-0.01em; margin:6px 0 12px;}
+
+  /* ---------- Ringkasan data: kartu widget ---------- */
+  .stats-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+    gap:14px; margin-bottom:24px; min-width:0;
+  }
+  a.stat-card{text-decoration:none; display:block; transition:transform 0.15s ease, box-shadow 0.15s ease;}
+  a.stat-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.1), 0 12px 26px rgba(30,40,80,0.16);
+  }
+  .stat-card{
+    background:rgba(255,255,255,0.88);
+    border:1px solid rgba(255,255,255,0.8);
+    border-radius:14px;
+    padding:16px 18px;
+    color:var(--text);
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.08), 0 4px 14px rgba(30,40,80,0.08);
+  }
+  .stat-top{display:flex; align-items:flex-start; justify-content:space-between; gap:10px;}
+  .stat-value{font-weight:700; font-size:2rem; letter-spacing:-0.02em; margin:0; line-height:1;}
+  .stat-label{font-size:0.84rem; font-weight:600; margin:8px 0 0; color:var(--text);}
+  .stat-card .mac-icon{width:40px; height:40px; border-radius:10px;}
+  .stat-card .mac-icon svg{width:24px; height:24px;}
+  .stat-foot{font-size:0.72rem; margin:10px 0 0; color:var(--text-dim);}
+
+  .panel-row{
+    display:grid; grid-template-columns:2fr 1fr;
+    gap:16px; margin-bottom:6px; min-width:0;
+  }
+  @media (max-width:820px){ .panel-row{grid-template-columns:1fr;} }
+  .panel{
+    background:rgba(255,255,255,0.88);
+    border:1px solid rgba(255,255,255,0.8);
+    border-radius:14px;
+    padding:18px 20px;
+    min-width:0; max-width:100%; overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.08), 0 4px 14px rgba(30,40,80,0.08);
+  }
+  .panel-head{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
+  .panel-head h3{font-weight:700; font-size:0.98rem; letter-spacing:-0.01em; margin:0;}
+  .donut-wrap{display:flex; align-items:center; justify-content:center; padding:8px 0 4px;}
+  .donut{
+    width:150px; height:150px; border-radius:50%;
+    background:conic-gradient(var(--c1) calc(var(--p1) * 1%), var(--c2) 0);
+    position:relative;
+  }
+  .donut::after{content:""; position:absolute; inset:24px; background:#fff; border-radius:50%; box-shadow:inset 0 1px 3px rgba(0,0,0,0.08);}
+  .legend{display:flex; justify-content:center; gap:18px; font-size:0.8rem; color:var(--text-dim); margin-top:10px;}
+  .legend i{display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle;}
+  .badge-row{display:flex; justify-content:center; gap:8px; margin-top:14px; flex-wrap:wrap;}
+  .pill{
+    font-size:0.76rem; font-weight:600;
+    border-radius:999px; padding:5px 12px;
+    background:rgba(var(--pill-rgb),0.14);
+    color:var(--pill-text);
+  }
+  .pill-green{--pill-rgb:52,199,89;  --pill-text:#1E8E3E;}
+  .pill-brick{--pill-rgb:255,59,48;  --pill-text:#D70015;}
+  .pill-blue {--pill-rgb:0,122,255;  --pill-text:#0A5FD0;}
+  .panel-link{
+    display:block; text-align:center; margin-top:14px;
+    font-size:0.85rem; font-weight:500;
+    color:var(--mac-blue); text-decoration:none;
+  }
+  .panel-link:hover{text-decoration:underline;}
+
+  /* ---------- Footer sticky ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex;
+    align-items:stretch;
+    justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    background:none;
+    border:none;
+    color:#FFFFFF;
+    font-size:0.75rem;
+    font-weight:600;
+    width:140px;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .footer-btn .mac-icon{
+    width:34px; height:34px; border-radius:8px;
+    transition:transform 0.15s ease;
+  }
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+  .footer-btn:hover{background:rgba(255,255,255,0.16); color:#FFFFFF;}
+  .footer-divider{
+    width:1px;
+    background:rgba(255,255,255,0.35);
+    margin:14px 0;
+  }
+  .footer-btn.logout:hover{background:rgba(242,80,138,0.35); color:#FFFFFF;}
+
+  /* ---------- Bottom sheet menu ---------- */
+  .sheet-backdrop{
+    position:fixed; inset:0;
+    background:rgba(59,46,99,0.45);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.28s ease, visibility 0s linear 0.28s;
+    z-index:40;
+  }
+  .sheet-backdrop.open{
+    opacity:1; visibility:visible;
+    transition:opacity 0.28s ease, visibility 0s linear 0s;
+  }
+
+  .sheet{
+    font-family:'Inter',sans-serif;
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:rgba(255,255,255,0.5);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.6);
+    border-bottom:none;
+    box-shadow:0 -8px 32px rgba(0,0,0,0.12);
+    border-radius:16px 16px 0 0;
+    padding:10px 20px calc(20px + var(--footer-h));
+    max-width:640px;
+    margin:0 auto;
+    transform:translateY(100%);
+    transition:transform 0.32s cubic-bezier(.32,.72,.33,1);
+    z-index:41;
+    max-height:78vh;
+    overflow-y:auto;
+  }
+  .sheet-backdrop.open .sheet{transform:translateY(0);}
+
+  .sheet-handle{
+    width:40px; height:4px;
+    background:rgba(0,0,0,0.2);
+    border-radius:2px;
+    margin:8px auto 16px;
+  }
+  .sheet h3{
+    font-family:'Newsreader',serif;
+    font-weight:500;
+    font-size:1.15rem;
+    margin:0 0 16px;
+  }
+  /* Menu memenuhi ruang bar: ikon di atas, nama di bawah, tanpa kotak/kartu */
+  .menu-list{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px 8px;
+    padding:4px 0 8px;
+  }
+  .menu-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:8px;
+    padding:6px 2px;
+    border-radius:14px;
+    text-align:center;
+    text-decoration:none;
+    color:var(--ink);
+    font-size:0.78rem;
+    font-weight:500;
+    line-height:1.25;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  .menu-item:hover,
+  .menu-item:focus-visible{background:rgba(0,0,0,0.06); outline:none;}
+  .menu-item:active{background:rgba(0,0,0,0.1); transform:scale(0.96);}
+
+  /* Ikon gaya macOS: squircle bergradien + glyph putih */
+  .mac-icon{
+    flex:0 0 auto;
+    width:56px; height:56px;
+    border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4),
+               inset 0 -1px 0 rgba(0,0,0,0.08),
+               0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px;
+    fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
+  .mac-icon.teal  {--c1:#6FDDE6; --c2:#30B0C7;}
+  .mac-icon.red   {--c1:#FF7A70; --c2:#FF3B30;}
+  .mac-icon.yellow{--c1:#FFDD55; --c2:#FFCC00;}
+  .mac-icon.indigo{--c1:#8E8CF0; --c2:#5856D6;}
+  .mac-icon.pink  {--c1:#FF7CA3; --c2:#FF2D55;}
+  .mac-icon.gray  {--c1:#A4A4AA; --c2:#6E6E73;}
+  .mac-icon.graphite{--c1:#7C8896; --c2:#4A5562;}
+
+  @media (max-width:520px){
+    .footer-btn{width:auto; flex:1; max-width:140px;}
+    .nav-schoolinfo{display:none;}
+    .menu-list{grid-template-columns:repeat(3,1fr);}
+    .mac-icon{width:52px; height:52px;}
+    .mac-icon svg{width:30px; height:30px;}
+  }
+
+  /* ===== Tambahan khusus halaman guru (gaya macOS) ===== */
+  :root{
+    --ink-soft:#6E6E73;
+    --muted:#6E6E73;
+    --purple:#AF52DE;
+    --orange:#FF9500;
+    --turquoise:#0F766E;
+  }
+  .profile-card .profile-photo{font-size:1.6rem;}
+  .mapel-pill-row{display:flex; flex-wrap:wrap; gap:6px; margin-top:2px;}
+  .mapel-pill{
+    display:inline-block;
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.38);
+    border-radius:999px;
+    padding:2px 11px;
+    font-size:0.8rem; font-weight:600; color:#fff;
+  }
+
+  /* kartu statistik + progress bar */
+  .stat-bar{height:6px; border-radius:3px; background:rgba(0,0,0,0.08); margin-top:12px; overflow:hidden;}
+  .stat-bar-fill{height:100%; border-radius:3px; background:var(--bar,var(--mac-blue)); transition:width 0.4s ease;}
+  .stat-card .stat-foot{margin-top:8px;}
+
+  /* panel & tabel */
+  .panel-search{
+    font-family:inherit; font-size:0.82rem;
+    padding:7px 12px; min-width:170px;
+    border:1px solid var(--hairline); border-radius:8px;
+    background:rgba(255,255,255,0.9); color:var(--text);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.06);
+  }
+  .panel-search:focus{outline:none; border-color:var(--mac-blue); box-shadow:0 0 0 3px rgba(0,122,255,0.25);}
+  .table-wrap{
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    scrollbar-width:thin; scrollbar-color:rgba(0,0,0,0.25) transparent;
+    border-radius:10px; border:1px solid var(--hairline); background:rgba(255,255,255,0.7);
+  }
+  .table-wrap::-webkit-scrollbar{height:8px;}
+  .table-wrap::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.25); border-radius:6px;}
+  .preview-table{width:100%; min-width:560px; border-collapse:collapse; font-size:0.82rem;}
+  .preview-table th{
+    text-align:left; font-size:0.68rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase;
+    color:var(--text-dim); padding:9px 12px; white-space:nowrap;
+    background:rgba(0,0,0,0.035); border-bottom:1px solid var(--hairline);
+  }
+  .preview-table td{padding:9px 12px; border-bottom:1px solid rgba(0,0,0,0.06); color:var(--text); white-space:nowrap;}
+  .preview-table tbody tr:last-child td{border-bottom:none;}
+  .preview-table tbody tr:hover{background:rgba(0,122,255,0.07);}
+  .scroll-hint{display:none; align-items:center; gap:6px; font-size:0.72rem; color:var(--text-dim); margin:0 0 8px;}
+  .scroll-hint svg{width:14px; height:14px; flex-shrink:0; fill:none; stroke:currentColor; stroke-width:1.8;}
+  @media (max-width:820px){ .scroll-hint{display:flex;} }
+
+  .badge{display:inline-block; padding:3px 10px; border-radius:999px; font-size:0.72rem; font-weight:600; background:rgba(0,0,0,0.06); color:var(--text-dim);}
+  .badge-ok{background:rgba(52,199,89,0.16); color:#1E8E3E;}
+  .badge-no{background:rgba(255,59,48,0.14); color:#D70015;}
+
+  .btn-mini{font-family:inherit; font-size:0.72rem; font-weight:600; border:none; border-radius:6px; padding:6px 10px; margin-right:6px; cursor:pointer; color:#fff;}
+  .btn-edit{background:var(--green);} .btn-del{background:var(--brick);}
+
+  .panel-foot{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:14px; font-size:0.78rem; color:var(--text-dim);}
+  .pager{display:flex; align-items:center; gap:6px;}
+  .pager button{
+    font-family:inherit; font-size:0.78rem; font-weight:500;
+    background:rgba(255,255,255,0.95); color:var(--text);
+    border:1px solid var(--hairline); border-radius:7px; padding:5px 12px; cursor:pointer;
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+  }
+  .pager button:hover:not(:disabled){background:#fff; border-color:rgba(0,122,255,0.5);}
+  .pager button:disabled{opacity:0.45; cursor:not-allowed;}
+
+  /* perbandingan antar kelas */
+  .compare-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:thin;}
+  .compare-list{display:flex; flex-direction:column; gap:14px; min-width:260px;}
+  .compare-row{display:flex; align-items:center; gap:10px;}
+  .compare-label{width:44px; font-size:0.8rem; font-weight:600; color:var(--text); flex-shrink:0;}
+  .compare-track{flex:1; height:9px; border-radius:5px; background:rgba(0,0,0,0.08); overflow:hidden;}
+  .compare-fill{height:100%; border-radius:5px;}
+  .compare-num{width:40px; text-align:right; font-size:0.8rem; font-weight:600; color:var(--text-dim); flex-shrink:0;}
+
+
+  /* ---------- Modal Guru Piket ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,40,80,0.35);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:380px;
+    background:rgba(255,255,255,0.86);
+    -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:14px; overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 24px 60px rgba(30,40,80,0.35);
+    transform:scale(0.94); transition:transform 0.22s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:scale(1);}
+  .modal .titlebar{height:40px;}
+  .modal-close{
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    width:12px; height:12px; border-radius:50%; border:none; padding:0; cursor:pointer;
+    background:#FF5F57; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .modal-close:hover{filter:brightness(0.9);}
+  .modal-body{padding:16px; display:flex; flex-direction:column; gap:10px;}
+  .modal-desc{margin:0 0 4px; font-size:0.85rem; color:var(--text-dim);}
+  .modal-btn{
+    display:flex; align-items:center; gap:14px;
+    padding:12px 14px; border-radius:12px;
+    background:rgba(255,255,255,0.92); border:1px solid var(--hairline);
+    color:var(--text); text-decoration:none; font-size:0.92rem; font-weight:600;
+    box-shadow:0 1px 3px rgba(30,40,80,0.08);
+    transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .modal-btn:hover{transform:translateY(-1px); background:#fff; box-shadow:0 6px 16px rgba(30,40,80,0.14);}
+  .modal-btn:active{transform:scale(0.98);}
+  .modal-btn .mac-icon{width:42px; height:42px; border-radius:10px;}
+  .modal-btn .mac-icon svg{width:24px; height:24px;}
+  .modal-btn .chev{margin-left:auto; color:var(--text-dim); font-weight:500;}
+
+  .menu-item.logout-item{color:#D70015;}
+  @media (max-width:560px){ .panel-search{min-width:0; width:100%;} }
+
+  /* ===== Halaman Mapping Piket Siswa ===== */
+  .profile-meta{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+  .page-msg{font-size:0.85rem; margin:0 0 12px; line-height:1.45; padding:9px 12px; border-radius:10px;}
+  .page-msg:empty{display:none;}
+  .page-msg.ok{background:rgba(52,199,89,0.14); color:#1E8E3E;}
+  .page-msg.err{background:rgba(255,59,48,0.12); color:#D70015;}
+
+  .tabs-wrap{overflow-x:auto; margin-bottom:14px; padding:2px 0 4px; scrollbar-width:thin;}
+  .segmented{display:inline-flex; gap:2px; padding:2px; min-width:min-content; background:rgba(120,120,128,0.14); border-radius:10px;}
+  .seg-tab{
+    display:inline-flex; align-items:center; gap:7px; border:none; background:none;
+    font-family:inherit; font-size:13px; font-weight:500; color:var(--text);
+    padding:6px 14px; border-radius:8px; cursor:pointer; white-space:nowrap; transition:background .15s ease;
+  }
+  .seg-tab:hover:not(.active){background:rgba(0,0,0,0.05);}
+  .seg-tab.active{background:#fff; font-weight:600; box-shadow:0 0 0 0.5px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.18);}
+  .seg-count{font-size:11px; font-weight:600; color:var(--text-dim); background:rgba(0,0,0,0.06); border-radius:999px; padding:1px 7px;}
+  .seg-tab.active .seg-count{background:rgba(0,122,255,0.12); color:var(--mac-blue);}
+
+  .assign-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px;}
+  .assign-bar .panel-search{flex:1; min-width:150px;}
+  .btn-primary{
+    font-family:inherit; font-size:0.85rem; font-weight:600; color:#fff; cursor:pointer;
+    border:none; border-radius:9px; padding:8px 16px;
+    background:linear-gradient(180deg,#4DA3FF,#007AFF);
+    box-shadow:0 1px 3px rgba(0,122,255,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+    transition:transform .12s ease, filter .12s ease; white-space:nowrap;
+  }
+  .btn-primary:hover:not(:disabled){filter:brightness(1.06);}
+  .btn-primary:active:not(:disabled){transform:scale(0.97);}
+  .btn-primary:disabled{opacity:0.45; cursor:not-allowed;}
+  .sel-info{font-size:0.78rem; color:var(--text-dim);}
+
+  .scroll-box{max-height:420px; overflow-y:auto;}
+  .scroll-box table thead th{position:sticky; top:0; z-index:1;}
+  .preview-table td.wrap{white-space:normal;}
+  .preview-table input[type=checkbox]{width:16px; height:16px; accent-color:var(--mac-blue); cursor:pointer;}
+  .preview-table th.chk, .preview-table td.chk{width:36px; padding-right:0;}
+  .area-tag{display:inline-block; padding:3px 10px; border-radius:999px; font-size:0.72rem; font-weight:600; background:rgba(0,122,255,0.12); color:#0A5FD0;}
+  .empty-row td{text-align:center; color:var(--text-dim); padding:22px 12px;}
+  .back-link{display:inline-block; margin-bottom:14px; font-size:0.85rem; color:var(--mac-blue); text-decoration:none; font-weight:500;}
+  .back-link:hover{text-decoration:underline;}
+  .panel-stack{display:flex; flex-direction:column; gap:16px; margin-bottom:6px;}
+  @media (max-width:560px){ .assign-bar .btn-primary{width:100%;} }
+
+  /* ===== Halaman Input Piket Siswa ===== */
+  .info-banner{
+    display:flex; flex-wrap:wrap; align-items:center; gap:14px 22px;
+    background:rgba(255,255,255,0.88); border:1px solid rgba(255,255,255,0.8);
+    border-radius:14px; padding:14px 18px; margin-bottom:18px;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.08), 0 4px 14px rgba(30,40,80,0.08);
+  }
+  .info-item{display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .info-item .lbl{font-size:0.68rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--text-dim);}
+  .info-item .val{font-size:0.95rem; font-weight:600;}
+  .chip-ok{
+    margin-left:auto; display:inline-flex; align-items:center; gap:6px;
+    font-size:0.78rem; font-weight:600; padding:5px 12px; border-radius:999px;
+    background:rgba(52,199,89,0.16); color:#1E8E3E;
+  }
+  .chip-ok i{width:7px; height:7px; border-radius:50%; background:var(--green);}
+
+  .state-card{text-align:center; padding:34px 18px;}
+  .state-card .mac-icon{width:64px; height:64px; border-radius:16px; margin:0 auto 14px;}
+  .state-card .mac-icon svg{width:36px; height:36px;}
+  .state-card h2{margin:0 0 8px; font-size:1.2rem; letter-spacing:-0.01em;}
+  .state-card p{margin:0 auto 14px; max-width:46ch; color:var(--text-dim); font-size:0.9rem; line-height:1.55;}
+  .duty-list{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; margin:6px 0 18px;}
+  .duty-list .area-tag{font-size:0.8rem; padding:5px 12px;}
+  .btn-link{display:inline-block; text-decoration:none;}
+
+  /* Pilihan status: option button */
+  .status-opt{display:inline-flex; gap:6px;}
+  .status-opt label{position:relative; cursor:pointer;}
+  .status-opt input{position:absolute; opacity:0; inset:0; width:100%; height:100%; margin:0; cursor:pointer;}
+  .status-opt span{
+    display:inline-flex; align-items:center; gap:6px;
+    padding:6px 12px; border-radius:999px; font-size:0.78rem; font-weight:600;
+    border:1px solid var(--hairline); background:rgba(255,255,255,0.95); color:var(--text-dim);
+    transition:background .12s ease, color .12s ease, border-color .12s ease; white-space:nowrap;
+  }
+  .status-opt span::before{
+    content:""; width:12px; height:12px; border-radius:50%;
+    border:1.5px solid rgba(0,0,0,0.3); background:#fff; flex-shrink:0;
+  }
+  .status-opt input:focus-visible + span{outline:2px solid var(--mac-blue); outline-offset:2px;}
+  .status-opt .opt-ya input:checked + span{background:rgba(52,199,89,0.16); border-color:rgba(52,199,89,0.6); color:#1E8E3E;}
+  .status-opt .opt-ya input:checked + span::before{border-color:#28B94A; background:radial-gradient(circle,#28B94A 0 45%,#fff 50%);}
+  .status-opt .opt-tidak input:checked + span{background:rgba(255,59,48,0.12); border-color:rgba(255,59,48,0.55); color:#D70015;}
+  .status-opt .opt-tidak input:checked + span::before{border-color:#FF3B30; background:radial-gradient(circle,#FF3B30 0 45%,#fff 50%);}
+  tr.row-changed td:first-child{box-shadow:inset 3px 0 0 var(--mac-blue);}
+
+  .quick-actions{display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px;}
+  .btn-soft{
+    font-family:inherit; font-size:0.8rem; font-weight:600; cursor:pointer;
+    border:1px solid var(--hairline); border-radius:8px; padding:6px 12px;
+    background:rgba(255,255,255,0.95); color:var(--text);
+  }
+  .btn-soft:hover{background:#fff; border-color:rgba(0,122,255,0.5);}
+  .save-bar{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:14px;}
+  .save-bar .sel-info{font-size:0.82rem;}
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left"><div class="school-logo" id="schoolLogo">SMA</div></div>
+  <div class="nav-right">
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
+    <div class="admin-account">
+      <span class="avatar" id="guruAvatar">GR</span>
+      <span class="admin-name" id="guruName">Guru</span>
+    </div>
+  </div>
+</header>
+
+<main>
+ <div class="window">
+  <div class="titlebar">
+    <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+    <div class="titlebar-title">Input Piket Siswa</div>
+  </div>
+  <div class="window-body">
+    <a class="back-link" href="adminguru.html">&lsaquo; Kembali ke Beranda Guru</a>
+    <h1 class="page-heading">Input Piket Siswa</h1>
+    <p class="page-sub">Catat apakah siswa yang Anda awasi melaksanakan piket kebersihan hari ini. Hanya guru yang bertugas piket pada hari ini yang dapat menginput.</p>
+
+    <!-- Memuat -->
+    <div class="panel state-card" id="viewLoading">
+      <p style="margin:0;">Memeriksa jadwal piket Anda...</p>
+    </div>
+
+    <!-- Tidak berwenang -->
+    <div class="panel state-card" id="viewBlocked" hidden>
+      <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg></span>
+      <h2 id="blockedTitle">Anda tidak bertugas piket hari ini</h2>
+      <p id="blockedDesc"></p>
+      <div class="duty-list" id="dutyList"></div>
+      <a class="btn-primary btn-link" href="adminguru.html">Kembali ke Beranda</a>
+    </div>
+
+    <!-- Form input -->
+    <div id="viewForm" hidden>
+      <div class="info-banner">
+        <div class="info-item"><span class="lbl">Tanggal Piket</span><span class="val" id="infoTanggal">–</span></div>
+        <div class="info-item"><span class="lbl">Guru Piket</span><span class="val" id="infoGuru">–</span></div>
+        <span class="chip-ok"><i></i>Anda bertugas piket hari ini</span>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-top"><div><p class="stat-value" id="statTotal">0</p><p class="stat-label">Siswa Diawasi</p></div>
+            <span class="mac-icon blue"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20c0-3.6 3-5.8 6.5-5.8s6.5 2.2 6.5 5.8"/><circle cx="17" cy="8" r="2.4"/><path d="M15.8 14.3c2.9.4 4.7 2.3 4.7 5.7"/></svg></span></div>
+          <p class="stat-foot">Sesuai mapping piket Anda</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div><p class="stat-value" id="statYa">0</p><p class="stat-label">Melaksanakan</p></div>
+            <span class="mac-icon green"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg></span></div>
+          <p class="stat-foot">Pilihan saat ini</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div><p class="stat-value" id="statTidak">0</p><p class="stat-label">Tidak Melaksanakan</p></div>
+            <span class="mac-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg></span></div>
+          <p class="stat-foot">Pilihan saat ini</p>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top"><div><p class="stat-value" id="statBelum">0</p><p class="stat-label">Belum Diisi</p></div>
+            <span class="mac-icon orange"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7.5V12l3 1.8"/></svg></span></div>
+          <p class="stat-foot">Perlu dicatat</p>
+        </div>
+      </div>
+
+      <p class="page-msg" id="pageMsg"></p>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>Daftar Siswa Piket</h3>
+          <input type="text" class="panel-search" id="searchSiswa" placeholder="Cari nama siswa...">
+        </div>
+        <div class="tabs-wrap"><div class="segmented" id="areaTabs" role="tablist" aria-label="Filter area piket"></div></div>
+
+        <div class="quick-actions">
+          <button type="button" class="btn-soft" id="btnAllYa">Tandai semua Melaksanakan</button>
+          <button type="button" class="btn-soft" id="btnReset">Kosongkan pilihan</button>
+        </div>
+
+        <div class="table-wrap scroll-box" style="max-height:520px;">
+          <table class="preview-table" style="min-width:600px;">
+            <thead><tr><th>No</th><th>Nama Siswa</th><th>Kelas</th><th>Area Piket</th><th>Status</th></tr></thead>
+            <tbody id="tbodyPiket"><tr class="empty-row"><td colspan="5">Memuat data siswa...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="save-bar">
+          <span class="sel-info" id="saveInfo">Belum ada perubahan</span>
+          <button type="button" class="btn-primary" id="btnSave" disabled>Simpan Piket</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ </div>
+</main>
+
+<div class="footer-bar">
+  <button class="footer-btn" id="homeBtn">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 20.5V9.5L12 4l6.5 5.5v11"/><path d="M10 20.5v-5.5h4v5.5"/></svg></span>
+    Beranda
+  </button>
+  <div class="footer-divider"></div>
+  <button class="footer-btn logout" id="logoutBtn">
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H7a2.5 2.5 0 0 0-2.5 2.5v11A2.5 2.5 0 0 0 7 20h3"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9.5"/></svg></span>
+    Log Out
+  </button>
+</div>
+
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const TABLE_PIKET_GURU = "gurupiket";              // jadwal guru piket (hari, urutan, nama_guru, nip)
+  const TABLE_MAPPING = "mapping_piket_siswa";      // siswa yang diawasi tiap guru
+  const TABLE_INPUT = "piket_kebersihan_siswa";     // hasil input piket
+  const STATUS_YA = "Melaksanakan";
+  const STATUS_TIDAK = "Tidak Melaksanakan";
+  const HARI_JS = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const headersBase = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (str) => String(str ?? '').replace(/[&<>"']/g, s => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
+  const norm = (s) => String(s ?? '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const getInitials = (n) => String(n || '').split(' ').filter(Boolean).slice(0,2).map(w => w[0].toUpperCase()).join('');
+
+  // ---------- Tanggal & hari (waktu lokal perangkat) ----------
+  const now = new Date();
+  const hariIni = HARI_JS[now.getDay()];
+  const pad = (n) => String(n).padStart(2, '0');
+  const tanggalIni = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`; // YYYY-MM-DD lokal
+  const tanggalLabel = now.toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+
+  // ---------- Auth guard ----------
+  function getGuruSession(){
+    try{ const raw = localStorage.getItem('guru_session'); return raw ? JSON.parse(raw) : null; }
+    catch(e){ return null; }
+  }
+  const guruSession = getGuruSession();
+  if(!guruSession){ window.location.href = 'guru.html'; }
+  const namaGuruLogin = guruSession ? (guruSession.nama_guru || guruSession.nama || '') : '';
+  let guruNip = (guruSession && guruSession.nip) || '';
+
+  (function renderAccount(){
+    if(!guruSession) return;
+    $('guruName').textContent = namaGuruLogin || 'Guru';
+    $('guruAvatar').textContent = getInitials(namaGuruLogin) || 'GR';
+    $('infoGuru').textContent = namaGuruLogin || 'Guru';
+    $('infoTanggal').textContent = tanggalLabel;
+  })();
+
+  // ---------- Profil sekolah (navbar) ----------
+  (async function loadSchoolProfile(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: headersBase });
+      if(!res.ok) return;
+      const p = (await res.json())[0]; if(!p) return;
+      if(p.nama_sekolah) $('schoolName').textContent = p.nama_sekolah;
+      const semester = (p.semester || '').trim(), tahun = (p.tahun_pelajaran || '').trim();
+      if(semester || tahun){ $('termBadgeText').textContent = [semester ? 'Semester ' + semester : '', tahun].filter(Boolean).join(' • '); }
+      else { $('termBadge').style.display = 'none'; }
+      if(p.logo){ const img = document.createElement('img'); img.src = p.logo; img.alt = 'Logo Sekolah'; $('schoolLogo').innerHTML = ''; $('schoolLogo').appendChild(img); }
+    }catch(err){ console.error('Gagal memuat profil sekolah:', err); }
+  })();
+
+  async function fetchAll(path){
+    const PAGE = 1000; let from = 0, out = [];
+    while(true){
+      const res = await fetch(`${SUPABASE_URL}/${path}`, { headers: { ...headersBase, "Range-Unit": "items", "Range": `${from}-${from + PAGE - 1}` } });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      const rows = await res.json();
+      out = out.concat(rows);
+      if(rows.length < PAGE) break;
+      from += PAGE;
+    }
+    return out;
+  }
+
+  // ---------- Pesan ----------
+  let msgTimer = null;
+  function setMsg(text, type){
+    const el = $('pageMsg');
+    el.textContent = text || '';
+    el.className = 'page-msg' + (type ? ' ' + type : '');
+    clearTimeout(msgTimer);
+    if(text && type === 'ok') msgTimer = setTimeout(() => setMsg('', ''), 4000);
+  }
+
+  // ---------- State ----------
+  let siswaList = [];              // mapping milik guru ini
+  let current = new Map();         // id_siswa -> status yang dipilih sekarang
+  let saved = new Map();           // id_siswa -> status yang tersimpan di database (hari ini)
+  let activeArea = '';             // '' = semua area
+  let searchTerm = '';
+
+  function showView(name){
+    $('viewLoading').hidden = name !== 'loading';
+    $('viewBlocked').hidden = name !== 'blocked';
+    $('viewForm').hidden = name !== 'form';
+  }
+
+  function showBlocked(title, desc, dutyNames){
+    $('blockedTitle').textContent = title;
+    $('blockedDesc').textContent = desc;
+    $('dutyList').innerHTML = (dutyNames || []).map(n => `<span class="area-tag">${esc(n)}</span>`).join('');
+    showView('blocked');
+  }
+
+  // ---------- Validasi: apakah guru login bertugas piket hari ini? ----------
+  async function loadGuruNip(){
+    if(guruNip || !guruSession) return;
+    try{
+      const url = guruSession.id
+        ? `${SUPABASE_URL}/dataguru?id=eq.${encodeURIComponent(guruSession.id)}&select=nip&limit=1`
+        : `${SUPABASE_URL}/dataguru?nama_guru=eq.${encodeURIComponent(namaGuruLogin)}&select=nip&limit=1`;
+      const res = await fetch(url, { headers: headersBase });
+      if(!res.ok) return;
+      const g = (await res.json())[0];
+      if(g && g.nip) guruNip = g.nip;
+    }catch(e){ /* cocokkan lewat nama bila NIP tidak tersedia */ }
+  }
+
+  async function cekGuruPiketHariIni(){
+    const res = await fetch(`${SUPABASE_URL}/${TABLE_PIKET_GURU}?hari=eq.${encodeURIComponent(hariIni)}&select=nama_guru,nip&order=urutan.asc`, { headers: headersBase });
+    if(!res.ok) throw new Error('Status ' + res.status);
+    const duty = await res.json();
+    const sah = duty.some(d =>
+      (guruNip && d.nip && String(d.nip).trim() === String(guruNip).trim()) ||
+      (namaGuruLogin && norm(d.nama_guru) === norm(namaGuruLogin))
+    );
+    return { sah, duty };
+  }
+
+  // ---------- Render ----------
+  function areasOf(list){
+    return Array.from(new Set(list.map(s => s.area_piket).filter(Boolean)))
+      .sort((a,b) => String(a).localeCompare(String(b), 'id', { numeric: true }));
+  }
+
+  function visibleList(){
+    const term = searchTerm.trim().toLowerCase();
+    return siswaList.filter(s =>
+      (!activeArea || s.area_piket === activeArea) &&
+      (!term || String(s.nama_siswa ?? '').toLowerCase().includes(term)));
+  }
+
+  function renderTabs(){
+    const areas = areasOf(siswaList);
+    if(activeArea && !areas.includes(activeArea)) activeArea = '';
+    const tabs = $('areaTabs'); tabs.innerHTML = '';
+    const mk = (label, value, count) => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'seg-tab' + (value === activeArea ? ' active' : '');
+      b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', value === activeArea ? 'true' : 'false');
+      b.innerHTML = `${esc(label)} <span class="seg-count">${count}</span>`;
+      b.addEventListener('click', () => { activeArea = value; renderTabs(); renderTable(); });
+      tabs.appendChild(b);
+    };
+    mk('Semua', '', siswaList.length);
+    areas.forEach(a => mk(a, a, siswaList.filter(s => s.area_piket === a).length));
+  }
+
+  function renderTable(){
+    const tbody = $('tbodyPiket');
+    const rows = visibleList();
+    if(rows.length === 0){
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">${siswaList.length ? 'Tidak ada siswa yang sesuai.' : 'Belum ada siswa dalam mapping piket Anda.'}</td></tr>`;
+    } else {
+      tbody.innerHTML = rows.map((s, i) => {
+        const id = String(s.id_siswa);
+        const cur = current.get(id) || '';
+        const changed = cur && cur !== (saved.get(id) || '');
+        return `<tr class="${changed ? 'row-changed' : ''}">
+          <td>${i + 1}</td>
+          <td>${esc(s.nama_siswa)}</td>
+          <td>${esc(s.kelas)}</td>
+          <td><span class="area-tag">${esc(s.area_piket)}</span></td>
+          <td>
+            <div class="status-opt" role="radiogroup" aria-label="Status piket ${esc(s.nama_siswa)}">
+              <label class="opt-ya"><input type="radio" name="st_${esc(id)}" value="${STATUS_YA}" data-id="${esc(id)}" ${cur === STATUS_YA ? 'checked' : ''}><span>Melaksanakan</span></label>
+              <label class="opt-tidak"><input type="radio" name="st_${esc(id)}" value="${STATUS_TIDAK}" data-id="${esc(id)}" ${cur === STATUS_TIDAK ? 'checked' : ''}><span>Tidak Melaksanakan</span></label>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+    updateSummary();
+  }
+
+  function changedIds(){
+    return siswaList.map(s => String(s.id_siswa)).filter(id => current.get(id) && current.get(id) !== saved.get(id));
+  }
+
+  function updateSummary(){
+    let ya = 0, tidak = 0;
+    siswaList.forEach(s => {
+      const v = current.get(String(s.id_siswa));
+      if(v === STATUS_YA) ya++; else if(v === STATUS_TIDAK) tidak++;
+    });
+    $('statTotal').textContent = siswaList.length;
+    $('statYa').textContent = ya;
+    $('statTidak').textContent = tidak;
+    $('statBelum').textContent = siswaList.length - ya - tidak;
+    const n = changedIds().length;
+    $('saveInfo').textContent = n === 0 ? 'Belum ada perubahan' : `${n} siswa siap disimpan`;
+    $('btnSave').disabled = n === 0;
+  }
+
+  // ---------- Interaksi ----------
+  $('searchSiswa').addEventListener('input', e => { searchTerm = e.target.value; renderTable(); });
+  $('tbodyPiket').addEventListener('change', e => {
+    const r = e.target.closest('input[type=radio]'); if(!r) return;
+    current.set(r.dataset.id, r.value);
+    const tr = r.closest('tr');
+    tr.classList.toggle('row-changed', current.get(r.dataset.id) !== (saved.get(r.dataset.id) || ''));
+    updateSummary();
+  });
+  $('btnAllYa').addEventListener('click', () => {
+    visibleList().forEach(s => current.set(String(s.id_siswa), STATUS_YA));
+    renderTable();
+  });
+  $('btnReset').addEventListener('click', () => {
+    visibleList().forEach(s => {
+      const id = String(s.id_siswa);
+      if(saved.has(id)) current.set(id, saved.get(id)); else current.delete(id);
+    });
+    renderTable();
+  });
+
+  $('btnSave').addEventListener('click', async () => {
+    const ids = changedIds(); if(ids.length === 0) return;
+    const btn = $('btnSave'); btn.disabled = true; btn.textContent = 'Menyimpan...'; setMsg('', '');
+    try{
+      const byId = new Map(siswaList.map(s => [String(s.id_siswa), s]));
+      const stamp = new Date().toISOString();
+      const payload = ids.map(id => {
+        const s = byId.get(id);
+        return { id_siswa: id, nama_siswa: s.nama_siswa, kelas: s.kelas, tanggal: tanggalIni,
+                 area_piket: s.area_piket, status: current.get(id), nama_guru: namaGuruLogin, updated_at: stamp };
+      });
+      const res = await fetch(`${SUPABASE_URL}/${TABLE_INPUT}?on_conflict=tanggal,id_siswa`, {
+        method: 'POST',
+        headers: { ...headersBase, "Content-Type": "application/json", "Prefer": "resolution=merge-duplicates,return=minimal" },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok) throw new Error((await res.text()) || ('Status ' + res.status));
+      ids.forEach(id => saved.set(id, current.get(id)));
+      renderTable();
+      setMsg(`Piket ${payload.length} siswa berhasil disimpan untuk ${tanggalLabel}.`, 'ok');
+    }catch(err){
+      console.error(err);
+      setMsg('Gagal menyimpan: ' + err.message + '. Pastikan tabel "' + TABLE_INPUT + '" sudah dibuat di Supabase (jalankan file SQL).', 'err');
+    }finally{
+      btn.textContent = 'Simpan Piket';
+      updateSummary();
+    }
+  });
+
+  $('homeBtn').addEventListener('click', () => { window.location.href = 'adminguru.html'; });
+  $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('guru_session'); window.location.href = 'index.html'; });
+
+  // ---------- Init ----------
+  (async function init(){
+    if(!guruSession) return;
+    try{
+      await loadGuruNip();
+      const { sah, duty } = await cekGuruPiketHariIni();
+      const names = duty.map(d => d.nama_guru).filter(Boolean);
+
+      if(!sah){
+        showBlocked(
+          'Anda tidak bertugas piket hari ini',
+          names.length
+            ? `Input piket kebersihan hari ${hariIni} hanya dapat dilakukan oleh guru yang bertugas piket pada hari tersebut. Guru piket hari ini:`
+            : `Belum ada guru piket yang dijadwalkan untuk hari ${hariIni}. Jadwal piket diatur oleh admin.`,
+          names
+        );
+        return;
+      }
+
+      // Siswa yang diawasi guru ini (dari mapping) + catatan yang sudah tersimpan hari ini
+      const [mapping, existing] = await Promise.all([
+        fetchAll(`${TABLE_MAPPING}?nama_guru=eq.${encodeURIComponent(namaGuruLogin)}&select=id_siswa,nama_siswa,kelas,area_piket&order=area_piket.asc,nama_siswa.asc`),
+        fetchAll(`${TABLE_INPUT}?tanggal=eq.${tanggalIni}&select=id_siswa,status`).catch(err => { console.error(err); return []; })
+      ]);
+      siswaList = mapping;
+      existing.forEach(r => { saved.set(String(r.id_siswa), r.status); });
+      siswaList.forEach(s => { const v = saved.get(String(s.id_siswa)); if(v) current.set(String(s.id_siswa), v); });
+
+      showView('form');
+      if(siswaList.length === 0){
+        setMsg('Mapping piket Anda masih kosong. Tentukan dulu siswa yang Anda awasi di menu Mapping Piket Siswa.', 'err');
+      }
+      renderTabs();
+      renderTable();
+    }catch(err){
+      console.error(err);
+      showBlocked('Gagal memeriksa jadwal piket',
+        'Tidak dapat memuat jadwal guru piket (' + err.message + '). Periksa koneksi lalu muat ulang halaman.', []);
+    }
+  })();
+</script>
+
+</body>
+</html>
