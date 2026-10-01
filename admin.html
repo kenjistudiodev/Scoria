@@ -416,6 +416,7 @@
   .mac-icon.graphite{--c1:#7C8896; --c2:#4A5562;}
 
   @media (max-width:520px){
+    .footer-btn{width:auto; flex:1; max-width:140px;}
     .nav-schoolinfo{display:none;}
     .menu-list{grid-template-columns:repeat(3,1fr);}
     .mac-icon{width:52px; height:52px;}
@@ -566,6 +567,11 @@
     Menu
   </button>
   <div class="footer-divider"></div>
+  <button class="footer-btn" id="openLaporanBtn">
+    <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 20h15"/><rect x="5.5" y="11" width="3" height="6.5" rx="0.8"/><rect x="10.5" y="6.5" width="3" height="11" rx="0.8"/><rect x="15.5" y="9" width="3" height="8.5" rx="0.8"/></svg></span>
+    Laporan
+  </button>
+  <div class="footer-divider"></div>
   <button class="footer-btn logout" id="logoutBtn">
     <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H7a2.5 2.5 0 0 0-2.5 2.5v11A2.5 2.5 0 0 0 7 20h3"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9.5"/></svg></span>
     Log Out
@@ -576,7 +582,7 @@
 <div class="sheet-backdrop" id="sheetBackdrop">
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetHeading">
     <div class="sheet-handle"></div>
-    <h3 id="sheetHeading">Menu</h3>
+    <h3 id="sheetHeading">Menu Sistem</h3>
     <nav class="menu-list">
       <a class="menu-item" href="identitassekolah.html">
         <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 20.5V9.5L12 4l6.5 5.5v11"/><path d="M10 20.5v-5.5h4v5.5"/></svg></span>
@@ -598,21 +604,13 @@
         <span class="mac-icon teal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><circle cx="12" cy="10" r="2.5"/><path d="M7.5 17c.4-2 2.2-3.3 4.5-3.3s4.1 1.3 4.5 3.3"/></svg></span>
         Wali Kelas
       </a>
-      <a class="menu-item" href="absensiadmin.html">
-        <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="M9 15l2 2 4-4"/></svg></span>
-        Kehadiran Siswa
+      <a class="menu-item" href="gurupiketadmin.html">
+        <span class="mac-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8" r="3.3"/><path d="M3.8 20c0-3.5 2.8-5.6 6.2-5.6 1.2 0 2.3.3 3.2.8"/><circle cx="17.5" cy="16.5" r="4"/><path d="M17.5 14.5v2l1.4.9"/></svg></span>
+        Guru Piket
       </a>
       <a class="menu-item" href="matapelajaran.html">
         <span class="mac-icon yellow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5V5.5A2 2 0 0 1 7 3.5h12v15H7a2 2 0 0 0-2 2"/><path d="M9 8h6M9 11.5h4"/></svg></span>
         Mata Pelajaran
-      </a>
-      <a class="menu-item" href="daftarbahanajar.html">
-        <span class="mac-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/></svg></span>
-        Bahan Ajar Guru
-      </a>
-      <a class="menu-item" href="daftarnilairombel.html">
-        <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 10v10"/></svg></span>
-        Daftar Nilai Per Rombel
       </a>
       <a class="menu-item" href="backupreset.html">
         <span class="mac-icon gray"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 1.800"/></svg></span>
@@ -621,6 +619,36 @@
       <a class="menu-item" href="restore.html">
         <span class="mac-icon graphite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 18.5v.5a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-.5"/></svg></span>
         Restore
+      </a>
+    </nav>
+  </div>
+</div>
+
+<!-- Bottom sheet Laporan -->
+<div class="sheet-backdrop" id="laporanBackdrop">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="laporanHeading">
+    <div class="sheet-handle"></div>
+    <h3 id="laporanHeading">Laporan</h3>
+    <nav class="menu-list">
+      <a class="menu-item" href="absensiadmin.html">
+        <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="M9 15l2 2 4-4"/></svg></span>
+        Kehadiran Siswa
+      </a>
+      <a class="menu-item" href="daftarbahanajar.html">
+        <span class="mac-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/></svg></span>
+        Bahan Ajar Guru
+      </a>
+      <a class="menu-item" href="daftarnilairombel.html">
+        <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 10v10"/></svg></span>
+        Nilai Mata Pelajaran
+      </a>
+      <a class="menu-item" href="piketharian.html">
+        <span class="mac-icon teal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5V3.5h6v1"/><path d="M8.8 11l1.4 1.4 2.4-2.6"/><path d="M8.8 16h6.4"/></svg></span>
+        Piket Harian
+      </a>
+      <a class="menu-item" href="kasussiswa.html">
+        <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l9 16H3z"/><path d="M12 10v4.2"/><circle cx="12" cy="16.9" r=".6" fill="#fff"/></svg></span>
+        Kasus Siswa
       </a>
     </nav>
   </div>
@@ -725,14 +753,22 @@
   })();
 
   const sheetBackdrop = document.getElementById('sheetBackdrop');
-  document.getElementById('openMenuBtn').addEventListener('click', () => {
-    sheetBackdrop.classList.add('open');
-  });
-  sheetBackdrop.addEventListener('click', (e) => {
-    if (e.target === sheetBackdrop) sheetBackdrop.classList.remove('open');
+  const laporanBackdrop = document.getElementById('laporanBackdrop');
+  const allSheets = [sheetBackdrop, laporanBackdrop];
+
+  function openSheet(sheet){
+    allSheets.forEach(el => { if(el !== sheet) el.classList.remove('open'); });
+    sheet.classList.add('open');
+  }
+  document.getElementById('openMenuBtn').addEventListener('click', () => openSheet(sheetBackdrop));
+  document.getElementById('openLaporanBtn').addEventListener('click', () => openSheet(laporanBackdrop));
+  allSheets.forEach(el => {
+    el.addEventListener('click', (e) => {
+      if (e.target === el) el.classList.remove('open');
+    });
   });
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') sheetBackdrop.classList.remove('open');
+    if (e.key === 'Escape') allSheets.forEach(el => el.classList.remove('open'));
   });
   document.getElementById('logoutBtn').addEventListener('click', () => {
     // TODO: sambungkan ke proses logout Supabase, lalu arahkan ke index.html
