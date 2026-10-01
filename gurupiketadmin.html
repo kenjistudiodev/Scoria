@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guru Piket — SCORIA</title>
+<style>
+
+
+  :root{
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
+    --turquoise:#0F766E;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 24px);
+    overflow-x:hidden;
+    max-width:100vw;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
+
+  /* ---------- Menu bar (sama seperti admin.html) ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px; color:var(--text);
+  }
+  .nav-left{display:flex; align-items:center; gap:8px;}
+  .school-logo{
+    width:20px; height:20px; border-radius:6px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .nav-right{display:flex; align-items:center; gap:14px; min-width:0;}
+  .nav-schoolinfo{display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0;}
+  .school-name{
+    font-size:13px; font-weight:700; color:var(--text);
+    max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .term-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:500; color:var(--text-dim);
+    background:rgba(0,0,0,0.06);
+    padding:2px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .term-badge .dot{width:6px; height:6px; border-radius:50%; background:#34C759; flex-shrink:0;}
+  .admin-account{display:flex; align-items:center; gap:7px; padding-left:12px; border-left:1px solid var(--hairline);}
+  .avatar{
+    width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,#B0B0B8,#7C7C84);
+    color:#fff; font-size:8px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .admin-name{font-size:13px; font-weight:500;}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 28px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 22px;}
+
+  .table-header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .table-header h2{margin:0; font-size:15px; font-weight:600;}
+  .count-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:600; color:#0E6B64;
+    background:rgba(15,118,110,0.12);
+    padding:3px 11px; border-radius:999px; white-space:nowrap;
+  }
+  .count-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--turquoise);}
+
+  /* ---------- Kartu Wali Kelas ---------- */
+  .card-grid{
+    display:grid; gap:16px;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  }
+  .wk-card{
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:24px 16px 16px;
+    background:rgba(255,255,255,0.92);
+    border:1px solid var(--field-border);
+    border-radius:14px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(30,40,80,0.08);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    animation:cardIn .3s ease both;
+  }
+  .wk-card:hover{
+    transform:translateY(-3px);
+    border-color:rgba(0,122,255,0.35);
+    box-shadow:0 2px 4px rgba(0,0,0,0.06), 0 14px 30px rgba(30,40,80,0.16);
+  }
+  @keyframes cardIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  .wk-id{
+    position:absolute; top:10px; left:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px; color:var(--text-dim);
+    background:rgba(120,120,128,0.1);
+    padding:2px 8px; border-radius:999px;
+  }
+  .wk-photo{
+    width:92px; height:92px; border-radius:50%;
+    margin:10px 0 14px; overflow:hidden; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:30px; font-weight:700; letter-spacing:0.02em;
+    border:3px solid #fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.12), 0 6px 14px rgba(0,60,160,0.25);
+  }
+  .wk-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .wk-name{font-size:15px; font-weight:700; letter-spacing:-0.01em; line-height:1.3; margin:0 0 4px; word-break:break-word;}
+  .wk-nip{font-size:12.5px; color:var(--text-dim); margin:0 0 12px; font-variant-numeric:tabular-nums;}
+  .rombel-chip{
+    display:inline-block;
+    background:rgba(255,149,0,0.14); color:#B25F00;
+    font-weight:600; font-size:12px;
+    padding:3px 12px; border-radius:999px; white-space:nowrap;
+  }
+  .row-actions{
+    display:flex; gap:8px; justify-content:center;
+    width:100%; margin-top:16px; padding-top:14px;
+    border-top:1px solid var(--hairline);
+  }
+  .icon-btn{
+    width:34px; height:30px; border-radius:7px;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border);
+    color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .icon-btn svg{width:15px; height:15px;}
+  .icon-btn.edit:hover{background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .icon-btn.delete:hover{background:var(--err); border-color:var(--err); color:#fff;}
+  .icon-btn:disabled{opacity:.5; cursor:not-allowed;}
+  .empty-state{grid-column:1/-1; text-align:center; padding:34px 12px; color:var(--text-dim); font-size:13.5px;}
+
+  /* ---------- Dialog konfirmasi hapus (alert macOS) ---------- */
+  .alert-box{
+    width:100%; max-width:300px; padding:22px 20px 16px; text-align:center;
+    background:rgba(246,246,248,0.95);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7); border-radius:14px;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.2), 0 22px 60px rgba(30,40,80,0.35);
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .alert-box{transform:none;}
+  .alert-icon{margin:0 auto 10px; width:52px; height:52px; border-radius:13px; --c1:#FF6B60; --c2:#FF3B30;}
+  .alert-icon svg{width:28px; height:28px;}
+  .alert-box h3{margin:0 0 6px; font-size:15px; font-weight:700;}
+  .alert-box p{margin:0 0 16px; font-size:12.5px; color:var(--text-dim); line-height:1.45;}
+  .alert-buttons{display:flex; gap:10px;}
+  .alert-buttons > *{flex:1;}
+  .btn-danger:hover:not(:disabled){
+    background:linear-gradient(180deg,#FF6B60,#FF3B30);
+    border-color:#E0281E; color:#fff;
+    box-shadow:0 1px 2px rgba(255,59,48,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
+  }
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac:disabled{
+    background:#e6e6ea; border-color:var(--field-border); color:#a1a1a6;
+    box-shadow:none; cursor:not-allowed;
+  }
+
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600;
+    width:160px; cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-btn:hover{background:rgba(255,255,255,0.16);}
+  .footer-btn:focus-visible{outline-color:#fff; outline-offset:-3px;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green{--c1:#6CE37F; --c2:#28B94A;}
+
+  /* ---------- Modal Tambah Walikelas ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:480px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
+
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .label-hint{font-weight:400; opacity:0.8;}
+  .form-hint{font-size:12px; color:var(--text-dim); margin:0;}
+  input, select{
+    font-family:inherit; font-size:14px;
+    padding:9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  input[readonly]{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
+  input[readonly]:focus{border-color:var(--field-border); box-shadow:none;}
+  select{
+    appearance:none; -webkit-appearance:none; cursor:pointer; padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .id-row{display:flex; gap:8px;}
+  .id-row input{flex:1; min-width:0;}
+  .btn-regen{padding:8px 14px; font-size:13px; white-space:nowrap; flex-shrink:0;}
+
+  .modal-actions{
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:6px; padding-top:18px; border-top:1px solid var(--hairline);
+  }
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+  .form-msg{font-size:13px;}
+  .form-msg.ok{color:var(--ok);}
+  .form-msg.err{color:var(--err);}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px; max-width:92vw; text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  }
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
+
+  @media (max-width:560px){
+    .card-grid{grid-template-columns:1fr;}
+    main{padding-left:8px; padding-right:8px;}
+    .navbar{padding-left:10px; padding-right:10px;}
+    .window-body{padding:20px 14px 22px;}
+    .modal-buttons{flex-direction:column-reverse;}
+  }
+  @media (max-width:520px){
+    .nav-schoolinfo{display:none;}
+  }
+
+  /* ---------- Tambahan khusus Data Guru ---------- */
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .search-wrap{position:relative; flex:1; max-width:320px; min-width:200px;}
+  .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-dim); pointer-events:none;}
+  .search-wrap input{padding-left:34px; border-radius:999px; background:rgba(255,255,255,0.9);}
+  .g-info{display:flex; flex-direction:column; gap:7px; width:100%; margin-top:14px; text-align:left;}
+  .g-row{display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:#48484A; line-height:1.4; word-break:break-word;}
+  .g-row svg{flex-shrink:0; width:14px; height:14px; margin-top:1px; color:var(--mac-blue);}
+  .wk-card .wk-nip{margin-bottom:0;}
+  .wk-photo.c-blue{background:linear-gradient(180deg,#5AC8FA,#007AFF);}
+  .wk-photo.c-green{background:linear-gradient(180deg,#6CE37F,#28B94A);}
+  .wk-photo.c-orange{background:linear-gradient(180deg,#FFB340,#FF9500);}
+  .wk-photo.c-purple{background:linear-gradient(180deg,#C69CFF,#8E5CF0);}
+  .wk-photo.c-pink{background:linear-gradient(180deg,#FF8FB1,#FF2D6F);}
+  .wk-photo.c-teal{background:linear-gradient(180deg,#5FD6C8,#0F766E);}
+  .wk-photo:has(img){background:#e9e9ee;}
+
+  .modal{max-width:640px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .field.full{grid-column:1/-1;}
+  .section-title{
+    display:flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:700; color:var(--text);
+    margin:0 0 14px;
+  }
+  .section-title .dot{width:8px; height:8px; border-radius:50%; background:var(--mac-blue); flex-shrink:0;}
+  .section-title.green .dot{background:#34C759;}
+  .section-title.orange .dot{background:#FF9500;}
+  .section-title.purple .dot{background:#AF52DE;}
+  .section-title:not(:first-child){margin-top:8px; padding-top:18px; border-top:1px solid var(--hairline);}
+  .opt{font-weight:400; opacity:.8;}
+  textarea{
+    font-family:inherit; font-size:14px; padding:9px 12px; width:100%; min-height:70px; resize:vertical;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px; outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  .pass-wrap{position:relative;}
+  .pass-wrap input{padding-right:92px;}
+  .pass-toggle{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:var(--mac-blue);
+    font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; padding:4px 6px;
+  }
+  .photo-field{display:flex; align-items:center; gap:16px;}
+  .photo-preview{
+    width:76px; height:76px; border-radius:50%; overflow:hidden; flex-shrink:0;
+    border:2px dashed var(--field-border); background:rgba(120,120,128,0.06);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim); font-size:10.5px; text-align:center; padding:6px;
+  }
+  .photo-preview img{width:100%; height:100%; object-fit:cover; margin:-6px;}
+  .photo-controls{display:flex; flex-direction:column; gap:6px; align-items:flex-start;}
+  label.file-btn{
+    display:inline-flex; align-items:center; font-size:13px; font-weight:500; color:var(--text);
+    padding:7px 16px; border-radius:8px; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#f5f5f7); border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+  }
+  label.file-btn:hover{background:linear-gradient(180deg,#fff,#ececf0);}
+  input[type=file]{display:none;}
+  .modal-body{padding-bottom:22px;}
+  #formMsg:empty{display:none;}
+
+  @media (max-width:560px){
+    .grid2{grid-template-columns:1fr;}
+    .search-wrap{max-width:none;}
+  }
+
+  /* ---------- Khusus Guru Piket ---------- */
+  .day-grid{display:grid; gap:16px; grid-template-columns:repeat(auto-fill,minmax(290px,1fr));}
+  .day-card{
+    display:flex; flex-direction:column;
+    background:rgba(255,255,255,0.92);
+    border:1px solid var(--field-border);
+    border-radius:14px; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(30,40,80,0.08);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    animation:cardIn .3s ease both;
+  }
+  .day-card:hover{transform:translateY(-3px); border-color:rgba(0,122,255,0.35); box-shadow:0 2px 4px rgba(0,0,0,0.06), 0 14px 30px rgba(30,40,80,0.16);}
+  .day-card.today{border-color:rgba(52,199,89,0.55); box-shadow:0 0 0 3px rgba(52,199,89,0.16), 0 6px 18px rgba(30,40,80,0.1);}
+  .day-head{
+    display:flex; align-items:center; gap:8px; padding:13px 16px;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(240,240,244,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .day-name{font-size:16px; font-weight:700; letter-spacing:-0.01em; margin:0; flex:1;}
+  .today-badge{font-size:10.5px; font-weight:700; color:#1E8E3E; background:rgba(52,199,89,0.16); padding:2px 9px; border-radius:999px;}
+  .day-count{font-size:11.5px; font-weight:600; color:#0A5FD0; background:rgba(0,122,255,0.12); padding:2px 10px; border-radius:999px; white-space:nowrap;}
+  .day-body{padding:10px 16px; flex:1; min-height:92px;}
+  .piket-row{display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--hairline);}
+  .piket-row:last-child{border-bottom:none;}
+  .piket-ph{
+    width:34px; height:34px; border-radius:50%; flex-shrink:0; overflow:hidden;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF); color:#fff; font-size:12px; font-weight:700;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.12);
+  }
+  .piket-ph img{width:100%; height:100%; object-fit:cover; display:block;}
+  .piket-txt{min-width:0;}
+  .piket-nm{font-size:13.5px; font-weight:600; line-height:1.25; word-break:break-word;}
+  .piket-nip{font-size:11.5px; color:var(--text-dim); margin-top:1px;}
+  .piket-no{font-size:11px; font-weight:700; color:var(--text-dim); width:14px; text-align:center; flex-shrink:0;}
+  .day-empty{display:flex; align-items:center; justify-content:center; height:100%; min-height:70px; font-size:12.5px; color:var(--text-dim); text-align:center;}
+  .day-foot{display:flex; justify-content:flex-end; gap:8px; padding:10px 16px 12px; border-top:1px solid var(--hairline);}
+
+  .slot{display:flex; align-items:center; gap:10px; margin-bottom:10px;}
+  .slot-num{
+    width:24px; height:24px; border-radius:50%; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11.5px; font-weight:700; color:#fff;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    box-shadow:0 1px 2px rgba(0,0,0,0.2);
+  }
+  .slot select{flex:1; min-width:0;}
+  .slot-clear{
+    flex-shrink:0; width:26px; height:26px; border-radius:50%; border:none; cursor:pointer;
+    background:rgba(120,120,128,0.14); color:var(--text-dim); font-size:15px; line-height:1;
+  }
+  .slot-clear:hover{background:var(--err); color:#fff;}
+  .slot-clear[hidden]{display:none !important;}
+  .slot-count{font-size:12px; color:var(--text-dim); margin:2px 0 14px;}
+  .modal{max-width:520px;}
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <div class="school-logo" id="schoolLogo">SMA</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
+    <div class="admin-account">
+      <span class="avatar">AD</span>
+      <span class="admin-name">Admin</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Guru Piket</div>
+    </div>
+    <div class="window-body">
+      <h1 class="page-title">Guru Piket</h1>
+      <p class="page-sub">Atur jadwal guru piket untuk setiap hari. Setiap hari dapat diisi hingga 6 guru, dan pengisian bersifat opsional sesuai kebutuhan sekolah.</p>
+
+      <div class="table-header">
+        <h2>Jadwal Piket Harian</h2>
+        <span class="count-pill"><span class="dot"></span><span id="countLabel">Memuat...</span></span>
+      </div>
+
+      <div class="day-grid" id="dayGrid">
+        <div class="empty-state">Memuat jadwal guru piket...</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="openAddBtn">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-width="2.4"/></svg></span>
+    Atur Piket
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    Dashboard
+  </a>
+</div>
+
+<!-- Modal Atur Piket -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="modalHeading">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" id="closeModalBtn" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Atur Guru Piket</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="modalHeading">Atur Guru Piket</h2>
+      <p class="modal-sub">Pilih hari, lalu tentukan guru piketnya. Maksimal 6 guru, slot yang tidak dipakai boleh dikosongkan.</p>
+
+      <form id="piketForm">
+        <div class="field">
+          <label for="hariSelect">Hari</label>
+          <select id="hariSelect" required></select>
+        </div>
+
+        <label>Guru Piket <span class="label-hint">(opsional)</span></label>
+        <p class="slot-count" id="slotCount">0 dari 6 slot terisi</p>
+        <div id="slotList"></div>
+
+        <div class="modal-actions">
+          <div class="modal-buttons">
+            <button type="submit" class="btn-mac" id="submitBtn">Simpan</button>
+            <button type="button" class="btn-mac" id="cancelBtn">Batal</button>
+          </div>
+          <span class="form-msg" id="formMsg"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Konfirmasi Kosongkan -->
+<div class="modal-backdrop" id="deleteBackdrop">
+  <div class="alert-box" role="alertdialog" aria-modal="true" aria-labelledby="deleteTitle" aria-describedby="deleteDesc">
+    <span class="mac-icon alert-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span>
+    <h3 id="deleteTitle">Kosongkan Jadwal?</h3>
+    <p id="deleteDesc">Semua guru piket pada hari ini akan dihapus.</p>
+    <div class="alert-buttons">
+      <button type="button" class="btn-mac" id="cancelDeleteBtn">Batal</button>
+      <button type="button" class="btn-mac btn-danger" id="confirmDeleteBtn">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const sbHeaders = {
+    "apikey": SUPABASE_ANON_KEY,
+    "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+    "Content-Type": "application/json"
+  };
+
+  const PIKET_TABLE = "gurupiket";
+  const GURU_TABLE = "dataguru";
+  const MAX_SLOT = 6;
+  // Tambahkan "Minggu" di sini bila sekolah memerlukan (tabel SQL sudah mendukung)
+  const HARI_LIST = ["Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const HARI_JS = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const hariIni = HARI_JS[new Date().getDay()];
+
+  // Ambil logo & nama sekolah dari tabel "profil" (sama seperti halaman lain)
+  (async function loadSchoolProfile(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: sbHeaders });
+      if(!res.ok) return;
+      const rows = await res.json();
+      const profil = rows && rows[0];
+      if(!profil) return;
+      if(profil.nama_sekolah) document.getElementById('schoolName').textContent = profil.nama_sekolah;
+      const termBadgeText = document.getElementById('termBadgeText');
+      const semester = (profil.semester || '').trim();
+      const tahunPelajaran = (profil.tahun_pelajaran || '').trim();
+      if(semester || tahunPelajaran){
+        termBadgeText.textContent = [semester ? 'Semester ' + semester : '', tahunPelajaran].filter(Boolean).join(' • ');
+      } else {
+        document.getElementById('termBadge').style.display = 'none';
+      }
+      if(profil.logo){
+        const logoEl = document.getElementById('schoolLogo');
+        logoEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = profil.logo; img.alt = 'Logo Sekolah';
+        logoEl.appendChild(img);
+      }
+    }catch(err){
+      console.error('Gagal memuat profil sekolah:', err);
+    }
+  })();
+
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, (c) => ({
+      '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+    }[c]));
+  }
+  function initials(name){
+    const parts = String(name || '?').replace(/[.,]/g,' ').trim().split(/\s+/).filter(Boolean);
+    return ((parts[0]||'?')[0] + (parts.length > 1 ? parts[1][0] : '')).toUpperCase();
+  }
+  window.photoFallback = function(img){
+    const box = img.parentElement;
+    box.textContent = box.getAttribute('data-initials') || '?';
+  };
+
+  const toast = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+
+  // ---------- Data ----------
+  let guruList = [];     // dari tabel dataguru
+  let piketRows = [];    // dari tabel gurupiket
+
+  function findGuru(nip, nama){
+    return guruList.find(g => g.nip && nip && String(g.nip) === String(nip))
+        || guruList.find(g => g.nama_guru === nama);
+  }
+
+  async function loadGuru(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${GURU_TABLE}?select=*&order=nama_guru.asc`, { headers: sbHeaders });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      guruList = (await res.json()) || [];
+    }catch(err){
+      console.error('Gagal memuat daftar guru:', err);
+      guruList = [];
+    }
+  }
+
+  async function loadPiket(){
+    const dayGrid = document.getElementById('dayGrid');
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${PIKET_TABLE}?select=*&order=urutan.asc`, { headers: sbHeaders });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      piketRows = (await res.json()) || [];
+      renderDays();
+    }catch(err){
+      console.error('Gagal memuat jadwal guru piket:', err);
+      dayGrid.innerHTML = '<div class="empty-state">Gagal memuat jadwal. Pastikan tabel "gurupiket" sudah dibuat di Supabase (jalankan script SQL-nya).</div>';
+      document.getElementById('countLabel').textContent = '– guru';
+    }
+  }
+
+  async function loadAll(){
+    await loadGuru();
+    await loadPiket();
+  }
+
+  // ---------- Render kartu hari ----------
+  function rowsOf(hari){
+    return piketRows.filter(r => r.hari === hari).sort((a,b) => a.urutan - b.urutan);
+  }
+
+  function renderDays(){
+    const dayGrid = document.getElementById('dayGrid');
+    dayGrid.innerHTML = HARI_LIST.map((hari, i) => {
+      const rows = rowsOf(hari);
+      const isToday = hari === hariIni;
+      const body = rows.length === 0
+        ? '<div class="day-empty">Belum ada guru piket</div>'
+        : rows.map(r => {
+            const g = findGuru(r.nip, r.nama_guru);
+            const ini = initials(r.nama_guru);
+            const photo = g && g.photo;
+            const ph = photo
+              ? `<img src="${escapeHtml(photo)}" alt="Foto ${escapeHtml(r.nama_guru)}" loading="lazy" onerror="photoFallback(this)">`
+              : escapeHtml(ini);
+            return `
+            <div class="piket-row">
+              <span class="piket-no">${r.urutan}</span>
+              <div class="piket-ph" data-initials="${escapeHtml(ini)}">${ph}</div>
+              <div class="piket-txt">
+                <div class="piket-nm">${escapeHtml(r.nama_guru)}</div>
+                <div class="piket-nip">${r.nip ? 'NIP/NIY ' + escapeHtml(r.nip) : 'Tanpa NIP/NIY'}</div>
+              </div>
+            </div>`;
+          }).join('');
+      return `
+      <article class="day-card${isToday ? ' today' : ''}" style="animation-delay:${i * 40}ms">
+        <div class="day-head">
+          <h3 class="day-name">${hari}</h3>
+          ${isToday ? '<span class="today-badge">Hari ini</span>' : ''}
+          <span class="day-count">${rows.length}/${MAX_SLOT}</span>
+        </div>
+        <div class="day-body">${body}</div>
+        <div class="day-foot">
+          <button class="icon-btn edit" title="Atur ${hari}" aria-label="Atur guru piket hari ${hari}" type="button" data-action="edit" data-hari="${hari}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="icon-btn delete" title="Kosongkan ${hari}" aria-label="Kosongkan jadwal hari ${hari}" type="button" data-action="delete" data-hari="${hari}"${rows.length === 0 ? ' disabled' : ''}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </article>`;
+    }).join('');
+
+    const hariTerisi = HARI_LIST.filter(h => rowsOf(h).length > 0).length;
+    const totalGuru = piketRows.filter(r => HARI_LIST.includes(r.hari)).length;
+    document.getElementById('countLabel').textContent = `${hariTerisi} dari ${HARI_LIST.length} hari terisi • ${totalGuru} penugasan`;
+  }
+
+  // ---------- Modal Atur Piket ----------
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const hariSelect = document.getElementById('hariSelect');
+  const slotList = document.getElementById('slotList');
+  const slotCount = document.getElementById('slotCount');
+  const piketForm = document.getElementById('piketForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const formMsg = document.getElementById('formMsg');
+  let extraGuru = {}; // guru yang sudah tidak ada di dataguru tetapi masih tercatat di jadwal
+
+  function setFormMsg(text, type){
+    formMsg.textContent = text || '';
+    formMsg.className = 'form-msg' + (type ? ' ' + type : '');
+  }
+
+  hariSelect.innerHTML = HARI_LIST.map(h => `<option value="${h}">${h}</option>`).join('');
+
+  function guruOptionsHtml(){
+    return '<option value="">-- Kosong (opsional) --</option>' +
+      guruList.map(g => `<option value="g:${escapeHtml(g.id)}">${escapeHtml(g.nama_guru)}${g.nip ? ' — ' + escapeHtml(g.nip) : ''}</option>`).join('') +
+      Object.keys(extraGuru).map(k => `<option value="${escapeHtml(k)}">${escapeHtml(extraGuru[k].nama_guru)}</option>`).join('');
+  }
+
+  function buildSlots(){
+    slotList.innerHTML = '';
+    const opts = guruOptionsHtml();
+    for(let i = 1; i <= MAX_SLOT; i++){
+      const row = document.createElement('div');
+      row.className = 'slot';
+      row.innerHTML = `
+        <span class="slot-num">${i}</span>
+        <select aria-label="Guru piket ${i}">${opts}</select>
+        <button type="button" class="slot-clear" title="Kosongkan slot ${i}" aria-label="Kosongkan slot ${i}" hidden>&times;</button>`;
+      slotList.appendChild(row);
+    }
+    slotList.querySelectorAll('select').forEach(sel => sel.addEventListener('change', refreshSlots));
+    slotList.querySelectorAll('.slot-clear').forEach((btn, idx) => {
+      btn.addEventListener('click', () => {
+        slotList.querySelectorAll('select')[idx].value = '';
+        refreshSlots();
+      });
+    });
+  }
+
+  // Cegah guru yang sama dipilih dua kali dalam satu hari + perbarui penghitung
+  function refreshSlots(){
+    const selects = [...slotList.querySelectorAll('select')];
+    const chosen = selects.map(s => s.value).filter(Boolean);
+    selects.forEach((sel, idx) => {
+      [...sel.options].forEach(opt => {
+        opt.disabled = !!opt.value && opt.value !== sel.value && chosen.includes(opt.value);
+      });
+      slotList.querySelectorAll('.slot-clear')[idx].hidden = !sel.value;
+    });
+    slotCount.textContent = `${chosen.length} dari ${MAX_SLOT} slot terisi`;
+  }
+
+  function fillSlotsForDay(hari){
+    extraGuru = {};
+    const rows = rowsOf(hari);
+    // guru lama yang sudah tidak ada di dataguru tetap ditampilkan agar tidak hilang diam-diam
+    const picks = rows.map(r => {
+      const g = findGuru(r.nip, r.nama_guru);
+      if(g) return 'g:' + g.id;
+      const key = 'x:' + r.nama_guru;
+      extraGuru[key] = { nama_guru: r.nama_guru, nip: r.nip || null };
+      return key;
+    });
+    buildSlots();
+    const selects = slotList.querySelectorAll('select');
+    picks.forEach((val, i) => { if(selects[i]) selects[i].value = val; });
+    refreshSlots();
+  }
+
+  function openModal(hari){
+    setFormMsg('', '');
+    hariSelect.value = hari || (HARI_LIST.includes(hariIni) ? hariIni : HARI_LIST[0]);
+    fillSlotsForDay(hariSelect.value);
+    modalBackdrop.classList.add('open');
+  }
+  function closeModal(){ modalBackdrop.classList.remove('open'); }
+
+  hariSelect.addEventListener('change', () => { setFormMsg('', ''); fillSlotsForDay(hariSelect.value); });
+  document.getElementById('openAddBtn').addEventListener('click', () => openModal());
+  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+  document.getElementById('cancelBtn').addEventListener('click', closeModal);
+
+  function resolveGuru(val){
+    if(val.startsWith('g:')){
+      const g = guruList.find(x => 'g:' + x.id === val);
+      return g ? { nama_guru: g.nama_guru, nip: g.nip || null } : null;
+    }
+    return extraGuru[val] || null;
+  }
+
+  piketForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    setFormMsg('', '');
+    const hari = hariSelect.value;
+
+    // Rapatkan slot: slot kosong dilewati, urutan menjadi 1..n
+    const picked = [...slotList.querySelectorAll('select')]
+      .map(s => s.value).filter(Boolean)
+      .map(resolveGuru).filter(Boolean);
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Menyimpan...';
+    try{
+      const n = picked.length;
+
+      if(n > 0){
+        const payload = picked.map((g, i) => ({ hari, urutan: i + 1, nama_guru: g.nama_guru, nip: g.nip }));
+        const res = await fetch(`${SUPABASE_URL}/${PIKET_TABLE}?on_conflict=hari,urutan`, {
+          method: 'POST',
+          headers: { ...sbHeaders, 'Prefer': 'resolution=merge-duplicates,return=representation' },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error((await res.text()) || ('Status ' + res.status));
+        const saved = await res.json();
+        if(!saved || saved.length < n) throw new Error('Data tidak tersimpan penuh. Periksa policy RLS pada tabel "gurupiket".');
+      }
+
+      // Hapus sisa urutan di atas jumlah guru yang dipilih (n = 0 berarti kosongkan seluruh hari)
+      const delRes = await fetch(`${SUPABASE_URL}/${PIKET_TABLE}?hari=eq.${encodeURIComponent(hari)}&urutan=gt.${n}`, {
+        method: 'DELETE',
+        headers: sbHeaders
+      });
+      if(!delRes.ok) throw new Error((await delRes.text()) || ('Status ' + delRes.status));
+
+      closeModal();
+      showToast(n === 0 ? `Jadwal piket hari ${hari} dikosongkan.` : `Guru piket hari ${hari} berhasil disimpan (${n} guru).`);
+      await loadPiket();
+    }catch(err){
+      console.error('Gagal menyimpan guru piket:', err);
+      setFormMsg('Gagal menyimpan. Pastikan tabel "gurupiket" dan policy RLS-nya sudah dibuat di Supabase.', 'err');
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Simpan';
+    }
+  });
+
+  // ---------- Kosongkan satu hari ----------
+  const deleteBackdrop = document.getElementById('deleteBackdrop');
+  const deleteDesc = document.getElementById('deleteDesc');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  let pendingHari = null;
+
+  function openDeleteDialog(hari){
+    pendingHari = hari;
+    const n = rowsOf(hari).length;
+    deleteDesc.textContent = `${n} guru piket pada hari ${hari} akan dihapus dari database dan tidak dapat dikembalikan.`;
+    deleteBackdrop.classList.add('open');
+    setTimeout(() => cancelDeleteBtn.focus(), 150);
+  }
+  function closeDeleteDialog(){ deleteBackdrop.classList.remove('open'); pendingHari = null; }
+  cancelDeleteBtn.addEventListener('click', closeDeleteDialog);
+  deleteBackdrop.addEventListener('click', (e) => { if(e.target === deleteBackdrop) closeDeleteDialog(); });
+
+  confirmDeleteBtn.addEventListener('click', async () => {
+    if(!pendingHari) return;
+    const hari = pendingHari;
+    confirmDeleteBtn.disabled = true; cancelDeleteBtn.disabled = true;
+    confirmDeleteBtn.textContent = 'Menghapus...';
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${PIKET_TABLE}?hari=eq.${encodeURIComponent(hari)}`, {
+        method: 'DELETE',
+        headers: { ...sbHeaders, 'Prefer': 'return=representation' }
+      });
+      if(!res.ok) throw new Error((await res.text()) || ('Status ' + res.status));
+      const deleted = await res.json();
+      if(!deleted || deleted.length === 0) throw new Error('Tidak ada baris yang dihapus. Periksa policy DELETE (RLS).');
+      closeDeleteDialog();
+      showToast(`Jadwal piket hari ${hari} dikosongkan.`);
+      await loadPiket();
+    }catch(err){
+      console.error('Gagal mengosongkan jadwal:', err);
+      closeDeleteDialog();
+      showToast('Gagal menghapus. Pastikan policy RLS pada tabel "gurupiket" sudah aktif.');
+    }finally{
+      confirmDeleteBtn.disabled = false; cancelDeleteBtn.disabled = false;
+      confirmDeleteBtn.textContent = 'Hapus';
+    }
+  });
+
+  // Tombol pada kartu (event delegation)
+  document.getElementById('dayGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if(!btn || btn.disabled) return;
+    const hari = btn.getAttribute('data-hari');
+    if(btn.getAttribute('data-action') === 'edit') openModal(hari);
+    else openDeleteDialog(hari);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key !== 'Escape') return;
+    if(deleteBackdrop.classList.contains('open')) closeDeleteDialog();
+    else if(modalBackdrop.classList.contains('open')) closeModal();
+  });
+
+  loadAll();
+</script>
+
+</body>
+</html>
