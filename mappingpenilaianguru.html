@@ -188,6 +188,31 @@
     background:rgba(0,122,255,0.14); color:#0A5FD0;
   }
 
+  /* ---------- Tab Kelas (segmented control macOS) ---------- */
+  .tabs{
+    display:flex; gap:2px; padding:3px; margin-bottom:14px;
+    background:rgba(0,0,0,0.06); border-radius:10px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab-item{
+    flex:0 0 auto; display:inline-flex; align-items:center; gap:6px;
+    font-family:inherit; font-size:0.8rem; font-weight:500; color:var(--text-dim);
+    background:transparent; border:none; border-radius:8px;
+    padding:6px 16px; cursor:pointer; white-space:nowrap;
+    transition:background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .tab-item:hover:not(.active){color:var(--text); background:rgba(255,255,255,0.45);}
+  .tab-item.active{
+    background:#fff; color:var(--text); font-weight:600;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.14);
+  }
+  .tab-count{
+    font-size:0.68rem; font-weight:600; min-width:18px; padding:1px 6px;
+    border-radius:999px; background:rgba(0,0,0,0.07); color:var(--text-dim); text-align:center;
+  }
+  .tab-item.active .tab-count{background:rgba(0,122,255,0.14); color:#0A5FD0;}
+
   /* tombol aksi di baris tabel */
   .btn-mini{
     font-family:inherit; font-size:0.72rem; font-weight:600;
@@ -283,6 +308,36 @@
   .footer-btn:active .mac-icon{transform:scale(0.95);}
   .footer-btn:hover{background:rgba(255,255,255,0.16); color:#FFFFFF;}
   .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+
+  /* ---------- Transisi pindah halaman (ala macOS) ---------- */
+  /* Menu bar tetap diam seperti di macOS; jendela & footer (Dock) yang bergerak. */
+  :root{
+    --ease-spring:cubic-bezier(0.32, 0.72, 0, 1);   /* masuk: cepat lalu mengendap halus */
+    --ease-out-mac:cubic-bezier(0.4, 0, 0.2, 1);    /* keluar */
+  }
+  .window{will-change:transform, opacity; transform-origin:50% 40%;}
+  .window, .footer-bar{
+    transition:opacity 0.28s var(--ease-out-mac), transform 0.28s var(--ease-out-mac);
+  }
+  /* jendela "terbuka" saat halaman dimuat */
+  @keyframes window-open{
+    from{opacity:0; transform:scale(0.965) translateY(8px);}
+    to  {opacity:1; transform:scale(1) translateY(0);}
+  }
+  @keyframes dock-up{
+    from{transform:translateY(100%);}
+    to  {transform:translateY(0);}
+  }
+  .window{animation:window-open 0.5s var(--ease-spring) backwards;}
+  .footer-bar{animation:dock-up 0.5s var(--ease-spring) 0.05s backwards;}
+
+  /* jendela "menutup" saat pindah halaman */
+  body.page-leaving{pointer-events:none;}
+  body.page-leaving .window{opacity:0; transform:scale(0.965) translateY(6px);}
+  body.page-leaving .footer-bar{transform:translateY(100%); transition-delay:0.03s;}
+  @media (prefers-reduced-motion:reduce){
+    .window, .footer-bar{animation:none; transition:none;}
+  }
 
   /* ---------- Bottom sheet menu ---------- */
   .sheet-backdrop{
@@ -437,6 +492,10 @@
         </div>
       </div>
 
+      <div class="tabs" id="kelasTabs" role="tablist" aria-label="Pilih kelas">
+        <button type="button" class="tab-item active" role="tab" aria-selected="true" data-kelas="">Semua</button>
+      </div>
+
       <p class="scroll-hint">
         <svg viewBox="0 0 24 24"><polyline points="9 6 15 12 9 18"/></svg>
         Geser tabel ke samping untuk melihat kolom lainnya
@@ -476,16 +535,11 @@
 
 <!-- Footer sticky -->
 <div class="footer-bar">
-  <button class="footer-btn" id="openMenuBtn" type="button">
-    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:#fff;stroke:none"><rect x="4" y="4" width="4" height="4" rx="1.2"/><rect x="10" y="4" width="4" height="4" rx="1.2"/><rect x="16" y="4" width="4" height="4" rx="1.2"/><rect x="4" y="10" width="4" height="4" rx="1.2"/><rect x="10" y="10" width="4" height="4" rx="1.2"/><rect x="16" y="10" width="4" height="4" rx="1.2"/><rect x="4" y="16" width="4" height="4" rx="1.2"/><rect x="10" y="16" width="4" height="4" rx="1.2"/><rect x="16" y="16" width="4" height="4" rx="1.2"/></svg></span>
-    Menu
-  </button>
-  <div class="footer-divider"></div>
   <button class="footer-btn" id="btnTambah" type="button">
     <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
     Tambah Mapping
   </button>
-  <a class="footer-btn" href="adminguru.html">
+  <a class="footer-btn" href="adminguru.html" id="linkDashboard">
     <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="9" rx="1.8"/><rect x="13.5" y="3.5" width="7" height="5" rx="1.8"/><rect x="13.5" y="11.5" width="7" height="9" rx="1.8"/><rect x="3.5" y="15.5" width="7" height="5" rx="1.8"/></svg></span>
     Dashboard
   </a>
@@ -755,6 +809,7 @@
   let searchTerm = '';
   let totalRows = 0;
   let editingKode = null; // kode_mapping yang sedang diedit, null = mode tambah
+  let activeKelas = '';   // '' = tab "Semua", selain itu = nama kelas
 
   const tableBody = document.getElementById('tableBody');
   const entriesInfo = document.getElementById('entriesInfo');
@@ -767,6 +822,55 @@
       .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
       .replaceAll('"','&quot;');
   }
+
+  // ---------- Tab Kelas ----------
+  const kelasTabs = document.getElementById('kelasTabs');
+  let kelasCounts = {}; // { '7A': 3, ... }
+
+  async function loadKelasTabs(){
+    const list = guruMapelList || [];
+    kelasCounts = {};
+    if(list.length > 0){
+      try{
+        const mapelFilter = list.map(m => encodeURIComponent(m)).join(',');
+        const res = await fetch(`${SUPABASE_URL}/${TABLE}?select=kelas&mata_pelajaran=in.(${mapelFilter})`, { headers: sbHeaders() });
+        if(!res.ok) throw new Error('Status ' + res.status);
+        const rows = await res.json();
+        rows.forEach(r => {
+          if(!r.kelas) return;
+          kelasCounts[r.kelas] = (kelasCounts[r.kelas] || 0) + 1;
+        });
+      }catch(err){
+        console.error('Gagal memuat daftar kelas untuk tab:', err);
+      }
+    }
+    // kalau kelas yang sedang aktif sudah tidak punya data, kembali ke "Semua"
+    if(activeKelas && !kelasCounts[activeKelas]) activeKelas = '';
+    renderKelasTabs();
+  }
+
+  function renderKelasTabs(){
+    const kelasList = Object.keys(kelasCounts).sort((a,b) => a.localeCompare(b, 'id', { numeric:true }));
+    const total = kelasList.reduce((sum, k) => sum + kelasCounts[k], 0);
+    const makeTab = (label, kelas, count) => `
+      <button type="button" class="tab-item${kelas === activeKelas ? ' active' : ''}" role="tab"
+              aria-selected="${kelas === activeKelas}" data-kelas="${escapeHtml(kelas)}">
+        ${escapeHtml(label)}<span class="tab-count">${count}</span>
+      </button>`;
+    kelasTabs.innerHTML = makeTab('Semua', '', total) +
+      kelasList.map(k => makeTab(k, k, kelasCounts[k])).join('');
+  }
+
+  kelasTabs.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.tab-item');
+    if(!btn) return;
+    const kelas = btn.dataset.kelas || '';
+    if(kelas === activeKelas) return;
+    activeKelas = kelas;
+    currentPage = 0;
+    renderKelasTabs();
+    fetchMapping();
+  });
 
   async function fetchMapping(){
     const list = guruMapelList || [];
@@ -783,6 +887,9 @@
     // mapping penilaian mata pelajaran lain.
     const mapelFilter = list.map(m => encodeURIComponent(m)).join(',');
     let url = `${SUPABASE_URL}/${TABLE}?select=*&order=kode_mapping.asc&mata_pelajaran=in.(${mapelFilter})`;
+    if(activeKelas){
+      url += `&kelas=eq.${encodeURIComponent(activeKelas)}`;
+    }
     const term = searchTerm.trim();
     if(term){
       const q = encodeURIComponent(term);
@@ -1063,6 +1170,7 @@
       }
 
       closeForm();
+      await loadKelasTabs();
       fetchMapping();
     }catch(err){
       console.error('Gagal menyimpan mapping:', err);
@@ -1085,6 +1193,7 @@
         headers: sbHeaders({ 'Prefer': 'return=minimal' })
       });
       if(!res.ok) throw new Error('Status ' + res.status);
+      await loadKelasTabs();
       fetchMapping();
     }catch(err){
       console.error('Gagal menghapus mapping:', err);
@@ -1102,9 +1211,6 @@
 
   // ---------- Bottom sheet menu ----------
   const sheetBackdrop = document.getElementById('sheetBackdrop');
-  document.getElementById('openMenuBtn').addEventListener('click', () => {
-    sheetBackdrop.classList.add('open');
-  });
   sheetBackdrop.addEventListener('click', (e) => {
     if (e.target === sheetBackdrop) sheetBackdrop.classList.remove('open');
   });
@@ -1124,11 +1230,26 @@
     doLogout();
   });
 
+  // ---------- Transisi ke Dashboard ----------
+  const linkDashboard = document.getElementById('linkDashboard');
+  linkDashboard.addEventListener('click', (e)=>{
+    // biarkan perilaku bawaan untuk ctrl/cmd-klik, tab baru, dsb.
+    if(e.ctrlKey || e.metaKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    const tujuan = linkDashboard.href;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    document.body.classList.add('page-leaving');
+    setTimeout(()=>{ window.location.href = tujuan; }, reduce ? 0 : 300);
+  });
+  // kalau user menekan Back dan halaman dipulihkan dari cache, pastikan tampilan normal
+  window.addEventListener('pageshow', ()=> document.body.classList.remove('page-leaving'));
+
   // ---------- Init ----------
   (async function init(){
     await loadGuruMapelList();
     loadMapelOptions();
     loadKelasOptions();
+    await loadKelasTabs();
     fetchMapping();
   })();
 </script>
