@@ -313,6 +313,21 @@
     background:rgba(120,120,128,0.18); color:var(--text-dim);
   }
   .tab[aria-selected="true"] .tab-badge{background:rgba(0,122,255,0.14); color:#0A5FD0;}
+  /* Panah geser tab */
+  .tabs-wrap{display:flex; align-items:center; gap:8px; margin:0 0 14px;}
+  .tabs-wrap .tabs{flex:1; min-width:0; margin:0;}
+  .tab-arrow{
+    flex:0 0 auto; width:30px; height:30px; padding:0; border-radius:8px; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border); color:var(--text);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .tab-arrow svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
+  .tab-arrow:hover:not(:disabled){background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .tab-arrow:active:not(:disabled){transform:scale(0.94);}
+  .tab-arrow:disabled{opacity:0.4; cursor:not-allowed;}
   td.name-col{font-weight:600;}
   td.dim-col{color:var(--text-dim);}
 </style>
@@ -339,7 +354,15 @@
         <span class="table-count" id="tableCount">0 mata pelajaran</span>
       </div>
       <p class="page-msg" id="pageMsg"></p>
-      <div class="tabs" id="guruTabs" role="tablist" aria-label="Pilih guru pengajar" hidden></div>
+      <div class="tabs-wrap" id="tabsWrap" hidden>
+        <button type="button" class="tab-arrow" id="tabPrev" aria-label="Geser tab ke kiri">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="tabs" id="guruTabs" role="tablist" aria-label="Pilih guru pengajar"></div>
+        <button type="button" class="tab-arrow" id="tabNext" aria-label="Geser tab ke kanan">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        </button>
+      </div>
       <div class="toolbar">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
@@ -439,6 +462,9 @@
   const form = document.getElementById('mapelForm');
   const namaInput = document.getElementById('namaMapel');
   const guruTabs = document.getElementById('guruTabs');
+  const tabsWrap = document.getElementById('tabsWrap');
+  const tabPrev = document.getElementById('tabPrev');
+  const tabNext = document.getElementById('tabNext');
   const guruSelect = document.getElementById('guruPengajar');
   const nipInput = document.getElementById('nip');
   const kelasSelect = document.getElementById('kelas');
@@ -504,11 +530,11 @@
   function renderTabs(){
     const tabs = tabList();
     if(tabs.length === 0){
-      guruTabs.hidden = true;
+      tabsWrap.hidden = true;
       guruTabs.innerHTML = '';
       return;
     }
-    guruTabs.hidden = false;
+    tabsWrap.hidden = false;
     if(!tabs.some(t => t.key === activeGuru)) activeGuru = tabs[0].key;
 
     guruTabs.innerHTML = tabs.map(t => {
@@ -519,7 +545,22 @@
 
     const activeBtn = guruTabs.querySelector('.tab[aria-selected="true"]');
     if(activeBtn) activeBtn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    updateArrows();
   }
+
+  // Panah kiri/kanan untuk menggeser tab
+  function updateArrows(){
+    const max = guruTabs.scrollWidth - guruTabs.clientWidth;
+    tabPrev.disabled = guruTabs.scrollLeft <= 1;
+    tabNext.disabled = guruTabs.scrollLeft >= max - 1;
+  }
+  function scrollTabs(dir){
+    guruTabs.scrollBy({ left: dir * Math.max(120, guruTabs.clientWidth * 0.7), behavior: 'smooth' });
+  }
+  tabPrev.addEventListener('click', () => scrollTabs(-1));
+  tabNext.addEventListener('click', () => scrollTabs(1));
+  guruTabs.addEventListener('scroll', updateArrows, { passive: true });
+  window.addEventListener('resize', updateArrows);
 
   function selectTab(key){
     activeGuru = key;
