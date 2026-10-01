@@ -429,18 +429,24 @@
     gap:4px;
     background:none;
     border:none;
-    color:var(--ink);
+    color:#FFFFFF;
     font-size:0.75rem;
     font-weight:600;
     width:140px;
     cursor:pointer;
     transition:background 0.15s ease;
   }
-  .footer-btn svg{width:20px; height:20px;}
-  .footer-btn:hover{background:rgba(59,46,99,0.12); color:#FFFFFF;}
+  .footer-btn .mac-icon{
+    width:34px; height:34px; border-radius:8px;
+    transition:transform 0.15s ease;
+  }
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+  .footer-btn:hover{background:rgba(255,255,255,0.16); color:#FFFFFF;}
   .footer-divider{
     width:1px;
-    background:rgba(59,46,99,0.2);
+    background:rgba(255,255,255,0.35);
     margin:14px 0;
   }
   .footer-btn.logout:hover{background:rgba(242,80,138,0.35); color:#FFFFFF;}
@@ -461,7 +467,12 @@
   .sheet{
     position:fixed;
     left:0; right:0; bottom:0;
-    background:var(--paper);
+    background:rgba(255,255,255,0.5);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.6);
+    border-bottom:none;
+    box-shadow:0 -8px 32px rgba(0,0,0,0.12);
     border-radius:16px 16px 0 0;
     padding:10px 20px calc(20px + var(--footer-h));
     max-width:640px;
@@ -476,7 +487,7 @@
 
   .sheet-handle{
     width:40px; height:4px;
-    background:var(--paper-line);
+    background:rgba(0,0,0,0.2);
     border-radius:2px;
     margin:8px auto 16px;
   }
@@ -486,35 +497,67 @@
     font-size:1.15rem;
     margin:0 0 16px;
   }
-  .menu-grid{
+  /* Menu memenuhi ruang bar: ikon di atas, nama di bawah, tanpa kotak/kartu */
+  .menu-list{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px 8px;
+    padding:4px 0 8px;
   }
   .menu-item{
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
     gap:8px;
+    padding:6px 2px;
+    border-radius:14px;
     text-align:center;
-    background:var(--paper-deep);
-    border:1px solid var(--paper-line);
-    border-radius:8px;
-    padding:16px 8px;
     text-decoration:none;
     color:var(--ink);
     font-size:0.78rem;
     font-weight:500;
     line-height:1.25;
-    transition:border-color 0.15s ease, background 0.15s ease;
+    transition:background 0.15s ease, transform 0.15s ease;
   }
-  .menu-item:hover{border-color:var(--brick); background:#FFE3EE;}
-  .menu-item svg{width:22px; height:22px; color:var(--brick);}
+  .menu-item:hover,
+  .menu-item:focus-visible{background:rgba(0,0,0,0.06); outline:none;}
+  .menu-item:active{background:rgba(0,0,0,0.1); transform:scale(0.96);}
+
+  /* Ikon gaya macOS: squircle bergradien + glyph putih */
+  .mac-icon{
+    flex:0 0 auto;
+    width:56px; height:56px;
+    border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4),
+               inset 0 -1px 0 rgba(0,0,0,0.08),
+               0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px;
+    fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
+  .mac-icon.teal  {--c1:#6FDDE6; --c2:#30B0C7;}
+  .mac-icon.red   {--c1:#FF7A70; --c2:#FF3B30;}
+  .mac-icon.yellow{--c1:#FFDD55; --c2:#FFCC00;}
+  .mac-icon.indigo{--c1:#8E8CF0; --c2:#5856D6;}
+  .mac-icon.pink  {--c1:#FF7CA3; --c2:#FF2D55;}
+  .mac-icon.gray  {--c1:#A4A4AA; --c2:#6E6E73;}
+  .mac-icon.graphite{--c1:#7C8896; --c2:#4A5562;}
 
   @media (max-width:520px){
-    .menu-grid{grid-template-columns:repeat(3,1fr);}
     .nav-schoolinfo{display:none;}
+    .menu-list{grid-template-columns:repeat(3,1fr);}
+    .mac-icon{width:52px; height:52px;}
+    .mac-icon svg{width:30px; height:30px;}
   }
 </style>
 </head>
@@ -657,12 +700,12 @@
 <!-- Footer sticky -->
 <div class="footer-bar">
   <button class="footer-btn" id="openMenuBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:#fff;stroke:none"><rect x="4" y="4" width="4" height="4" rx="1.2"/><rect x="10" y="4" width="4" height="4" rx="1.2"/><rect x="16" y="4" width="4" height="4" rx="1.2"/><rect x="4" y="10" width="4" height="4" rx="1.2"/><rect x="10" y="10" width="4" height="4" rx="1.2"/><rect x="16" y="10" width="4" height="4" rx="1.2"/><rect x="4" y="16" width="4" height="4" rx="1.2"/><rect x="10" y="16" width="4" height="4" rx="1.2"/><rect x="16" y="16" width="4" height="4" rx="1.2"/></svg></span>
     Menu
   </button>
   <div class="footer-divider"></div>
   <button class="footer-btn logout" id="logoutBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H7a2.5 2.5 0 0 0-2.5 2.5v11A2.5 2.5 0 0 0 7 20h3"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9.5"/></svg></span>
     Log Out
   </button>
 </div>
@@ -672,52 +715,52 @@
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetHeading">
     <div class="sheet-handle"></div>
     <h3 id="sheetHeading">Menu</h3>
-    <div class="menu-grid">
+    <nav class="menu-list">
       <a class="menu-item" href="identitassekolah.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
+        <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 20.5V9.5L12 4l6.5 5.5v11"/><path d="M10 20.5v-5.5h4v5.5"/></svg></span>
         Profil Sekolah
       </a>
       <a class="menu-item" href="rombel.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="9" r="3"/><path d="M3.5 19c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="17" cy="9.5" r="2.3"/><path d="M16.5 14.2c2.5 0 4 1.6 4 4.3"/></svg></span>
         Rombongan Belajar
       </a>
       <a class="menu-item" href="datasiswa.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+        <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c0-3.8 3.1-6 7-6s7 2.2 7 6"/></svg></span>
         Data Siswa
       </a>
       <a class="menu-item" href="dataguru.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-4.5 3.5-7 7-7s7 2.5 7 7"/><path d="M17 4l1.5 1.5L21 3"/></svg>
+        <span class="mac-icon purple"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.4"/><path d="M5.5 20c0-3.6 2.9-5.8 6.5-5.8s6.5 2.2 6.5 5.8"/><path d="M16.5 4.5l1.4 1.4 2.6-2.8"/></svg></span>
         Data Guru
       </a>
       <a class="menu-item" href="walikelas.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5V6a2 2 0 0 1 2-2h9l5 5v10.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M15 4v5h5"/><circle cx="10" cy="13" r="2"/><path d="M6.5 19c.3-2 1.7-3.3 3.5-3.3s3.2 1.3 3.5 3.3"/></svg>
+        <span class="mac-icon teal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><circle cx="12" cy="10" r="2.5"/><path d="M7.5 17c.4-2 2.2-3.3 4.5-3.3s4.1 1.3 4.5 3.3"/></svg></span>
         Wali Kelas
       </a>
       <a class="menu-item" href="absensiadmin.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="M9 15l2 2 4-4"/></svg>
+        <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/><path d="M9 15l2 2 4-4"/></svg></span>
         Kehadiran Siswa
       </a>
       <a class="menu-item" href="matapelajaran.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M8 7h8"/><path d="M8 11h5"/></svg>
+        <span class="mac-icon yellow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5V5.5A2 2 0 0 1 7 3.5h12v15H7a2 2 0 0 0-2 2"/><path d="M9 8h6M9 11.5h4"/></svg></span>
         Mata Pelajaran
       </a>
       <a class="menu-item" href="daftarbahanajar.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4H10a2 2 0 0 1 2 2v14a2 2 0 0 0-2-2H2Z"/><path d="M22 5.5A1.5 1.5 0 0 0 20.5 4H14a2 2 0 0 0-2 2v14a2 2 0 0 1 2-2h8Z"/></svg>
+        <span class="mac-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10.5 5 8 4.5 4 4.5v13c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-13c-4 0-6.5.5-8 2z"/><path d="M12 6.5v13"/></svg></span>
         Bahan Ajar Guru
       </a>
       <a class="menu-item" href="daftarnilairombel.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="M4 10h16"/><path d="M9 10v10"/></svg>
+        <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 10v10"/></svg></span>
         Daftar Nilai Per Rombel
       </a>
       <a class="menu-item" href="backupreset.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+        <span class="mac-icon gray"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 1.800"/></svg></span>
         Back Up &amp; Reset
       </a>
       <a class="menu-item" href="restore.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+        <span class="mac-icon graphite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 18.5v.5a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-.5"/></svg></span>
         Restore
       </a>
-    </div>
+    </nav>
   </div>
 </div>
 
