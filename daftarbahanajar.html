@@ -4,268 +4,465 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bahan Ajar Guru — SCORIA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
+
   :root{
-    --ink:#3B2E63; --ink-soft:#7A7191;
-    --paper:#FFFAF0; --paper-deep:#FFEFD6; --paper-line:#F5DDAE;
-    --brand:#6C4FE0; --gold:#FFC93C; --brick:#D6336C;
-    --green:#1A8754; --turquoise:#0F766E; --purple:#7B5EEA; --blue:#2F80ED;
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
+    --turquoise:#0F766E;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
   }
   *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
   html{overflow-x:hidden;}
   body{
-    margin:0; background:var(--paper); color:var(--ink);
-    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;
-    overflow-x:hidden; max-width:100vw; padding-bottom:40px;
+    margin:0;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 24px);
+    overflow-x:hidden;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
   }
-  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
 
+  /* ---------- Menu bar ---------- */
   .navbar{
     position:sticky; top:0; z-index:20;
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    background:var(--brand); color:#fff;
-    padding:14px clamp(16px,4vw,40px);
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
   }
-  .nav-left{display:flex; align-items:center; gap:10px; min-width:0;}
-  .school-logo{
-    width:38px; height:38px; border-radius:50%;
-    background:var(--paper); color:var(--brand);
+  .navbar-brand{display:flex; align-items:center; gap:8px; font-weight:700; color:var(--text);}
+  .brand-icon{
+    width:18px; height:18px; border-radius:5px; overflow:hidden;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:11px; font-weight:700;
     display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.75rem;
-    flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  .school-logo img{width:100%; height:100%; object-fit:cover;}
-  .school-name{font-size:0.92rem; font-weight:500; color:var(--paper); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .back-btn{
+  .brand-icon.has-logo{background:#fff;}
+  .brand-icon img{width:100%; height:100%; object-fit:cover;}
+  .navbar-hint{color:var(--text-dim); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:60vw;}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 28px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 22px;}
+
+  .table-header{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px; gap:12px;}
+  .table-header h2{margin:0; font-size:15px; font-weight:600;}
+  .table-count{font-size:12px; color:var(--text-dim); white-space:nowrap;}
+
+  /* ---------- Toolbar, chip filter ---------- */
+  .toolbar{margin:0 0 14px; display:flex; flex-wrap:wrap; align-items:center; gap:10px;}
+  .search-wrap{position:relative; flex:1 1 240px; max-width:320px;}
+  .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-dim); pointer-events:none;}
+  .search-wrap input{padding-left:34px; border-radius:999px; background:rgba(255,255,255,0.9);}
+  .chips{display:flex; flex-wrap:wrap; gap:8px;}
+  .chip{
     display:inline-flex; align-items:center; gap:6px;
-    color:#fff; text-decoration:none; font-size:0.85rem; font-weight:600;
-    border:1px solid rgba(255,255,255,0.45); border-radius:999px; padding:6px 14px;
-    flex-shrink:0; transition:background .15s ease;
+    font-size:12.5px; font-weight:500; color:#0A5FD0;
+    background:rgba(0,122,255,0.12); border-radius:999px;
+    padding:4px 6px 4px 11px; max-width:100%;
   }
-  .back-btn:hover{background:rgba(255,255,255,0.18);}
-  .back-btn svg{width:16px; height:16px;}
-
-  main{max-width:1100px; margin:0 auto; padding:32px clamp(16px,4vw,40px) 12px;}
-  .page-heading{font-family:'Newsreader',serif; font-weight:500; font-size:clamp(1.4rem,2.6vw,1.85rem); margin:0 0 4px;}
-  .page-sub{font-size:0.92rem; color:var(--ink-soft); margin:0 0 24px;}
-
-  .panel{
-    background:#fffdf7; border:1px solid var(--paper-line);
-    border-radius:10px; padding:18px 20px; margin-bottom:18px;
+  .chip span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:220px;}
+  .chip button{
+    flex-shrink:0; width:18px; height:18px; padding:0; border:none; border-radius:50%; cursor:pointer;
+    background:rgba(0,122,255,0.18); color:#0A5FD0; font-size:13px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
   }
-  .filters{display:grid; grid-template-columns:1.3fr 1fr 1fr 1fr; gap:14px;}
-  .field{display:flex; flex-direction:column; gap:6px; min-width:0;}
-  .field label{font-size:0.7rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft);}
-  .field select,.field input{
-    font-family:inherit; font-size:0.92rem; color:var(--ink);
-    background:#fff; border:1px solid var(--paper-line); border-radius:8px;
-    padding:10px 12px; width:100%;
-  }
-  .field select:focus,.field input:focus{border-color:var(--brand); outline:none; box-shadow:0 0 0 3px rgba(108,79,224,0.15);}
+  .chip button:hover{background:var(--mac-blue); color:#fff;}
 
-  .summary-row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
-  .summary-text{font-size:0.88rem; color:var(--ink-soft);}
-  .summary-text b{color:var(--ink);}
-  .reset-btn{
-    font-family:inherit; font-size:0.8rem; font-weight:600; color:var(--ink);
-    background:none; border:none; border-bottom:1px solid var(--ink); padding:0 0 1px; cursor:pointer;
-  }
-  .reset-btn:hover{color:var(--brick); border-color:var(--brick);}
-
-  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px;}
+  /* ---------- Kartu bahan ajar ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px;}
   .card{
-    background:#fffdf7; border:1px solid var(--paper-line); border-radius:10px;
-    padding:16px 18px; display:flex; flex-direction:column; gap:10px; min-width:0;
-    transition:transform .15s ease, box-shadow .15s ease;
+    background:#fff; border:1px solid var(--field-border); border-radius:10px;
+    padding:14px 16px; display:flex; flex-direction:column; gap:10px; min-width:0;
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(0,0,0,0.05);
+    transition:background .15s, border-color .15s, box-shadow .15s;
   }
-  .card:hover{transform:translateY(-2px); box-shadow:0 10px 22px rgba(59,46,99,0.12);}
-  .card-title{font-family:'Newsreader',serif; font-weight:600; font-size:1.05rem; margin:0; line-height:1.3; overflow-wrap:anywhere;}
+  .card:hover{background:rgba(0,122,255,0.05); border-color:rgba(0,122,255,0.45); box-shadow:0 4px 14px rgba(0,122,255,0.12);}
+  .card-title{font-size:15px; font-weight:600; letter-spacing:-0.01em; margin:0; line-height:1.35; overflow-wrap:anywhere;}
   .card-desc{
-    font-size:0.85rem; color:var(--ink-soft); margin:0; line-height:1.5;
+    font-size:13px; color:var(--text-dim); margin:0; line-height:1.5;
     display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
   }
   .tags{display:flex; flex-wrap:wrap; gap:6px;}
-  .tag{font-size:0.7rem; font-weight:600; color:#fff; border-radius:5px; padding:3px 9px;}
-  .tag.mapel{background:var(--green);}
-  .tag.kelas{background:var(--blue);}
-  .tag.jenis{background:var(--purple);}
-  .tag.video{background:var(--brick);}
-  .tag.tautan{background:var(--turquoise);}
-  .tag.nonaktif{background:var(--ink-soft);}
-  .card{cursor:pointer;}
-  .card-more{font-size:0.75rem; font-weight:600; color:var(--brand);}
-
-  .modal-backdrop{
-    position:fixed; inset:0; z-index:60;
-    background:rgba(59,46,99,0.5);
-    display:flex; align-items:center; justify-content:center;
-    padding:16px;
-    opacity:0; visibility:hidden;
-    transition:opacity .22s ease, visibility 0s linear .22s;
-  }
-  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity .22s ease, visibility 0s linear 0s;}
-  .modal{
-    background:var(--paper); border-radius:14px;
-    width:100%; max-width:720px; max-height:88vh;
-    display:flex; flex-direction:column; overflow:hidden;
-    box-shadow:0 24px 60px rgba(0,0,0,0.3);
-    transform:translateY(14px) scale(.98);
-    transition:transform .25s cubic-bezier(.32,.72,.33,1);
-  }
-  .modal-backdrop.open .modal{transform:none;}
-  .modal-head{
-    display:flex; align-items:flex-start; justify-content:space-between; gap:12px;
-    padding:18px 20px 14px; border-bottom:1px solid var(--paper-line); background:#fffdf7;
-  }
-  .modal-title{font-family:'Newsreader',serif; font-weight:600; font-size:1.25rem; margin:0 0 8px; line-height:1.3; overflow-wrap:anywhere;}
-  .modal-close{
-    flex-shrink:0; width:34px; height:34px; border-radius:50%;
-    border:1px solid var(--paper-line); background:#fff; color:var(--ink);
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-  }
-  .modal-close:hover{background:#FFE3EE; border-color:var(--brick); color:var(--brick);}
-  .modal-close svg{width:16px; height:16px;}
-  .modal-body{padding:18px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:16px;}
-  .modal-meta{display:flex; align-items:center; gap:10px;}
-  .modal-meta .avatar{width:34px; height:34px; font-size:0.75rem;}
-  .id-grid{
-    display:grid; grid-template-columns:repeat(2,1fr); gap:0 20px;
-    background:#fffdf7; border:1px solid var(--paper-line); border-radius:10px; padding:4px 16px;
-  }
-  .id-item{display:flex; flex-direction:column; gap:2px; padding:10px 0; border-bottom:1px solid var(--paper-line); min-width:0;}
-  .id-item.full{grid-column:1 / -1;}
-  .id-item:nth-last-child(-n+1){border-bottom:none;}
-  .id-label{font-size:0.66rem; font-weight:600; letter-spacing:0.04em; text-transform:uppercase; color:var(--ink-soft);}
-  .id-value{font-size:0.9rem; font-weight:500; overflow-wrap:anywhere;}
-  .id-value.mono{font-family:'JetBrains Mono',monospace; font-size:0.8rem;}
-  .badge-status{display:inline-block; font-size:0.72rem; font-weight:700; color:#fff; border-radius:5px; padding:3px 9px;}
-  .badge-status.aktif{background:var(--green);}
-  .badge-status.nonaktif{background:var(--ink-soft);}
-  @media (max-width:520px){ .id-grid{grid-template-columns:1fr;} .id-item:nth-last-child(-n+1){border-bottom:none;} }
-  .modal-section h4{
-    margin:0 0 6px; font-size:0.7rem; font-weight:600; letter-spacing:0.04em;
-    text-transform:uppercase; color:var(--ink-soft);
-  }
-  .modal-section p,.modal-text{margin:0; font-size:0.92rem; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere;}
-  .modal-text{background:#fffdf7; border:1px solid var(--paper-line); border-radius:8px; padding:14px 16px;}
-  .video-wrap{position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; background:#000;}
-  .video-wrap iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
-  .modal-foot{padding:12px 20px; border-top:1px solid var(--paper-line); background:#fffdf7; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;}
-  .btn{
-    font-family:inherit; font-size:0.85rem; font-weight:600; border-radius:8px;
-    padding:9px 16px; cursor:pointer; text-decoration:none; display:inline-block;
-  }
-  .btn-primary{background:var(--brand); color:#fff; border:1px solid var(--brand);}
-  .btn-primary:hover{background:#5a3fd0;}
-  .btn-ghost{background:#fff; color:var(--ink); border:1px solid var(--paper-line);}
-  .btn-ghost:hover{border-color:var(--brick); color:var(--brick);}
-  @media (max-width:520px){ .modal{max-height:92vh;} .modal-body{padding:14px;} .modal-head{padding:14px;} }
-  details.teks{font-size:0.82rem; color:var(--ink);}
-  details.teks summary{cursor:pointer; font-weight:600; color:var(--brand);}
-  details.teks div{margin-top:8px; white-space:pre-wrap; line-height:1.55; max-height:220px; overflow:auto; background:var(--paper-deep); border-radius:8px; padding:10px 12px;}
+  .tag{font-size:11.5px; font-weight:600; border-radius:999px; padding:2px 10px; background:rgba(120,120,128,0.14); color:var(--text-dim);}
+  .tag.mapel{background:rgba(40,167,69,0.14); color:#1B7F34;}
+  .tag.kelas{background:rgba(0,122,255,0.13); color:#0A5FD0;}
+  .tag.jenis{background:rgba(123,94,234,0.14); color:#5B3FCB;}
+  .tag.video{background:rgba(255,59,48,0.13); color:#C4271D;}
+  .tag.tautan{background:rgba(15,118,110,0.14); color:#0B5C55;}
+  .tag.nonaktif{background:rgba(120,120,128,0.18); color:var(--text-dim);}
   .card-foot{
     margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding-top:10px; border-top:1px dashed var(--paper-line);
+    padding-top:10px; border-top:1px solid var(--hairline);
   }
   .guru{display:flex; align-items:center; gap:8px; min-width:0;}
   .avatar{
-    width:28px; height:28px; border-radius:50%; background:var(--gold); color:#221a06;
+    width:28px; height:28px; border-radius:50%;
+    background:linear-gradient(180deg,#FFD66B,#FFB300); color:#4a3500;
     display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.68rem; flex-shrink:0;
+    font-weight:700; font-size:11px; flex-shrink:0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.5), 0 1px 2px rgba(0,0,0,0.2);
   }
   .guru-info{display:flex; flex-direction:column; min-width:0;}
-  .guru-name{font-size:0.8rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
-  .date{font-family:'JetBrains Mono',monospace; font-size:0.66rem; color:var(--ink-soft);}
-  .open-link{
-    font-size:0.78rem; font-weight:600; color:var(--brand); text-decoration:none;
-    border-bottom:1px solid var(--brand); white-space:nowrap; flex-shrink:0;
-  }
-  .open-link:hover{color:var(--brick); border-color:var(--brick);}
+  .guru-name{font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .date{font-size:11.5px; color:var(--text-dim);}
+  .card-more{font-size:12.5px; font-weight:600; color:var(--mac-blue); white-space:nowrap; flex-shrink:0;}
 
   .state{
-    text-align:center; color:var(--ink-soft); font-size:0.92rem;
-    padding:44px 16px; background:#fffdf7; border:1px dashed var(--paper-line); border-radius:10px;
+    text-align:center; color:var(--text-dim); font-size:13.5px;
+    padding:36px 16px; background:#fff; border:1px solid var(--field-border); border-radius:10px;
   }
-  .state.error{color:var(--brick); border-color:var(--brick);}
+  .state.error{color:var(--err);}
   .spinner{
-    width:26px; height:26px; margin:0 auto 12px; border-radius:50%;
-    border:3px solid var(--paper-line); border-top-color:var(--brand);
+    width:24px; height:24px; margin:0 auto 12px; border-radius:50%;
+    border:3px solid rgba(0,0,0,0.1); border-top-color:var(--mac-blue);
     animation:spin .8s linear infinite;
   }
   @keyframes spin{to{transform:rotate(360deg);}}
+  @media (prefers-reduced-motion:reduce){ .spinner{animation-duration:2s;} }
 
-  @media (max-width:900px){ .filters{grid-template-columns:1fr 1fr;} }
-  @media (max-width:720px){
-    .filters{grid-template-columns:1fr;}
-    main{padding-left:12px; padding-right:12px;}
-    .school-name{max-width:40vw;}
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
+  }
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac.primary{
+    background:linear-gradient(180deg,#4DA3FF,#007AFF); border-color:#0068DB; color:#fff;
+    box-shadow:0 1px 2px rgba(0,122,255,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac.primary:hover:not(:disabled){background:linear-gradient(180deg,#3D95F5,#0068DB); border-color:#0057B8;}
+
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600;
+    flex:1 1 0; min-width:0; max-width:160px; padding:0 4px;
+    cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-btn span.lbl{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0; flex-shrink:0;}
+  .footer-btn:hover{background:rgba(255,255,255,0.16);}
+  .footer-btn .mac-icon{position:relative; width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+  .footer-btn.is-active .mac-icon::after{
+    content:""; position:absolute; top:-3px; right:-3px;
+    width:10px; height:10px; border-radius:50%;
+    background:#FFD60A; border:2px solid var(--turquoise);
+  }
+
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.purple{--c1:#B38CFF; --c2:#7B5EEA;}
+  .mac-icon.orange{--c1:#FFB45A; --c2:#FF9500;}
+  .mac-icon.gray  {--c1:#A9A9B0; --c2:#76767D;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:420px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
+
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  input{
+    font-family:inherit; font-size:14px;
+    padding:9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  select{
+    font-family:inherit; font-size:14px;
+    padding:9px 34px 9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none; cursor:pointer;
+    appearance:none; -webkit-appearance:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+
+  .modal-actions{
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:6px; padding-top:18px; border-top:1px solid var(--hairline);
+  }
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+
+  /* Modal detail (lebih lebar, isi bisa di-scroll) */
+  .modal.modal-lg{max-width:720px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden;}
+  .detail-head{padding:18px 24px 14px; border-bottom:1px solid var(--hairline); background:rgba(255,255,255,0.6); flex-shrink:0;}
+  .detail-title{font-size:19px; font-weight:700; letter-spacing:-0.01em; margin:0 0 8px; line-height:1.3; overflow-wrap:anywhere;}
+  .modal-lg .modal-body{flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:18px;}
+  .modal-foot{
+    flex-shrink:0; padding:12px 24px; border-top:1px solid var(--hairline);
+    background:rgba(255,255,255,0.6); display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap;
+  }
+  .modal-section h4{margin:0 0 8px; font-size:12px; font-weight:600; color:var(--text-dim);}
+  .modal-section p{margin:0; font-size:14px; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere;}
+  .modal-text{background:#fff; border:1px solid var(--field-border); border-radius:8px; padding:14px 16px; font-size:14px; line-height:1.65; white-space:pre-wrap; overflow-wrap:anywhere;}
+  .id-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:0 20px;
+    background:#fff; border:1px solid var(--field-border); border-radius:10px; padding:4px 16px;
+  }
+  .id-item{display:flex; flex-direction:column; gap:2px; padding:10px 0; border-bottom:1px solid var(--hairline); min-width:0;}
+  .id-item.full{grid-column:1 / -1;}
+  .id-item:last-child{border-bottom:none;}
+  .id-label{font-size:11.5px; font-weight:600; color:var(--text-dim);}
+  .id-value{font-size:14px; font-weight:500; overflow-wrap:anywhere;}
+  .id-value.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px;}
+  .badge-status{display:inline-block; font-size:12px; font-weight:600; border-radius:999px; padding:2px 10px;}
+  .badge-status.aktif{background:rgba(40,167,69,0.14); color:#1B7F34;}
+  .badge-status.nonaktif{background:rgba(120,120,128,0.18); color:var(--text-dim);}
+  .video-wrap{position:relative; width:100%; aspect-ratio:16/9; border-radius:10px; overflow:hidden; background:#000;}
+  .video-wrap iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+  .open-link{color:var(--mac-blue); text-decoration:none; word-break:break-all;}
+  .open-link:hover{text-decoration:underline;}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  }
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
+
+  @media (max-width:560px){
+    .window-body{padding:20px 16px 22px;}
+    .navbar-hint{max-width:55vw;}
+    .modal-buttons{flex-direction:column-reverse;}
+    .id-grid{grid-template-columns:1fr;}
+    .detail-head, .modal-foot{padding-left:16px; padding-right:16px;}
+    .modal-lg .modal-body{padding:16px;}
+    .footer-btn{font-size:0.68rem;}
+    .footer-btn .mac-icon{width:30px; height:30px;}
+    .footer-btn .mac-icon svg{width:18px; height:18px;}
   }
 </style>
 </head>
 <body>
 
 <header class="navbar">
-  <div class="nav-left">
-    <div class="school-logo" id="schoolLogo">SMA</div>
-    <span class="school-name" id="schoolName">SCORIA</span>
-  </div>
-  <a class="back-btn" href="admin.html">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-    Dashboard
-  </a>
+  <span class="navbar-brand"><span class="brand-icon" id="schoolLogo">S</span>SCORIA</span>
+  <span class="navbar-hint" id="schoolName">Bahan Ajar Guru</span>
 </header>
 
 <main>
-  <h1 class="page-heading">Bahan Ajar Guru</h1>
-  <p class="page-sub">Daftar materi ajar yang diunggah guru. Pilih nama guru untuk melihat bahan ajarnya.</p>
-
-  <section class="panel">
-    <div class="filters">
-      <div class="field">
-        <label for="filterGuru">Nama Guru</label>
-        <select id="filterGuru"><option value="">Semua guru</option></select>
-      </div>
-      <div class="field">
-        <label for="filterMapel">Mata Pelajaran</label>
-        <select id="filterMapel"><option value="">Semua mapel</option></select>
-      </div>
-      <div class="field">
-        <label for="filterStatus">Status</label>
-        <select id="filterStatus"><option value="">Semua status</option><option>Aktif</option><option>Nonaktif</option></select>
-      </div>
-      <div class="field">
-        <label for="filterSearch">Cari judul</label>
-        <input id="filterSearch" type="search" placeholder="Ketik judul materi...">
-      </div>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Bahan Ajar Guru</div>
     </div>
-  </section>
+    <div class="window-body">
+      <h1 class="page-title">Bahan Ajar Guru</h1>
+      <p class="page-sub">Daftar materi ajar yang diunggah guru. Gunakan menu di bagian bawah untuk memfilter guru, mata pelajaran, dan status.</p>
 
-  <div class="summary-row">
-    <span class="summary-text" id="summaryText">Memuat data...</span>
-    <button class="reset-btn" id="resetBtn" type="button">Reset filter</button>
+      <div class="table-header">
+        <h2>Daftar Bahan Ajar</h2>
+        <span class="table-count" id="summaryText">Memuat data...</span>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="filterSearch" placeholder="Cari judul materi..." aria-label="Cari judul materi" autocomplete="off">
+        </div>
+        <div class="chips" id="activeChips"></div>
+      </div>
+
+      <div id="content"><div class="state"><div class="spinner"></div>Memuat bahan ajar...</div></div>
+    </div>
   </div>
-
-  <div id="content"><div class="state"><div class="spinner"></div>Memuat bahan ajar...</div></div>
 </main>
 
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-head">
-      <div style="min-width:0;">
-        <h2 class="modal-title" id="modalTitle"></h2>
-        <div class="tags" id="modalTags"></div>
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnFilterGuru">
+    <span class="mac-icon purple"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg></span>
+    <span class="lbl">Guru</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnFilterMapel">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M8 7h8M8 11h5"/></svg></span>
+    <span class="lbl">Mapel</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnFilterStatus">
+    <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5z"/></svg></span>
+    <span class="lbl">Status</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="resetBtn">
+    <span class="mac-icon gray"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></span>
+    <span class="lbl">Reset</span>
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    <span class="lbl">Dashboard</span>
+  </a>
+</div>
+
+<!-- Modal Filter (dipakai bersama untuk Guru, Mapel, Status) -->
+<div class="modal-backdrop" id="modalFilter">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="filterHeading">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" data-close="modalFilter" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title" id="filterTitlebar">Filter</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="filterHeading">Pilih</h2>
+      <p class="modal-sub" id="filterSub"></p>
+      <div class="field">
+        <label for="filterSelect" id="filterLabel">Pilihan</label>
+        <select id="filterSelect"></select>
       </div>
-      <button class="modal-close" id="modalClose" type="button" aria-label="Tutup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
-      </button>
+      <div class="modal-actions">
+        <div class="modal-buttons">
+          <button type="button" class="btn-mac" id="btnApplyFilter">Terapkan</button>
+          <button type="button" class="btn-mac" data-close="modalFilter">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detail Bahan Ajar -->
+<div class="modal-backdrop" id="modalDetail">
+  <div class="modal window modal-lg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" data-close="modalDetail" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Detail Bahan Ajar</div>
+    </div>
+    <div class="detail-head">
+      <h2 class="detail-title" id="modalTitle"></h2>
+      <div class="tags" id="modalTags"></div>
     </div>
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-foot" id="modalFoot"></div>
   </div>
 </div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
   // ====== KONFIGURASI ======
@@ -280,6 +477,8 @@
   let semuaData = [];
   let daftarGuru = [];
   let hasilTampil = [];
+  // Filter yang sedang diterapkan (diubah lewat modal footer)
+  const applied = { guru: "", mapel: "", status: "" };
 
   const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
   const inisial = n => (String(n).trim().split(/\s+/).slice(0,2).map(w => w[0]).join("") || "G").toUpperCase();
@@ -301,6 +500,15 @@
 
   const headers = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
 
+  const toast = $("toast");
+  let toastTimer = null;
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+  }
+
   // Logo & nama sekolah
   (async function(){
     try{
@@ -310,7 +518,7 @@
       if(!p) return;
       if(p.nama_sekolah) $("schoolName").textContent = p.nama_sekolah;
       if(p.logo){
-        const el = $("schoolLogo"); el.innerHTML = "";
+        const el = $("schoolLogo"); el.innerHTML = ""; el.classList.add("has-logo");
         const img = document.createElement("img"); img.src = p.logo; img.alt = "Logo Sekolah";
         el.appendChild(img);
       }
@@ -328,7 +536,6 @@
       if(resGuru && resGuru.ok){
         daftarGuru = (await resGuru.json()).map(r => r.nama_guru);
       }
-      isiDropdown();
       render();
     }catch(err){
       console.error(err);
@@ -337,22 +544,84 @@
     }
   }
 
-  function isiDropdown(){
-    const opsi = (sel, values, label) => {
-      const cur = sel.value;
-      const uniq = [...new Set(values.map(v => String(v ?? "").trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b,"id"));
-      sel.innerHTML = `<option value="">${label}</option>` + uniq.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
-      sel.value = uniq.includes(cur) ? cur : "";
-    };
-    // semua guru terdaftar + guru yang sudah punya materi
-    opsi($("filterGuru"), [...daftarGuru, ...semuaData.map(d => d.nama_guru)], "Semua guru");
-    opsi($("filterMapel"), semuaData.map(d => d.mata_pelajaran), "Semua mapel");
+  // ---------- Filter lewat modal footer ----------
+  const uniqSorted = values => [...new Set(values.map(v => String(v ?? "").trim()).filter(Boolean))].sort((a,b) => a.localeCompare(b,"id"));
+
+  const FILTERS = {
+    guru: {
+      btn: "btnFilterGuru", titlebar: "Filter Guru", heading: "Pilih Guru",
+      sub: "Tampilkan bahan ajar dari satu guru saja.", label: "Nama Guru", all: "Semua guru",
+      // semua guru terdaftar + guru yang sudah punya materi
+      options: () => uniqSorted([...daftarGuru, ...semuaData.map(d => d.nama_guru)]),
+      chip: v => "Guru: " + v
+    },
+    mapel: {
+      btn: "btnFilterMapel", titlebar: "Filter Mapel", heading: "Pilih Mata Pelajaran",
+      sub: "Tampilkan bahan ajar dari satu mata pelajaran saja.", label: "Mata Pelajaran", all: "Semua mapel",
+      options: () => uniqSorted(semuaData.map(d => d.mata_pelajaran)),
+      chip: v => "Mapel: " + v
+    },
+    status: {
+      btn: "btnFilterStatus", titlebar: "Filter Status", heading: "Pilih Status",
+      sub: "Tampilkan bahan ajar yang aktif atau nonaktif.", label: "Status", all: "Semua status",
+      options: () => ["Aktif", "Nonaktif"],
+      chip: v => "Status: " + v
+    }
+  };
+  let filterAktif = null;
+
+  function bukaFilter(key){
+    const f = FILTERS[key];
+    filterAktif = key;
+    $("filterTitlebar").textContent = f.titlebar;
+    $("filterHeading").textContent = f.heading;
+    $("filterSub").textContent = f.sub;
+    $("filterLabel").textContent = f.label;
+    const sel = $("filterSelect");
+    const opts = f.options();
+    sel.innerHTML = `<option value="">${esc(f.all)}</option>` + opts.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join("");
+    sel.value = opts.includes(applied[key]) ? applied[key] : "";
+    openModal("modalFilter");
+    setTimeout(() => sel.focus(), 150);
   }
 
+  Object.keys(FILTERS).forEach(key => $(FILTERS[key].btn).addEventListener("click", () => bukaFilter(key)));
+
+  $("btnApplyFilter").addEventListener("click", () => {
+    if(!filterAktif) return;
+    applied[filterAktif] = $("filterSelect").value;
+    closeModal("modalFilter");
+    render();
+    showToast(applied[filterAktif] ? FILTERS[filterAktif].chip(applied[filterAktif]) : FILTERS[filterAktif].all + " ditampilkan.");
+  });
+
+  function renderChips(){
+    $("activeChips").innerHTML = Object.keys(FILTERS).filter(k => applied[k]).map(k =>
+      `<span class="chip"><span title="${esc(FILTERS[k].chip(applied[k]))}">${esc(FILTERS[k].chip(applied[k]))}</span><button type="button" data-chip="${k}" aria-label="Hapus filter ${k}">×</button></span>`
+    ).join("");
+    Object.keys(FILTERS).forEach(k => $(FILTERS[k].btn).classList.toggle("is-active", !!applied[k]));
+  }
+
+  $("activeChips").addEventListener("click", e => {
+    const btn = e.target.closest("[data-chip]");
+    if(!btn) return;
+    applied[btn.dataset.chip] = "";
+    render();
+  });
+
+  $("resetBtn").addEventListener("click", () => {
+    applied.guru = ""; applied.mapel = ""; applied.status = "";
+    $("filterSearch").value = "";
+    render();
+    showToast("Filter direset.");
+  });
+
+  $("filterSearch").addEventListener("input", render);
+
+  // ---------- Render kartu ----------
   function render(){
-    const guru = $("filterGuru").value;
-    const mapel = $("filterMapel").value;
-    const status = $("filterStatus").value;
+    renderChips();
+    const { guru, mapel, status } = applied;
     const q = $("filterSearch").value.trim().toLowerCase();
 
     const hasil = semuaData.filter(d =>
@@ -362,17 +631,15 @@
       (!q || String(d.judul_materi ?? "").toLowerCase().includes(q))
     );
 
-    $("summaryText").innerHTML = `Menampilkan <b>${hasil.length}</b> dari ${semuaData.length} bahan ajar` +
-      (guru ? ` &middot; guru: <b>${esc(guru)}</b>` : "");
+    $("summaryText").textContent = `${hasil.length} dari ${semuaData.length} bahan ajar`;
 
     if(!hasil.length){
-      $("content").innerHTML = `<div class="state">${guru ? "Guru ini belum memiliki bahan ajar yang sesuai filter." : "Tidak ada bahan ajar yang cocok dengan filter."}</div>`;
+      $("content").innerHTML = `<div class="state">${guru ? "Guru ini belum memiliki bahan ajar yang sesuai filter." : (semuaData.length ? "Tidak ada bahan ajar yang cocok dengan filter." : "Belum ada bahan ajar yang diunggah guru.")}</div>`;
       return;
     }
 
     hasilTampil = hasil;
     $("content").innerHTML = `<div class="grid">` + hasil.map((d, i) => {
-      const url = safeUrl(String(d.url_konten || "").trim());
       const jenisCls = d.jenis_materi === "Video" ? "video" : d.jenis_materi === "Tautan" ? "tautan" : "jenis";
       return `
       <article class="card" data-i="${i}" tabindex="0" role="button" aria-label="Lihat isi ${esc(d.judul_materi || 'bahan ajar')}">
@@ -411,8 +678,29 @@
     return "";
   }
 
-  const backdrop = $("modalBackdrop");
-  function bukaModal(d){
+  // ---------- Modal ----------
+  function openModal(id){
+    $(id).classList.add("open");
+    if(id === "modalDetail") document.body.style.overflow = "hidden";
+  }
+  function closeModal(id){
+    $(id).classList.remove("open");
+    if(id === "modalDetail"){
+      document.body.style.overflow = "";
+      $("modalBody").innerHTML = "";   // hentikan video yang sedang diputar
+    }
+  }
+  document.querySelectorAll("[data-close]").forEach(btn => {
+    btn.addEventListener("click", () => closeModal(btn.getAttribute("data-close")));
+  });
+  document.querySelectorAll(".modal-backdrop").forEach(bd => {
+    bd.addEventListener("click", e => { if(e.target === bd) closeModal(bd.id); });
+  });
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape") document.querySelectorAll(".modal-backdrop.open").forEach(bd => closeModal(bd.id));
+  });
+
+  function bukaDetail(d){
     const url = safeUrl(String(d.url_konten || "").trim());
     const jenisCls = d.jenis_materi === "Video" ? "video" : d.jenis_materi === "Tautan" ? "tautan" : "jenis";
 
@@ -453,41 +741,26 @@
 
     $("modalBody").innerHTML = body;
     $("modalFoot").innerHTML =
-      (url ? `<a class="btn btn-primary" href="${esc(url)}" target="_blank" rel="noopener">Buka konten</a>` : "") +
-      `<button class="btn btn-ghost" type="button" id="modalTutup">Tutup</button>`;
-    $("modalTutup").addEventListener("click", tutupModal);
+      (url ? `<a class="btn-mac primary" href="${esc(url)}" target="_blank" rel="noopener">Buka konten</a>` : "") +
+      `<button class="btn-mac" type="button" id="modalTutup">Tutup</button>`;
+    $("modalTutup").addEventListener("click", () => closeModal("modalDetail"));
 
-    backdrop.classList.add("open");
-    document.body.style.overflow = "hidden";
+    openModal("modalDetail");
     $("modalBody").scrollTop = 0;
-  }
-  function tutupModal(){
-    backdrop.classList.remove("open");
-    document.body.style.overflow = "";
-    $("modalBody").innerHTML = "";   // hentikan video yang sedang diputar
   }
 
   $("content").addEventListener("click", e => {
     const card = e.target.closest(".card");
-    if(card) bukaModal(hasilTampil[Number(card.dataset.i)]);
+    if(card) bukaDetail(hasilTampil[Number(card.dataset.i)]);
   });
   $("content").addEventListener("keydown", e => {
     if((e.key === "Enter" || e.key === " ") && e.target.classList.contains("card")){
       e.preventDefault();
-      bukaModal(hasilTampil[Number(e.target.dataset.i)]);
+      bukaDetail(hasilTampil[Number(e.target.dataset.i)]);
     }
   });
-  $("modalClose").addEventListener("click", tutupModal);
-  backdrop.addEventListener("click", e => { if(e.target === backdrop) tutupModal(); });
-  document.addEventListener("keydown", e => { if(e.key === "Escape") tutupModal(); });
 
-  ["filterGuru","filterMapel","filterStatus"].forEach(id => $(id).addEventListener("change", render));
-  $("filterSearch").addEventListener("input", render);
-  $("resetBtn").addEventListener("click", () => {
-    $("filterGuru").value = ""; $("filterMapel").value = ""; $("filterStatus").value = ""; $("filterSearch").value = "";
-    render();
-  });
-
+  renderChips();
   muatData();
 </script>
 </body>
