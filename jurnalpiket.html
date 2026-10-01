@@ -677,6 +677,14 @@
   .rank-count{font-size:0.78rem; font-weight:700; color:#D70015; white-space:nowrap;}
   .empty-note{text-align:center; color:var(--text-dim); font-size:0.85rem; padding:20px 0; margin:0;}
   @media (max-width:560px){ .range-row .tabs-wrap{width:100%;} }
+
+  .active-filters{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:16px;}
+  .filter-label{font-size:0.78rem; font-weight:600; color:var(--text-dim);}
+  .filter-chip{font-size:0.78rem; font-weight:600; padding:4px 11px; border-radius:999px; background:rgba(0,0,0,0.06); color:var(--text);}
+  .filter-chip.main{background:rgba(0,122,255,0.12); color:#0A5FD0;}
+  .modal-actions{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:6px;}
+  #filterModal .range-row{margin-bottom:4px;}
+  #filterModal .filter-grid{margin-bottom:6px;}
 </style>
 </head>
 <body>
@@ -706,29 +714,7 @@
     <h1 class="page-heading">Jurnal Piket Kebersihan</h1>
     <p class="page-sub">Pantau pelaksanaan piket kebersihan siswa berdasarkan data yang diinput oleh guru piket setiap hari.</p>
 
-    <!-- Filter -->
-    <div class="panel" style="margin-bottom:18px;">
-      <div class="panel-head"><h3>Filter Laporan</h3></div>
-      <div class="range-row">
-        <div class="tabs-wrap"><div class="segmented" id="rangeTabs" role="tablist" aria-label="Rentang waktu">
-          <button type="button" class="seg-tab" data-range="today">Hari Ini</button>
-          <button type="button" class="seg-tab" data-range="7">7 Hari</button>
-          <button type="button" class="seg-tab" data-range="month">Bulan Ini</button>
-          <button type="button" class="seg-tab" data-range="all">Semua</button>
-        </div></div>
-      </div>
-      <div class="filter-grid">
-        <div class="field"><label for="fFrom">Dari Tanggal</label><input type="date" class="panel-search" id="fFrom"></div>
-        <div class="field"><label for="fTo">Sampai Tanggal</label><input type="date" class="panel-search" id="fTo"></div>
-        <div class="field"><label for="fKelas">Kelas</label><select class="panel-search" id="fKelas"><option value="">Semua kelas</option></select></div>
-        <div class="field"><label for="fArea">Area Piket</label><select class="panel-search" id="fArea"><option value="">Semua area</option></select></div>
-        <div class="field"><label for="fStatus">Status</label>
-          <select class="panel-search" id="fStatus"><option value="">Semua status</option><option value="Melaksanakan">Melaksanakan</option><option value="Tidak Melaksanakan">Tidak Melaksanakan</option></select></div>
-        <div class="field"><label for="fGuru">Guru Piket</label><select class="panel-search" id="fGuru"><option value="">Semua guru</option></select></div>
-        <div class="field"><label for="fSearch">Cari Siswa</label><input type="text" class="panel-search" id="fSearch" placeholder="Nama siswa..."></div>
-      </div>
-      <button type="button" class="btn-soft" id="btnResetFilter">Atur ulang filter</button>
-    </div>
+    <div class="active-filters" id="activeFilters"></div>
 
     <p class="page-msg" id="pageMsg"></p>
 
@@ -813,10 +799,55 @@
  </div>
 </main>
 
+
+<!-- Modal Filter Laporan -->
+<div class="modal-backdrop" id="filterModal">
+  <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="filterModalTitle">
+    <div class="titlebar">
+      <button class="modal-close" id="filterModalClose" aria-label="Tutup"></button>
+      <div class="titlebar-title" id="filterModalTitle">Filter Laporan</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">Pilih rentang waktu dan kriteria data jurnal piket yang ingin ditampilkan.</p>
+      <p class="page-msg" id="filterMsg"></p>
+
+      <div class="range-row">
+        <div class="tabs-wrap"><div class="segmented" id="rangeTabs" role="tablist" aria-label="Rentang waktu">
+          <button type="button" class="seg-tab" data-range="today">Hari Ini</button>
+          <button type="button" class="seg-tab" data-range="7">7 Hari</button>
+          <button type="button" class="seg-tab" data-range="month">Bulan Ini</button>
+          <button type="button" class="seg-tab" data-range="all">Semua</button>
+        </div></div>
+      </div>
+
+      <div class="filter-grid">
+        <div class="field"><label for="fFrom">Dari Tanggal</label><input type="date" class="panel-search" id="fFrom"></div>
+        <div class="field"><label for="fTo">Sampai Tanggal</label><input type="date" class="panel-search" id="fTo"></div>
+        <div class="field"><label for="fKelas">Kelas</label><select class="panel-search" id="fKelas"><option value="">Semua kelas</option></select></div>
+        <div class="field"><label for="fArea">Area Piket</label><select class="panel-search" id="fArea"><option value="">Semua area</option></select></div>
+        <div class="field"><label for="fStatus">Status</label>
+          <select class="panel-search" id="fStatus"><option value="">Semua status</option><option value="Melaksanakan">Melaksanakan</option><option value="Tidak Melaksanakan">Tidak Melaksanakan</option></select></div>
+        <div class="field"><label for="fGuru">Guru Piket</label><select class="panel-search" id="fGuru"><option value="">Semua guru</option></select></div>
+        <div class="field"><label for="fSearch">Cari Siswa</label><input type="text" class="panel-search" id="fSearch" placeholder="Nama siswa..."></div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-soft" id="btnResetFilter">Atur Ulang</button>
+        <button type="button" class="btn-primary" id="btnApplyFilter">Terapkan Filter</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="footer-bar">
   <button class="footer-btn" id="homeBtn">
     <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 20.5V9.5L12 4l6.5 5.5v11"/><path d="M10 20.5v-5.5h4v5.5"/></svg></span>
     Dashboard
+  </button>
+  <div class="footer-divider"></div>
+  <button class="footer-btn" id="openFilterBtn">
+    <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h16l-6 7.2V19l-4 1.5v-7.8z"/></svg></span>
+    Filter
   </button>
   <div class="footer-divider"></div>
   <button class="footer-btn" id="exportPdfBtn">
@@ -902,36 +933,98 @@
   let rangeFrom = todayIso, rangeTo = todayIso, activeRange = 'today';
   let loadToken = 0;
 
-  // ---------- Rentang tanggal ----------
-  function syncRangeUi(){
-    $('fFrom').value = rangeFrom; $('fTo').value = rangeTo;
+  // ---------- Filter (modal) ----------
+  const applied = { kelas: '', area: '', status: '', guru: '', q: '' };   // filter yang sedang aktif
+  let draft = { range: 'today', from: todayIso, to: todayIso };            // pilihan sementara di modal
+
+  function computeRange(kind){
+    if(kind === 'today') return { from: todayIso, to: todayIso };
+    if(kind === '7'){ const d = new Date(today); d.setDate(d.getDate() - 6); return { from: isoOf(d), to: todayIso }; }
+    if(kind === 'month') return { from: isoOf(new Date(today.getFullYear(), today.getMonth(), 1)), to: todayIso };
+    return { from: '', to: '' };
+  }
+  function rangeLabel(kind, from, to){
+    if(kind === 'today') return 'Hari ini';
+    if(kind === '7') return '7 hari terakhir';
+    if(kind === 'month') return 'Bulan ini';
+    if(kind === 'all') return 'Semua tanggal';
+    if(from && to) return from === to ? fmtTanggal(from) : `${fmtTanggal(from)} – ${fmtTanggal(to)}`;
+    if(from) return 'Sejak ' + fmtTanggal(from);
+    if(to) return 'Sampai ' + fmtTanggal(to);
+    return 'Semua tanggal';
+  }
+  function syncDraftUi(){
+    $('fFrom').value = draft.from; $('fTo').value = draft.to;
     document.querySelectorAll('#rangeTabs .seg-tab').forEach(b => {
-      const on = b.dataset.range === activeRange;
+      const on = b.dataset.range === draft.range;
       b.classList.toggle('active', on); b.setAttribute('aria-selected', on ? 'true' : 'false');
     });
   }
-  function setRange(kind){
-    activeRange = kind;
-    if(kind === 'today'){ rangeFrom = rangeTo = todayIso; }
-    else if(kind === '7'){ const d = new Date(today); d.setDate(d.getDate() - 6); rangeFrom = isoOf(d); rangeTo = todayIso; }
-    else if(kind === 'month'){ rangeFrom = isoOf(new Date(today.getFullYear(), today.getMonth(), 1)); rangeTo = todayIso; }
-    else if(kind === 'all'){ rangeFrom = ''; rangeTo = ''; }
-    syncRangeUi();
-    loadData();
+  document.querySelectorAll('#rangeTabs .seg-tab').forEach(b => b.addEventListener('click', () => {
+    draft.range = b.dataset.range; Object.assign(draft, computeRange(draft.range)); syncDraftUi();
+  }));
+  function onDraftDate(){
+    draft.range = 'custom'; draft.from = $('fFrom').value; draft.to = $('fTo').value;
+    document.querySelectorAll('#rangeTabs .seg-tab').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
   }
-  document.querySelectorAll('#rangeTabs .seg-tab').forEach(b => b.addEventListener('click', () => setRange(b.dataset.range)));
-  function onCustomDate(){
-    rangeFrom = $('fFrom').value; rangeTo = $('fTo').value; activeRange = 'custom';
-    if(rangeFrom && rangeTo && rangeFrom > rangeTo){ setMsg('Tanggal "Dari" tidak boleh melebihi tanggal "Sampai".', 'err'); return; }
-    syncRangeUi(); loadData();
+  $('fFrom').addEventListener('change', onDraftDate);
+  $('fTo').addEventListener('change', onDraftDate);
+
+  const filterModal = $('filterModal');
+  function setFilterMsg(text){ const el = $('filterMsg'); el.textContent = text || ''; el.className = 'page-msg' + (text ? ' err' : ''); }
+  function openFilter(){
+    draft = { range: activeRange, from: rangeFrom, to: rangeTo };
+    syncDraftUi();
+    $('fKelas').value = applied.kelas; $('fArea').value = applied.area; $('fStatus').value = applied.status;
+    $('fGuru').value = applied.guru; $('fSearch').value = applied.q;
+    setFilterMsg('');
+    filterModal.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
-  $('fFrom').addEventListener('change', onCustomDate);
-  $('fTo').addEventListener('change', onCustomDate);
+  function closeFilter(){
+    filterModal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  $('openFilterBtn').addEventListener('click', openFilter);
+  $('filterModalClose').addEventListener('click', closeFilter);
+  filterModal.addEventListener('click', e => { if(e.target === filterModal) closeFilter(); });
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeFilter(); });
+
+  $('btnApplyFilter').addEventListener('click', () => {
+    if(draft.from && draft.to && draft.from > draft.to){ setFilterMsg('Tanggal "Dari" tidak boleh melebihi tanggal "Sampai".'); return; }
+    const rangeChanged = draft.from !== rangeFrom || draft.to !== rangeTo;
+    activeRange = draft.range; rangeFrom = draft.from; rangeTo = draft.to;
+    applied.kelas = $('fKelas').value; applied.area = $('fArea').value; applied.status = $('fStatus').value;
+    applied.guru = $('fGuru').value; applied.q = $('fSearch').value.trim();
+    closeFilter();
+    if(rangeChanged) loadData(); else applyFilters();
+  });
+  $('btnResetFilter').addEventListener('click', () => {
+    const r = computeRange('today');
+    const rangeChanged = rangeFrom !== r.from || rangeTo !== r.to;
+    activeRange = 'today'; rangeFrom = r.from; rangeTo = r.to;
+    Object.keys(applied).forEach(k => { applied[k] = ''; });
+    closeFilter();
+    if(rangeChanged) loadData(); else applyFilters();
+  });
+
+  function renderActiveFilters(){
+    const chips = [`<span class="filter-chip main">${esc(rangeLabel(activeRange, rangeFrom, rangeTo))}</span>`];
+    if(applied.kelas) chips.push(`<span class="filter-chip">Kelas ${esc(applied.kelas)}</span>`);
+    if(applied.area) chips.push(`<span class="filter-chip">Area ${esc(applied.area)}</span>`);
+    if(applied.status) chips.push(`<span class="filter-chip">${esc(applied.status)}</span>`);
+    if(applied.guru) chips.push(`<span class="filter-chip">Guru ${esc(applied.guru)}</span>`);
+    if(applied.q) chips.push(`<span class="filter-chip">Cari "${esc(applied.q)}"</span>`);
+    $('activeFilters').innerHTML = '<span class="filter-label">Filter aktif:</span>' + chips.join('') +
+      '<button type="button" class="btn-soft" id="btnEditFilter">Ubah Filter</button>';
+    $('btnEditFilter').addEventListener('click', openFilter);
+  }
 
   // ---------- Muat data ----------
   async function loadData(){
     const token = ++loadToken;
     setMsg('', '');
+    renderActiveFilters();
     $('tbodyJurnal').innerHTML = '<tr class="empty-row"><td colspan="7">Memuat data...</td></tr>';
     let path = `${TABLE_INPUT}?select=*&order=tanggal.desc,kelas.asc,nama_siswa.asc`;
     if(rangeFrom) path += `&tanggal=gte.${rangeFrom}`;
@@ -950,35 +1043,28 @@
     applyFilters();
   }
 
-  function fillSelect(id, values, placeholder){
-    const sel = $(id), cur = sel.value;
+  function fillSelect(id, key, values, placeholder){
+    const sel = $(id);
     sel.innerHTML = `<option value="">${placeholder}</option>` + values.map(v => `<option value="${esc(v)}">${esc(v)}</option>`).join('');
-    sel.value = values.includes(cur) ? cur : '';
+    const v = values.includes(applied[key]) ? applied[key] : '';
+    sel.value = v; applied[key] = v;
   }
   function rebuildFilterOptions(){
     const uniq = (k) => Array.from(new Set(allRows.map(r => r[k]).filter(Boolean))).sort(natCmp);
-    fillSelect('fKelas', uniq('kelas'), 'Semua kelas');
-    fillSelect('fArea', uniq('area_piket'), 'Semua area');
-    fillSelect('fGuru', uniq('nama_guru'), 'Semua guru');
+    fillSelect('fKelas', 'kelas', uniq('kelas'), 'Semua kelas');
+    fillSelect('fArea', 'area', uniq('area_piket'), 'Semua area');
+    fillSelect('fGuru', 'guru', uniq('nama_guru'), 'Semua guru');
   }
 
   function applyFilters(){
-    const kelas = $('fKelas').value, area = $('fArea').value, status = $('fStatus').value, guru = $('fGuru').value;
-    const q = $('fSearch').value.trim().toLowerCase();
+    const q = applied.q.toLowerCase();
     rows = allRows.filter(r =>
-      (!kelas || r.kelas === kelas) && (!area || r.area_piket === area) &&
-      (!status || r.status === status) && (!guru || r.nama_guru === guru) &&
+      (!applied.kelas || r.kelas === applied.kelas) && (!applied.area || r.area_piket === applied.area) &&
+      (!applied.status || r.status === applied.status) && (!applied.guru || r.nama_guru === applied.guru) &&
       (!q || String(r.nama_siswa ?? '').toLowerCase().includes(q)));
     page = 0;
     renderAll();
   }
-  ['fKelas','fArea','fStatus','fGuru'].forEach(id => $(id).addEventListener('change', applyFilters));
-  $('fSearch').addEventListener('input', applyFilters);
-  $('btnResetFilter').addEventListener('click', () => {
-    ['fKelas','fArea','fStatus','fGuru'].forEach(id => { $(id).value = ''; });
-    $('fSearch').value = '';
-    setRange('today');
-  });
 
   // ---------- Render ----------
   const pct = (a, b) => b > 0 ? Math.round((a / b) * 100) : 0;
@@ -1060,6 +1146,7 @@
   $('btnNext').addEventListener('click', () => { page++; renderTable(); });
 
   function renderAll(){
+    renderActiveFilters();
     renderStats();
     renderBars('barKelas', 'kelas', 'Belum ada data kelas pada filter ini.');
     renderBars('barArea', 'area_piket', 'Belum ada data area pada filter ini.');
@@ -1092,9 +1179,9 @@
       : rangeFrom === rangeTo ? fmtTanggalPanjang(rangeFrom)
       : `${rangeFrom ? fmtTanggalPanjang(rangeFrom) : '...'} s.d. ${rangeTo ? fmtTanggalPanjang(rangeTo) : '...'}`;
     const filters = [
-      $('fKelas').value && 'Kelas ' + $('fKelas').value, $('fArea').value && 'Area ' + $('fArea').value,
-      $('fStatus').value, $('fGuru').value && 'Guru ' + $('fGuru').value,
-      $('fSearch').value.trim() && 'Cari "' + $('fSearch').value.trim() + '"'
+      applied.kelas && 'Kelas ' + applied.kelas, applied.area && 'Area ' + applied.area,
+      applied.status, applied.guru && 'Guru ' + applied.guru,
+      applied.q && 'Cari "' + applied.q + '"'
     ].filter(Boolean).join(', ');
     const info = [
       ['Periode', ': ' + periode],
@@ -1146,7 +1233,7 @@
   });
 
   // ---------- Init ----------
-  setRange('today');
+  loadData();
 </script>
 
 </body>
