@@ -288,6 +288,31 @@
   select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
   input[readonly]{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
   input[readonly]:focus{border-color:var(--field-border); box-shadow:none;}
+  /* Tab Guru (segmented control ala macOS) */
+  .tabs{
+    display:flex; gap:4px; padding:3px; margin:0 0 14px;
+    background:rgba(120,120,128,0.12); border-radius:10px;
+    overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto; display:inline-flex; align-items:center; gap:7px;
+    font-family:inherit; font-size:13px; font-weight:500; color:var(--text-dim);
+    background:transparent; border:none; border-radius:8px;
+    padding:6px 14px; cursor:pointer; white-space:nowrap;
+    transition:background .15s, color .15s, box-shadow .15s;
+  }
+  .tab:hover{color:var(--text);}
+  .tab[aria-selected="true"]{
+    background:#fff; color:var(--text); font-weight:600;
+    box-shadow:0 1px 3px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
+  }
+  .tab-label{max-width:200px; overflow:hidden; text-overflow:ellipsis;}
+  .tab-badge{
+    font-size:11px; font-weight:600; padding:1px 7px; border-radius:999px;
+    background:rgba(120,120,128,0.18); color:var(--text-dim);
+  }
+  .tab[aria-selected="true"] .tab-badge{background:rgba(0,122,255,0.14); color:#0A5FD0;}
   td.name-col{font-weight:600;}
   td.dim-col{color:var(--text-dim);}
 </style>
@@ -307,17 +332,18 @@
     </div>
     <div class="window-body">
       <h1 class="page-title">Mata Pelajaran</h1>
-      <p class="page-sub">Tambah, ubah, atau hapus data mata pelajaran beserta guru pengajarnya. Untuk menambah mata pelajaran baru, gunakan tombol Tambah Mapel di bagian bawah.</p>
+      <p class="page-sub">Pilih tab nama guru untuk melihat mata pelajaran yang diampunya. Untuk menambah mata pelajaran baru, gunakan tombol Tambah Mapel di bagian bawah.</p>
 
       <div class="table-header">
         <h2>Daftar Mata Pelajaran</h2>
         <span class="table-count" id="tableCount">0 mata pelajaran</span>
       </div>
       <p class="page-msg" id="pageMsg"></p>
+      <div class="tabs" id="guruTabs" role="tablist" aria-label="Pilih guru pengajar" hidden></div>
       <div class="toolbar">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" id="searchInput" placeholder="Cari mata pelajaran atau guru..." aria-label="Cari mata pelajaran" autocomplete="off">
+          <input type="text" id="searchInput" placeholder="Cari mata pelajaran..." aria-label="Cari mata pelajaran" autocomplete="off">
         </div>
       </div>
       <div class="table-wrap">
@@ -326,8 +352,8 @@
             <tr>
               <th>No</th>
               <th>Mata Pelajaran</th>
-              <th>Guru Pengajar</th>
               <th>NIP / NIY</th>
+              <th>Kelas</th>
               <th></th>
             </tr>
           </thead>
@@ -377,6 +403,12 @@
           <label for="nip">NIP / NIY <span class="label-hint">(otomatis)</span></label>
           <input type="text" id="nip" readonly placeholder="Terisi otomatis setelah memilih guru">
         </div>
+        <div class="field">
+          <label for="kelas">Kelas</label>
+          <select id="kelas" required>
+            <option value="" disabled selected>Memuat data kelas...</option>
+          </select>
+        </div>
         <div class="modal-actions">
           <div class="modal-buttons">
             <button type="submit" class="btn-mac" id="btnSubmit">Simpan</button>
@@ -396,6 +428,8 @@
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
   const TABLE = "datamapel";
   const GURU_TABLE = "dataguru";
+  const ROMBEL_TABLE = "rombel";
+  const NONE = "__none__"; // tab untuk mapel lama yang belum punya guru pengajar
 
   const headersBase = {
     "apikey": SUPABASE_ANON_KEY,
@@ -404,8 +438,10 @@
 
   const form = document.getElementById('mapelForm');
   const namaInput = document.getElementById('namaMapel');
+  const guruTabs = document.getElementById('guruTabs');
   const guruSelect = document.getElementById('guruPengajar');
   const nipInput = document.getElementById('nip');
+  const kelasSelect = document.getElementById('kelas');
   const formHeading = document.getElementById('formHeading');
   const modalTitle = document.getElementById('modalTitle');
   const modalSub = document.getElementById('modalSub');
@@ -421,6 +457,8 @@
 
   let allMapel = [];
   let allGuru = [];
+  let allRombel = [];
+  let activeGuru = null;
   let editingId = null; // null = mode tambah, terisi = mode ubah
   let toastTimer = null;
 
@@ -449,6 +487,61 @@
     return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2);
   }
 
+  /* ---------- Tab guru ---------- */
+  function guruOf(m){
+    return (m.guru_pengajar || '').trim() || NONE;
+  }
+
+  // Tab = guru yang memiliki mata pelajaran, urut abjad; "Tanpa Guru" paling akhir
+  function tabList(){
+    const names = [...new Set(allMapel.map(guruOf).filter(k => k !== NONE))]
+      .sort((a, b) => a.localeCompare(b, 'id'));
+    const tabs = names.map(n => ({ key: n, label: n }));
+    if(allMapel.some(m => guruOf(m) === NONE)) tabs.push({ key: NONE, label: 'Tanpa Guru' });
+    return tabs;
+  }
+
+  function renderTabs(){
+    const tabs = tabList();
+    if(tabs.length === 0){
+      guruTabs.hidden = true;
+      guruTabs.innerHTML = '';
+      return;
+    }
+    guruTabs.hidden = false;
+    if(!tabs.some(t => t.key === activeGuru)) activeGuru = tabs[0].key;
+
+    guruTabs.innerHTML = tabs.map(t => {
+      const n = allMapel.filter(m => guruOf(m) === t.key).length;
+      const sel = t.key === activeGuru;
+      return `<button type="button" class="tab" role="tab" aria-selected="${sel}" tabindex="${sel ? 0 : -1}" title="${escapeHtml(t.label)}" data-key="${escapeHtml(t.key)}"><span class="tab-label">${escapeHtml(t.label)}</span><span class="tab-badge">${n}</span></button>`;
+    }).join('');
+
+    const activeBtn = guruTabs.querySelector('.tab[aria-selected="true"]');
+    if(activeBtn) activeBtn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+  }
+
+  function selectTab(key){
+    activeGuru = key;
+    renderTabs();
+    renderRows();
+  }
+
+  guruTabs.addEventListener('click', (e) => {
+    const btn = e.target.closest('.tab');
+    if(btn) selectTab(btn.getAttribute('data-key'));
+  });
+  // Navigasi keyboard: panah kiri/kanan berpindah tab
+  guruTabs.addEventListener('keydown', (e) => {
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const keys = tabList().map(t => t.key);
+    const i = keys.indexOf(activeGuru);
+    const next = keys[(i + (e.key === 'ArrowRight' ? 1 : -1) + keys.length) % keys.length];
+    selectTab(next);
+    const btn = guruTabs.querySelector('.tab[aria-selected="true"]');
+    if(btn) btn.focus();
+  });
+
   /* ---------- Guru pengajar (tabel dataguru) ---------- */
   async function loadGuruOptions(){
     try{
@@ -460,6 +553,20 @@
     }catch(err){
       console.error(err);
       guruSelect.innerHTML = '<option value="" disabled selected>Gagal memuat data guru</option>';
+    }
+  }
+
+  /* ---------- Kelas (tabel rombel) ---------- */
+  async function loadKelasOptions(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${ROMBEL_TABLE}?select=nama_rombel&order=nama_rombel.asc`, { headers: headersBase });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      allRombel = (await res.json()) || [];
+      kelasSelect.innerHTML = '<option value="" disabled selected>Pilih kelas</option>' +
+        allRombel.map(r => `<option value="${escapeHtml(r.nama_rombel || '')}">${escapeHtml(r.nama_rombel || '-')}</option>`).join('');
+    }catch(err){
+      console.error(err);
+      kelasSelect.innerHTML = '<option value="" disabled selected>Gagal memuat data kelas</option>';
     }
   }
 
@@ -499,7 +606,14 @@
     btnSubmit.textContent = 'Simpan';
     form.reset();
     guruSelect.selectedIndex = 0;
+    kelasSelect.selectedIndex = 0;
     nipInput.value = '';
+    // default: guru pada tab yang sedang aktif
+    if(activeGuru && activeGuru !== NONE && [...guruSelect.options].some(o => o.value === activeGuru)){
+      guruSelect.value = activeGuru;
+      const g = allGuru.find(x => x.nama_guru === activeGuru);
+      nipInput.value = g ? (g.nip || '') : '';
+    }
   }
 
   function enterEditMode(row){
@@ -519,6 +633,15 @@
     }
     guruSelect.value = guru;
     nipInput.value = row.nip || '';
+
+    // Kelas lama yang sudah tidak ada di rombel tetap ditampilkan agar tidak hilang diam-diam
+    const kelas = row.kelas || '';
+    if(kelas && ![...kelasSelect.options].some(o => o.value === kelas)){
+      const opt = document.createElement('option');
+      opt.value = kelas; opt.textContent = kelas;
+      kelasSelect.appendChild(opt);
+    }
+    kelasSelect.value = kelas;
     setFormMsg('', '');
     openModal();
   }
@@ -526,19 +649,24 @@
   /* ---------- Tabel ---------- */
   function renderRows(){
     const q = searchInput.value.trim().toLowerCase();
-    const rows = q
-      ? allMapel.filter(m => (m.nama_mapel || '').toLowerCase().includes(q) || (m.guru_pengajar || '').toLowerCase().includes(q))
-      : allMapel;
+    const inTab = allMapel.filter(m => guruOf(m) === activeGuru);
+    const rows = q ? inTab.filter(m => (m.nama_mapel || '').toLowerCase().includes(q)) : inTab;
 
     mapelBody.innerHTML = '';
-    tableCount.textContent = q && allMapel.length
-      ? `${rows.length} dari ${allMapel.length} mata pelajaran`
-      : `${allMapel.length} mata pelajaran`;
+
+    if(allMapel.length === 0){
+      tableCount.textContent = '0 mata pelajaran';
+      emptyState.textContent = 'Belum ada data mata pelajaran. Tambahkan lewat tombol Tambah Mapel di bawah.';
+      emptyState.hidden = false;
+      return;
+    }
+
+    tableCount.textContent = q && inTab.length
+      ? `${rows.length} dari ${inTab.length} mata pelajaran`
+      : `${inTab.length} mata pelajaran`;
 
     if(rows.length === 0){
-      emptyState.textContent = allMapel.length === 0
-        ? 'Belum ada data mata pelajaran. Tambahkan lewat tombol Tambah Mapel di bawah.'
-        : 'Tidak ada mata pelajaran yang cocok dengan pencarian.';
+      emptyState.textContent = 'Tidak ada mata pelajaran yang cocok dengan pencarian.';
       emptyState.hidden = false;
       return;
     }
@@ -549,8 +677,8 @@
       tr.innerHTML = `
         <td class="num-col">${i + 1}</td>
         <td class="name-col">${escapeHtml(row.nama_mapel)}</td>
-        <td>${escapeHtml(row.guru_pengajar || '-')}</td>
         <td class="id-col">${escapeHtml(row.nip || '-')}</td>
+        <td>${escapeHtml(row.kelas || '-')}</td>
         <td>
           <div class="row-actions">
             <button type="button" class="icon-btn edit">Ubah</button>
@@ -572,6 +700,7 @@
       if(!res.ok) throw new Error('Status ' + res.status);
       allMapel = (await res.json()) || [];
       setPageMsg('', '');
+      renderTabs();
       renderRows();
     }catch(err){
       console.error(err);
@@ -609,9 +738,10 @@
     const nama_mapel = namaInput.value.trim();
     const guru_pengajar = guruSelect.value.trim();
     const nip = nipInput.value.trim() || null;
+    const kelas = kelasSelect.value.trim();
 
-    if(!nama_mapel || !guru_pengajar){
-      setFormMsg('Nama mata pelajaran dan guru pengajar wajib diisi.', 'err');
+    if(!nama_mapel || !guru_pengajar || !kelas){
+      setFormMsg('Nama mata pelajaran, guru pengajar, dan kelas wajib diisi.', 'err');
       return;
     }
 
@@ -625,12 +755,12 @@
       if(editingId){
         res = await fetch(`${SUPABASE_URL}/${TABLE}?id=eq.${encodeURIComponent(editingId)}`, {
           method: 'PATCH', headers,
-          body: JSON.stringify({ nama_mapel, guru_pengajar, nip })
+          body: JSON.stringify({ nama_mapel, guru_pengajar, nip, kelas })
         });
       }else{
         res = await fetch(`${SUPABASE_URL}/${TABLE}`, {
           method: 'POST', headers,
-          body: JSON.stringify({ id: genId(), nama_mapel, guru_pengajar, nip })
+          body: JSON.stringify({ id: genId(), nama_mapel, guru_pengajar, nip, kelas })
         });
       }
       if(!res.ok){
@@ -642,6 +772,7 @@
       }
 
       closeModal();
+      activeGuru = guru_pengajar; // pindah ke tab guru yang baru disimpan
       showToast(wasEditing ? 'Perubahan berhasil disimpan.' : 'Mata pelajaran baru berhasil ditambahkan.');
       await loadMapel();
     }catch(err){
@@ -655,6 +786,7 @@
 
   enterAddMode();
   loadGuruOptions();
+  loadKelasOptions();
   loadMapel();
 </script>
 
