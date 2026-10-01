@@ -162,6 +162,32 @@
   .scroll-hint svg{width:14px; height:14px; flex-shrink:0;}
   @media (max-width:820px){ .scroll-hint{display:flex;} }
 
+  .table-wrap{scroll-margin-top:48px;}
+
+  /* ---------- Pagination ---------- */
+  .pager{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-top:14px;}
+  .pager-info{font-size:12.5px; color:var(--text-dim);}
+  .pager-nav{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .pg-btn{
+    min-width:34px; height:34px; padding:0 10px; border-radius:8px; cursor:pointer;
+    font-family:inherit; font-size:13.5px; font-weight:500; color:var(--text);
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    font-variant-numeric:tabular-nums;
+    transition:background .15s, color .15s, border-color .15s, transform .1s;
+  }
+  .pg-btn svg{width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:2.2; stroke-linecap:round; stroke-linejoin:round;}
+  .pg-btn:hover:not(:disabled):not(.active){background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .pg-btn:active:not(:disabled){transform:scale(0.96);}
+  .pg-btn.active{
+    background:linear-gradient(180deg,#4DA3FF,#007AFF); border-color:#0068DB; color:#fff; cursor:default;
+    box-shadow:0 1px 2px rgba(0,122,255,0.35), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .pg-btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .pg-gap{min-width:20px; text-align:center; color:var(--text-dim); user-select:none;}
+
   .badge{
     display:inline-block; font-size:12px; font-weight:600;
     padding:3px 10px; border-radius:999px; white-space:nowrap;
@@ -395,6 +421,10 @@
         </table>
         <p class="empty-state" id="emptyState">Memuat data kehadiran...</p>
       </div>
+      <nav class="pager" id="pager" aria-label="Halaman data kehadiran" hidden>
+        <span class="pager-info" id="pagerInfo"></span>
+        <div class="pager-nav" id="pagerNav"></div>
+      </nav>
     </div>
   </div>
 </main>
@@ -645,6 +675,9 @@
   const btnFilterKelas = document.getElementById('btnFilterKelas');
   const btnFilterTanggal = document.getElementById('btnFilterTanggal');
   const activeChipsEl = document.getElementById('activeChips');
+  const pagerEl = document.getElementById('pager');
+  const pagerInfoEl = document.getElementById('pagerInfo');
+  const pagerNavEl = document.getElementById('pagerNav');
 
   const statTotalEl = document.getElementById('statTotal');
   const statHadirEl = document.getElementById('statHadir');
@@ -652,6 +685,8 @@
   const statIjinEl = document.getElementById('statIjin');
   const statAlpaEl = document.getElementById('statAlpa');
 
+  const PAGE_SIZE = 50;
+  let currentPage = 1;
   let absensiRows = [];
   let loaded = false;
   // Filter yang sedang diterapkan (diubah lewat modal footer)
@@ -707,6 +742,41 @@
     applyAbsensiAdminFilters();
   });
 
+  function pageItems(total, current){
+    // 1 ... (current-1) current (current+1) ... total
+    const set = new Set([1, total, current - 1, current, current + 1].filter(n => n >= 1 && n <= total));
+    const nums = [...set].sort((a, b) => a - b);
+    const items = [];
+    nums.forEach((n, i) => {
+      if(i > 0 && n - nums[i - 1] > 1) items.push('gap');
+      items.push(n);
+    });
+    return items;
+  }
+
+  function renderPager(totalRows){
+    const totalPages = Math.ceil(totalRows / PAGE_SIZE);
+    if(totalPages <= 1){
+      pagerEl.hidden = true;
+      pagerNavEl.innerHTML = '';
+      return;
+    }
+    const from = (currentPage - 1) * PAGE_SIZE + 1;
+    const to = Math.min(currentPage * PAGE_SIZE, totalRows);
+    pagerInfoEl.textContent = `Menampilkan ${from}–${to} dari ${totalRows} catatan`;
+
+    const chevL = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
+    const chevR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>';
+    pagerNavEl.innerHTML =
+      `<button type="button" class="pg-btn" data-page="${currentPage - 1}" aria-label="Halaman sebelumnya" ${currentPage === 1 ? 'disabled' : ''}>${chevL}</button>` +
+      pageItems(totalPages, currentPage).map(it => it === 'gap'
+        ? '<span class="pg-gap">…</span>'
+        : `<button type="button" class="pg-btn${it === currentPage ? ' active' : ''}" data-page="${it}" aria-label="Halaman ${it}" ${it === currentPage ? 'aria-current="page"' : ''}>${it}</button>`
+      ).join('') +
+      `<button type="button" class="pg-btn" data-page="${currentPage + 1}" aria-label="Halaman berikutnya" ${currentPage === totalPages ? 'disabled' : ''}>${chevR}</button>`;
+    pagerEl.hidden = false;
+  }
+
   function renderAbsensiAdminTable(rows){
     renderStats(rows);
     tableAbsensiAdminBodyEl.innerHTML = '';
@@ -718,13 +788,20 @@
         ? 'Tidak ada data kehadiran yang cocok dengan filter.'
         : 'Belum ada data kehadiran tercatat.';
       emptyStateEl.hidden = false;
+      renderPager(0);
       return;
     }
     emptyStateEl.hidden = true;
 
-    tableAbsensiAdminBodyEl.innerHTML = rows.map((row, i) => `
+    const totalPages = Math.ceil(rows.length / PAGE_SIZE);
+    if(currentPage > totalPages) currentPage = totalPages;
+    if(currentPage < 1) currentPage = 1;
+    const offset = (currentPage - 1) * PAGE_SIZE;
+    const pageRows = rows.slice(offset, offset + PAGE_SIZE);
+
+    tableAbsensiAdminBodyEl.innerHTML = pageRows.map((row, i) => `
       <tr>
-        <td class="num-col">${i + 1}</td>
+        <td class="num-col">${offset + i + 1}</td>
         <td>${formatTanggalIndo(row.tanggal)}</td>
         <td>${escapeHtml(row.kelas)}</td>
         <td class="name-col">${escapeHtml(row.nama_siswa)}</td>
@@ -734,13 +811,26 @@
       </tr>
     `).join('');
     totalAbsensiAdminTextEl.textContent = rows.length + ' catatan';
+    renderPager(rows.length);
   }
 
+  // Filter / pencarian berubah -> kembali ke halaman 1
   function applyAbsensiAdminFilters(){
+    currentPage = 1;
     renderChips();
     if(!loaded) return;
     renderAbsensiAdminTable(getFilteredAbsensiRows());
   }
+
+  pagerNavEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-page]');
+    if(!btn || btn.disabled) return;
+    const page = Number(btn.dataset.page);
+    if(!page || page === currentPage) return;
+    currentPage = page;
+    renderAbsensiAdminTable(getFilteredAbsensiRows());
+    document.querySelector('.table-wrap').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
   async function loadAbsensiAll(){
     emptyStateEl.textContent = 'Memuat data kehadiran...';
