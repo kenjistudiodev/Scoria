@@ -4,690 +4,558 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rekap Nilai Rombel — SCORIA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <style>
-  :root{
-    --ink:#3B2E63;
-    --ink-soft:#7A7191;
-    --paper:#fffefd;
-    --paper-deep:#FFEFD6;
-    --paper-line:#1b1915;
-    --brand:#6C4FE0;
-    --gold:#FFC93C;
-    --brick:#D6336C;
-    --green:#1A8754;
-    --turquoise:#0F766E;
-    --purple:#7B5EEA;
-    --amber:#92600F;
-  }
 
+  :root{
+    --footer-h:72px;
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
+    --turquoise:#0F766E;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
   *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
   html{overflow-x:hidden;}
   body{
     margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Inter',sans-serif;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
     -webkit-font-smoothing:antialiased;
-    padding-bottom:20px;
+    padding-bottom:calc(var(--footer-h) + 24px);
     overflow-x:hidden;
-    max-width:100vw;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
   }
-  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
 
-  /* ---------- Navbar ---------- */
+  /* ---------- Menu bar ---------- */
   .navbar{
     position:sticky; top:0; z-index:20;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:var(--brand);
-    color:#FFFFFF;
-    padding:14px clamp(16px,4vw,40px);
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
   }
-  .nav-left{display:flex; align-items:center; gap:10px;}
-  .school-logo{
-    width:38px; height:38px;
-    border-radius:50%;
-    background:var(--paper);
-    color:var(--brand);
+  .navbar-brand{display:flex; align-items:center; gap:8px; font-weight:700; color:var(--text);}
+  .brand-icon{
+    width:18px; height:18px; border-radius:5px; overflow:hidden;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:11px; font-weight:700;
     display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:0.75rem;
-    flex-shrink:0;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .brand-icon.has-logo{background:#fff;}
+  .brand-icon img{width:100%; height:100%; object-fit:cover;}
+  .navbar-hint{color:var(--text-dim); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:60vw;}
+
+  /* ---------- Window ---------- */
+  main{max-width:1200px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
     overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
   }
-  .school-logo img{width:100%; height:100%; object-fit:cover;}
-  .nav-right{display:flex; align-items:center; gap:16px;}
-  .nav-schoolinfo{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:4px;
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
   }
-  .school-name{
-    font-size:0.92rem;
-    font-weight:500;
-    color:var(--paper);
-    max-width:32ch;
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
   }
-  .term-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.66rem;
-    letter-spacing:0.02em;
-    color:var(--gold);
-    background:rgba(255,201,60,0.14);
-    border:1px solid rgba(255,201,60,0.4);
-    padding:2px 9px;
-    border-radius:999px;
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 30px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 24px;}
+
+  .section + .section{margin-top:30px; padding-top:26px; border-top:1px solid var(--hairline);}
+  .section-head{margin-bottom:14px;}
+  .section-head h2{margin:0; font-size:17px; font-weight:700; letter-spacing:-0.01em;}
+  .section-head p{margin:3px 0 0; font-size:13px; color:var(--text-dim);}
+
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
     white-space:nowrap;
   }
-  .term-badge .dot{
-    width:5px; height:5px;
-    border-radius:50%;
-    background:var(--gold);
-    flex-shrink:0;
+  .btn-mac svg{width:15px; height:15px; flex-shrink:0;}
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
   }
-  .admin-account{
-    display:flex; align-items:center; gap:8px;
-    padding-left:16px;
-    border-left:1px solid rgba(240,234,217,0.25);
+  .btn-mac:disabled{
+    background:#e6e6ea; border-color:var(--field-border); color:#a1a1a6;
+    box-shadow:none; cursor:not-allowed;
   }
-  .avatar{
-    width:32px; height:32px;
-    border-radius:50%;
-    background:var(--gold);
-    color:#221a06;
+
+  /* ---------- Chip filter aktif ---------- */
+  .chips{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 12px;}
+  .chips:empty{display:none;}
+  .chip-filter{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12.5px; font-weight:500; color:#0A5FD0;
+    background:rgba(0,122,255,0.12); border-radius:999px;
+    padding:4px 6px 4px 11px; max-width:100%;
+  }
+  .chip-filter span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:220px;}
+  .chip-filter button{
+    flex-shrink:0; width:18px; height:18px; padding:0; border:none; border-radius:50%; cursor:pointer;
+    background:rgba(0,122,255,0.18); color:#0A5FD0; font-size:13px; line-height:1;
     display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:0.78rem;
-    flex-shrink:0;
   }
-  .admin-name{font-size:0.88rem; color:#ddd6bf;}
+  .chip-filter button:hover{background:var(--mac-blue); color:#fff;}
 
-  @media (max-width:600px){
-    .navbar{padding-left:5px; padding-right:5px;}
+  select{
+    font-family:inherit; font-size:14px;
+    padding:9px 34px 9px 12px; height:36px;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none; cursor:pointer;
+    appearance:none; -webkit-appearance:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
   }
+  select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  select:disabled{opacity:0.55; cursor:not-allowed;}
 
-  /* ---------- Main ---------- */
-  main{
-    max-width:1200px;
-    margin:0 auto;
-    padding:32px clamp(16px,4vw,40px) 12px;
+  /* ---------- Ringkasan (chip) ---------- */
+  .kelas-summary{display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px;}
+  .kelas-summary .chip{
+    font-size:12.5px; font-weight:600; padding:4px 12px; border-radius:999px;
+    background:rgba(120,120,128,0.14); color:var(--text-dim);
   }
-  .page-heading{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:clamp(1.4rem,2.6vw,1.85rem);
-    margin:0 0 4px;
-  }
-  .page-heading-row{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-  }
-  .page-heading-row .page-heading{margin:0;}
-  .page-sub{
-    font-size:0.92rem;
-    color:var(--ink-soft);
-    margin:0 0 24px;
-  }
-  .btn-dashboard svg{width:14px; height:14px; vertical-align:-2px; margin-right:5px;}
+  .kelas-summary .chip.tuntas{background:rgba(40,167,69,0.14); color:#1B7F34;}
+  .kelas-summary .chip.belum{background:rgba(255,59,48,0.13); color:#C4271D;}
 
-  /* ---------- Panel ---------- */
-  .panel{
-    background:#fffdf7;
-    border:1px solid var(--paper-line);
-    border-radius:10px;
-    padding:18px 20px;
-    min-width:0;
-    max-width:100%;
-    overflow:hidden;
-    margin-bottom:26px;
-  }
-  .panel-kelas{
-    background:#F1EEF9;
-    border-left:5px solid var(--purple);
-  }
-  .panel-semua{
-    background:#EFF6FB;
-    border-left:5px solid var(--turquoise);
-  }
-  .panel-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:14px;
-    flex-wrap:wrap;
-  }
-  .panel-head h3{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:1.05rem;
-    margin:0;
-  }
-  .panel-head p.panel-desc{
-    margin:2px 0 0;
-    font-size:0.8rem;
-    color:var(--ink-soft);
-  }
-  .panel-search{
-    font-family:inherit;
-    font-size:0.82rem;
-    padding:9px 12px;
-    border:1px solid var(--paper-line);
-    border-radius:6px;
-    background:#fbf8f0;
-    color:var(--ink);
-    min-width:220px;
-    height:38px;
-  }
-  .panel-search:focus{border-color:var(--turquoise); outline:none;}
-
-  /* ---------- Toolbar ---------- */
-  .nilai-toolbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    margin:0 0 14px;
-  }
-  .nilai-toolbar-group{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-  .nilai-toolbar-group-end{margin-left:auto;}
-  .panel-select{
-    font-family:inherit;
-    font-size:0.82rem;
-    padding:9px 30px 9px 12px;
-    border:1px solid var(--paper-line);
-    border-radius:6px;
-    background:#fbf8f0;
-    color:var(--ink);
-    min-width:160px;
-    height:38px;
-    cursor:pointer;
-    appearance:none;
-    -webkit-appearance:none;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-repeat:no-repeat;
-    background-position:right 10px center;
-    background-size:14px;
-  }
-  .panel-select:focus{border-color:var(--turquoise); outline:none;}
-  .panel-select:disabled{opacity:0.55; cursor:not-allowed;}
-
-  @media (max-width:720px){
-    .nilai-toolbar-group{width:100%;}
-    .nilai-toolbar-group > *{flex:1 1 auto;}
-    .nilai-toolbar-group-end{margin-left:0;}
-    .nilai-toolbar-group-end .btn{width:100%;}
-  }
-
-  /* ---------- Buttons ---------- */
-  .btn{
-    font-family:inherit;
-    font-size:0.82rem;
-    font-weight:600;
-    border-radius:6px;
-    padding:0 16px;
-    height:38px;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    cursor:pointer;
-    border:1px solid transparent;
-    white-space:nowrap;
-  }
-  .btn-primary{background:var(--brand); color:#FFFFFF;}
-  .btn-primary:hover{background:#5A3FCB;}
-  .btn-ghost{background:#fbf8f0; color:var(--ink); border-color:var(--paper-line);}
-  .btn-ghost:hover{border-color:var(--brick); color:var(--brick);}
-  .btn-sm{padding:6px 11px; font-size:0.76rem;}
-  .btn svg{width:14px; height:14px; vertical-align:-2px; margin-right:5px;}
-
-  /* ---------- Table ---------- */
-  .scroll-hint{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-size:0.72rem;
-    color:var(--ink-soft);
-    margin:0 0 8px;
-  }
+  /* ---------- Tabel ala Finder ---------- */
+  .scroll-hint{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-dim); margin:0 0 8px;}
   .scroll-hint svg{width:14px; height:14px; flex-shrink:0;}
-
   .table-wrap{
-    overflow-x:auto;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:thin;
-    scrollbar-color:var(--turquoise) var(--paper-deep);
-    border-radius:6px;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    background:#fff;
+    border:1px solid var(--field-border);
+    border-radius:10px;
   }
-  .table-wrap::-webkit-scrollbar{height:8px;}
-  .table-wrap::-webkit-scrollbar-track{background:var(--paper-deep); border-radius:6px;}
-  .table-wrap::-webkit-scrollbar-thumb{background:var(--turquoise); border-radius:6px;}
-
-  .preview-table{
-    width:100%;
-    min-width:1500px;
-    border-collapse:collapse;
-    font-size:0.82rem;
-  }
+  .preview-table{width:100%; min-width:1500px; border-collapse:collapse; font-size:13.5px;}
   .preview-table th{
-    text-align:left;
-    font-size:0.7rem;
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    color:var(--ink-soft);
-    padding:8px 10px;
-    border-bottom:2px solid var(--paper-line);
-    white-space:nowrap;
+    text-align:left; font-size:12px; font-weight:600; color:var(--text-dim);
+    padding:9px 12px; background:rgba(120,120,128,0.06);
+    border-bottom:1px solid var(--hairline); white-space:nowrap;
   }
-  .preview-table td{
-    padding:9px 10px;
-    border-bottom:1px solid var(--paper-line);
-    color:var(--ink);
-    white-space:nowrap;
-  }
-  .preview-table tbody tr:hover{background:var(--paper-deep);}
-  .preview-table .empty-row td{
-    white-space:normal;
-    text-align:center;
-    color:var(--ink-soft);
-    padding:22px 10px;
-  }
-  .preview-table td.center{text-align:center;}
+  .preview-table td{padding:10px 12px; border-bottom:1px solid var(--hairline); white-space:nowrap; vertical-align:middle;}
+  .preview-table tbody tr:last-child td{border-bottom:none;}
+  .preview-table tbody tr:nth-child(even){background:rgba(0,122,255,0.025);}
+  .preview-table tbody tr:hover{background:rgba(0,122,255,0.08);}
+  .preview-table .empty-row td{white-space:normal; text-align:center; color:var(--text-dim); padding:30px 12px;}
+  .preview-table td.center{text-align:center; font-variant-numeric:tabular-nums;}
 
   .keterangan-pill{
-    display:inline-block;
-    padding:3px 9px;
-    border-radius:20px;
-    font-size:0.72rem;
-    font-weight:600;
-    white-space:nowrap;
+    display:inline-block; padding:3px 10px; border-radius:999px;
+    font-size:12px; font-weight:600; white-space:nowrap;
   }
-  .keterangan-pill.tuntas{background:#EAF6EE; color:var(--green);}
-  .keterangan-pill.belum{background:#FDEAF0; color:var(--brick);}
-  .keterangan-pill.na{background:#F1EEF9; color:var(--ink-soft);}
-
-  .btn-export-rekap{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-family:inherit;
-    font-size:0.82rem;
-    font-weight:600;
-    padding:9px 14px;
-    border:1px solid var(--green);
-    border-radius:6px;
-    background:var(--green);
-    color:#FFFFFF;
-    height:38px;
-    cursor:pointer;
-    white-space:nowrap;
-  }
-  .btn-export-rekap:hover{background:#146c43; border-color:#146c43;}
-  .btn-export-rekap:disabled{opacity:0.55; cursor:not-allowed;}
-  .btn-export-rekap svg{width:15px; height:15px; flex-shrink:0;}
-  @media (max-width:600px){
-    .btn-export-rekap{width:100%; justify-content:center;}
-  }
+  .keterangan-pill.tuntas{background:rgba(40,167,69,0.14); color:#1B7F34;}
+  .keterangan-pill.belum{background:rgba(255,59,48,0.13); color:#C4271D;}
+  .keterangan-pill.na{background:rgba(120,120,128,0.14); color:var(--text-dim);}
 
   /* ---------- Tooltip alasan Keterangan ---------- */
-  .keterangan-tooltip-wrap{
-    position:relative;
-    display:inline-block;
-    cursor:help;
-  }
+  .keterangan-tooltip-wrap{position:relative; display:inline-block; cursor:help;}
   .keterangan-tooltip-portal{
-    position:fixed;
-    z-index:9999;
-    left:0;
-    top:0;
-    width:max-content;
-    min-width:220px;
-    max-width:280px;
-    background:var(--ink);
-    color:#fffefd;
-    font-size:0.74rem;
-    font-weight:400;
-    line-height:1.5;
-    padding:9px 12px;
-    border-radius:8px;
-    box-shadow:0 12px 28px rgba(59,46,99,0.32);
-    opacity:0;
-    visibility:hidden;
-    pointer-events:none;
+    position:fixed; z-index:9999; left:0; top:0;
+    width:max-content; min-width:220px; max-width:280px;
+    background:rgba(40,40,45,0.92);
+    -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px);
+    color:#fff; font-size:12.5px; font-weight:400; line-height:1.5;
+    padding:9px 12px; border-radius:10px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.28);
+    opacity:0; visibility:hidden; pointer-events:none;
     transition:opacity 0.15s ease, transform 0.15s ease;
-    white-space:normal;
-    text-align:left;
+    white-space:normal; text-align:left;
     transform:translate(-50%, calc(-100% + 4px));
   }
   .keterangan-tooltip-portal::after{
-    content:'';
-    position:absolute;
-    top:100%;
-    left:50%;
-    transform:translateX(-50%);
-    border:6px solid transparent;
-    border-top-color:var(--ink);
+    content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+    border:6px solid transparent; border-top-color:rgba(40,40,45,0.92);
   }
-  .keterangan-tooltip-portal.is-visible{
-    opacity:1;
-    visibility:visible;
-    transform:translate(-50%, -100%);
-  }
-  .keterangan-tooltip-portal.arah-bawah{
-    transform:translate(-50%, -4px);
-  }
+  .keterangan-tooltip-portal.is-visible{opacity:1; visibility:visible; transform:translate(-50%, -100%);}
+  .keterangan-tooltip-portal.arah-bawah{transform:translate(-50%, -4px);}
   .keterangan-tooltip-portal.arah-bawah::after{
-    top:auto;
-    bottom:100%;
-    border-top-color:transparent;
-    border-bottom-color:var(--ink);
+    top:auto; bottom:100%; border-top-color:transparent; border-bottom-color:rgba(40,40,45,0.92);
   }
-  .keterangan-tooltip-portal.arah-bawah.is-visible{
-    transform:translate(-50%, 0);
-  }
+  .keterangan-tooltip-portal.arah-bawah.is-visible{transform:translate(-50%, 0);}
 
-  .panel-foot{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-top:14px;
-    font-size:0.78rem;
-    color:var(--ink-soft);
-  }
-  .pager{display:flex; align-items:center; gap:4px;}
-  .pager button{
-    font-family:inherit;
-    font-size:0.76rem;
-    background:#fbf8f0;
-    border:1px solid var(--paper-line);
-    border-radius:5px;
-    padding:5px 9px;
-    cursor:pointer;
-    color:var(--ink);
-  }
-  .pager button:disabled{opacity:0.45; cursor:not-allowed;}
-
-  /* ---------- Ringkasan kecil per kelas ---------- */
-  .kelas-summary{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-    margin:0 0 14px;
-  }
-  .kelas-summary .chip{
-    font-size:0.76rem;
-    font-weight:600;
-    padding:6px 12px;
-    border-radius:999px;
-    background:#fbf8f0;
-    border:1px solid var(--paper-line);
-    color:var(--ink-soft);
-  }
-  .kelas-summary .chip.tuntas{color:var(--green); border-color:rgba(26,135,84,0.35); background:#EAF6EE;}
-  .kelas-summary .chip.belum{color:var(--brick); border-color:rgba(214,51,108,0.35); background:#FDEAF0;}
-
-  /* ---------- Tab kelas (preview tuntas/belum tuntas) ---------- */
+  /* ---------- Tab kelas (segmented control) ---------- */
   .kelas-tabs{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin:0 0 16px;
+    display:flex; flex-wrap:wrap; gap:4px; padding:3px; margin:0 0 16px;
+    background:rgba(120,120,128,0.12); border-radius:10px;
   }
-  .tabs-empty{
-    margin:0;
-    font-size:0.85rem;
-    color:var(--ink-soft);
-  }
+  .tabs-empty{margin:0; padding:6px 12px; font-size:13px; color:var(--text-dim);}
   .kelas-tab-btn{
-    font-family:inherit;
-    font-size:0.82rem;
-    font-weight:600;
-    padding:8px 16px;
-    border-radius:999px;
-    border:1px solid var(--paper-line);
-    background:#fbf8f0;
-    color:var(--ink-soft);
-    cursor:pointer;
+    font-family:inherit; font-size:13px; font-weight:500; color:var(--text-dim);
+    background:transparent; border:none; border-radius:8px;
+    padding:6px 14px; cursor:pointer; white-space:nowrap;
+    transition:background .15s, color .15s, box-shadow .15s;
   }
-  .kelas-tab-btn:hover{color:var(--ink);}
+  .kelas-tab-btn:hover{color:var(--text);}
   .kelas-tab-btn.active{
-    background:var(--turquoise);
-    border-color:var(--turquoise);
-    color:#fff;
+    background:#fff; color:var(--text); font-weight:600;
+    box-shadow:0 1px 3px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06);
   }
 
-  .preview-summary{
-    font-size:0.8rem;
-    color:var(--ink-soft);
-    margin:0 0 14px;
-  }
-
-  .preview-columns{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:16px;
-  }
-  @media (max-width:720px){
-    .preview-columns{grid-template-columns:1fr;}
-  }
+  .preview-summary{font-size:13px; color:var(--text-dim); margin:0 0 14px;}
+  .preview-columns{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:720px){ .preview-columns{grid-template-columns:1fr;} }
   .preview-col{
-    background:#fffefd;
-    border:1px solid var(--paper-line);
-    border-radius:8px;
-    padding:14px 16px;
-    min-width:0;
+    background:#fff; border:1px solid var(--field-border); border-radius:10px;
+    padding:14px 16px; min-width:0;
   }
-  .preview-col h4{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:0.98rem;
-    margin:0 0 12px;
-  }
-  .dot-status{
-    width:9px; height:9px;
-    border-radius:50%;
-    flex-shrink:0;
-  }
-  .dot-tuntas{background:var(--green);}
-  .dot-belum{background:var(--brick);}
+  .preview-col h4{display:flex; align-items:center; gap:8px; font-size:15px; font-weight:600; margin:0 0 12px;}
+  .dot-status{width:9px; height:9px; border-radius:50%; flex-shrink:0;}
+  .dot-tuntas{background:var(--ok);}
+  .dot-belum{background:var(--err);}
   .count-badge{
-    margin-left:auto;
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.74rem;
-    font-weight:700;
-    padding:2px 8px;
-    border-radius:999px;
-    background:#F1EEF9;
-    color:var(--ink-soft);
+    margin-left:auto; font-size:12px; font-weight:600; padding:1px 9px; border-radius:999px;
+    background:rgba(120,120,128,0.14); color:var(--text-dim); font-variant-numeric:tabular-nums;
   }
-  .siswa-list{
-    list-style:none;
-    margin:0;
-    padding:0;
-    max-height:420px;
-    overflow-y:auto;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
+  .siswa-list{list-style:none; margin:0; padding:0; max-height:420px; overflow-y:auto; display:flex; flex-direction:column; gap:6px;}
   .siswa-item{
-    display:flex;
-    align-items:center;
-    flex-wrap:wrap;
-    gap:4px 10px;
-    padding:8px 10px;
-    border-radius:6px;
-    background:#fbf8f0;
-    border:1px solid var(--paper-line);
-    font-size:0.82rem;
+    display:flex; align-items:center; flex-wrap:wrap; gap:4px 10px;
+    padding:8px 11px; border-radius:8px; font-size:13.5px;
+    background:rgba(120,120,128,0.06);
+    transition:background .15s;
   }
-  .siswa-nama{font-weight:600; color:var(--ink);}
-  .siswa-mapel{color:var(--ink-soft);}
-  .siswa-nr{
-    margin-left:auto;
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.76rem;
-    color:var(--ink-soft);
+  .siswa-item:hover{background:rgba(0,122,255,0.08);}
+  .siswa-nama{font-weight:600;}
+  .siswa-mapel{color:var(--text-dim);}
+  .siswa-nr{margin-left:auto; font-size:12.5px; color:var(--text-dim); font-variant-numeric:tabular-nums;}
+  .siswa-empty{text-align:center; color:var(--text-dim); font-size:13.5px; padding:22px 10px;}
+
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
   }
-  .siswa-empty{
-    text-align:center;
-    color:var(--ink-soft);
-    font-size:0.82rem;
-    padding:20px 10px;
+  .footer-btn{
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600;
+    flex:1 1 0; min-width:0; max-width:160px; padding:0 4px;
+    cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-btn span.lbl{max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0; flex-shrink:0;}
+  .footer-btn:hover:not(:disabled){background:rgba(255,255,255,0.16);}
+  .footer-btn:disabled{opacity:0.5; cursor:not-allowed;}
+  .footer-btn .mac-icon{position:relative; width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover:not(:disabled) .mac-icon{transform:scale(1.08);}
+  .footer-btn:active:not(:disabled) .mac-icon{transform:scale(0.95);}
+  .footer-btn.is-active .mac-icon::after{
+    content:""; position:absolute; top:-3px; right:-3px;
+    width:10px; height:10px; border-radius:50%;
+    background:#FFD60A; border:2px solid var(--turquoise);
+  }
+
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.purple{--c1:#B38CFF; --c2:#7B5EEA;}
+  .mac-icon.red   {--c1:#FF7A70; --c2:#FF3B30;}
+  .mac-icon.gray  {--c1:#A9A9B0; --c2:#76767D;}
+
+  /* ---------- Modal Filter ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:420px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .modal select{width:100%;}
+  .modal-actions{
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:6px; padding-top:18px; border-top:1px solid var(--hairline);
+  }
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  }
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
+
+  @media (max-width:560px){
+    .window-body{padding:20px 16px 24px;}
+    .navbar-hint{max-width:55vw;}
+    .modal-buttons{flex-direction:column-reverse;}
+    .footer-btn{font-size:0.68rem;}
+    .footer-btn .mac-icon{width:30px; height:30px;}
+    .footer-btn .mac-icon svg{width:18px; height:18px;}
   }
 </style>
 </head>
 <body>
 
 <header class="navbar">
-  <div class="nav-left">
-    <div class="school-logo" id="schoolLogo">SMA</div>
-  </div>
-  <div class="nav-right">
-    <div class="nav-schoolinfo">
-      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
-      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
-    </div>
-    <div class="admin-account">
-      <span class="avatar">AD</span>
-      <span class="admin-name">Admin</span>
-    </div>
-  </div>
+  <span class="navbar-brand"><span class="brand-icon" id="schoolLogo">S</span>SCORIA</span>
+  <span class="navbar-hint" id="navHint">Rekap Nilai Rombel</span>
 </header>
 
 <main>
-  <div class="page-heading-row">
-    <h1 class="page-heading">Rekap Nilai Rombel</h1>
-    <a href="admin.html" class="btn btn-ghost btn-dashboard">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-      Dashboard
-    </a>
-  </div>
-  <p class="page-sub">Rekap nilai seluruh siswa dari semua mata pelajaran, dapat dilihat per rombongan belajar (kelas) maupun sebagai daftar lengkap seluruh siswa.</p>
-
-  <!-- ================= KONTAINER 1: NILAI PER KELAS ================= -->
-  <div class="panel panel-kelas">
-    <div class="panel-head">
-      <div>
-        <h3>Nilai per Kelas</h3>
-        <p class="panel-desc">Pilih kelas untuk melihat rekap nilai seluruh siswa di kelas tersebut.</p>
-      </div>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Rekap Nilai Rombel</div>
     </div>
+    <div class="window-body">
+      <h1 class="page-title">Rekap Nilai Rombel</h1>
+      <p class="page-sub">Rekap nilai seluruh siswa dari semua mata pelajaran, dapat dilihat per rombongan belajar (kelas) maupun sebagai daftar lengkap seluruh siswa.</p>
 
-    <div class="nilai-toolbar">
-      <div class="nilai-toolbar-group">
-        <select id="kelasPilih" class="panel-select">
-          <option value="">Pilih Kelas...</option>
-        </select>
-        <select id="mapelPilihKelas" class="panel-select" disabled>
-          <option value="">Semua Mata Pelajaran</option>
-        </select>
-      </div>
-      <div class="nilai-toolbar-group nilai-toolbar-group-end">
-        <button type="button" class="btn-export-rekap" id="btnExportKelas" disabled title="Export nilai kelas terpilih ke PDF">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M12 11v6"/><path d="M9.5 14.5 12 17l2.5-2.5"/></svg>
-          Export PDF
-        </button>
-      </div>
-    </div>
+      <!-- ================= BAGIAN 1: NILAI PER KELAS ================= -->
+      <section class="section">
+        <div class="section-head">
+          <h2>Nilai per Kelas</h2>
+          <p>Gunakan menu Kelas dan Mapel di bagian bawah untuk memfilter rekap nilai.</p>
+        </div>
 
-    <div class="kelas-summary" id="kelasSummary" style="display:none;"></div>
+        <div class="chips" id="activeChips"></div>
 
-    <p class="scroll-hint">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 6 15 12 9 18"/></svg>
-      Geser tabel ke samping untuk melihat kolom lainnya
-    </p>
+        <div class="kelas-summary" id="kelasSummary" style="display:none;"></div>
 
-    <div class="table-wrap">
-      <table class="preview-table" id="tableNilaiKelas">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nama Siswa</th>
-            <th>NISN</th>
-            <th>Kelas</th>
-            <th>Semester</th>
-            <th>Tahun Pelajaran</th>
-            <th>Mata Pelajaran</th>
-            <th>KKTP/KKM</th>
-            <th>Jumlah UH</th>
-            <th>UH 1</th>
-            <th>UH 2</th>
-            <th>UH 3</th>
-            <th>UH 4</th>
-            <th>UH 5</th>
-            <th>UH 6</th>
-            <th>NH</th>
-            <th>UTS</th>
-            <th>UAS</th>
-            <th>NR</th>
-            <th>Keterangan</th>
-          </tr>
-        </thead>
-        <tbody id="tableNilaiKelasBody">
-          <tr class="empty-row"><td colspan="20">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+        <p class="scroll-hint">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg>
+          Geser tabel ke samping untuk melihat kolom lainnya
+        </p>
 
-  <!-- ================= KONTAINER 2: PREVIEW TUNTAS / BELUM TUNTAS PER KELAS ================= -->
-  <div class="panel panel-semua">
-    <div class="panel-head">
-      <div>
-        <h3>Preview Tuntas &amp; Belum Tuntas per Kelas</h3>
-        <p class="panel-desc">Pilih tab kelas untuk melihat siswa yang sudah tuntas dan yang belum tuntas KKTP/KKM.</p>
-      </div>
-    </div>
+        <div class="table-wrap">
+          <table class="preview-table" id="tableNilaiKelas">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nama Siswa</th>
+                <th>NISN</th>
+                <th>Kelas</th>
+                <th>Semester</th>
+                <th>Tahun Pelajaran</th>
+                <th>Mata Pelajaran</th>
+                <th>KKTP/KKM</th>
+                <th>Jumlah UH</th>
+                <th>UH 1</th>
+                <th>UH 2</th>
+                <th>UH 3</th>
+                <th>UH 4</th>
+                <th>UH 5</th>
+                <th>UH 6</th>
+                <th>NH</th>
+                <th>UTS</th>
+                <th>UAS</th>
+                <th>NR</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="tableNilaiKelasBody">
+              <tr class="empty-row"><td colspan="20">Memuat data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-    <div class="kelas-tabs" id="kelasTabs">
-      <p class="tabs-empty">Memuat daftar kelas...</p>
-    </div>
+      <!-- ================= BAGIAN 2: PREVIEW TUNTAS / BELUM TUNTAS ================= -->
+      <section class="section">
+        <div class="section-head">
+          <h2>Preview Tuntas &amp; Belum Tuntas per Kelas</h2>
+          <p>Pilih tab kelas untuk melihat siswa yang sudah tuntas dan yang belum tuntas KKTP/KKM.</p>
+        </div>
 
-    <div class="preview-summary" id="previewSummary"></div>
+        <div class="kelas-tabs" id="kelasTabs">
+          <p class="tabs-empty">Memuat daftar kelas...</p>
+        </div>
 
-    <div class="preview-columns">
-      <div class="preview-col preview-col-tuntas">
-        <h4><span class="dot-status dot-tuntas"></span>Tuntas <span class="count-badge" id="countTuntas">0</span></h4>
-        <ul class="siswa-list" id="listTuntas">
-          <li class="siswa-empty">Memuat data...</li>
-        </ul>
-      </div>
-      <div class="preview-col preview-col-belum">
-        <h4><span class="dot-status dot-belum"></span>Belum Tuntas <span class="count-badge" id="countBelum">0</span></h4>
-        <ul class="siswa-list" id="listBelum">
-          <li class="siswa-empty">Memuat data...</li>
-        </ul>
-      </div>
+        <div class="preview-summary" id="previewSummary"></div>
+
+        <div class="preview-columns">
+          <div class="preview-col preview-col-tuntas">
+            <h4><span class="dot-status dot-tuntas"></span>Tuntas <span class="count-badge" id="countTuntas">0</span></h4>
+            <ul class="siswa-list" id="listTuntas">
+              <li class="siswa-empty">Memuat data...</li>
+            </ul>
+          </div>
+          <div class="preview-col preview-col-belum">
+            <h4><span class="dot-status dot-belum"></span>Belum Tuntas <span class="count-badge" id="countBelum">0</span></h4>
+            <ul class="siswa-list" id="listBelum">
+              <li class="siswa-empty">Memuat data...</li>
+            </ul>
+          </div>
+        </div>
+      </section>
     </div>
   </div>
 </main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnFilterKelas">
+    <span class="mac-icon purple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16l-6 7.5V19l-4 2v-8.5z"/></svg></span>
+    <span class="lbl">Kelas</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnFilterMapel">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M8 7h8M8 11h5"/></svg></span>
+    <span class="lbl">Mapel</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnExportKelas" disabled title="Export nilai yang sedang tampil ke PDF">
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+    <span class="lbl">Export PDF</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="resetBtn">
+    <span class="mac-icon gray"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9"/><path d="M20 4v5h-5"/></svg></span>
+    <span class="lbl">Reset</span>
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    <span class="lbl">Dashboard</span>
+  </a>
+</div>
+
+<!-- Modal Filter Kelas -->
+<div class="modal-backdrop" id="modalKelas">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="kelasHeading">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" data-close="modalKelas" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Filter Kelas</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="kelasHeading">Pilih Kelas</h2>
+      <p class="modal-sub">Tampilkan rekap nilai dari satu kelas saja.</p>
+      <div class="field">
+        <label for="kelasPilih">Kelas</label>
+        <select id="kelasPilih">
+          <option value="">Semua Kelas</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <div class="modal-buttons">
+          <button type="button" class="btn-mac" id="btnApplyKelas">Terapkan</button>
+          <button type="button" class="btn-mac" data-close="modalKelas">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Filter Mata Pelajaran -->
+<div class="modal-backdrop" id="modalMapel">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="mapelHeading">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" data-close="modalMapel" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Filter Mapel</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="mapelHeading">Pilih Mata Pelajaran</h2>
+      <p class="modal-sub">Daftar mata pelajaran mengikuti kelas yang sedang dipilih.</p>
+      <div class="field">
+        <label for="mapelPilihKelas">Mata Pelajaran</label>
+        <select id="mapelPilihKelas" disabled>
+          <option value="">Semua Mata Pelajaran</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <div class="modal-buttons">
+          <button type="button" class="btn-mac" id="btnApplyMapel">Terapkan</button>
+          <button type="button" class="btn-mac" data-close="modalMapel">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
   // ================= Konfigurasi Supabase =================
@@ -733,24 +601,18 @@
       const profil = rows && rows[0];
       if(!profil) return;
       profilSekolahCache = profil;
-      if(profil.nama_sekolah) document.getElementById('schoolName').textContent = profil.nama_sekolah;
 
       profilAktif.semester = (profil.semester || '').trim();
       profilAktif.tahun_pelajaran = (profil.tahun_pelajaran || '').trim();
 
-      const termBadgeText = document.getElementById('termBadgeText');
-      if(termBadgeText){
-        if(profilAktif.semester || profilAktif.tahun_pelajaran){
-          termBadgeText.textContent = [profilAktif.semester ? 'Semester ' + profilAktif.semester : '', profilAktif.tahun_pelajaran].filter(Boolean).join(' • ');
-        } else {
-          const termBadge = document.getElementById('termBadge');
-          if(termBadge) termBadge.style.display = 'none';
-        }
-      }
+      const term = [profilAktif.semester ? 'Semester ' + profilAktif.semester : '', profilAktif.tahun_pelajaran].filter(Boolean).join(' • ');
+      const hint = [profil.nama_sekolah || '', term].filter(Boolean).join(' · ');
+      document.getElementById('navHint').textContent = hint || 'Rekap Nilai Rombel';
 
       if(profil.logo){
         const logoEl = document.getElementById('schoolLogo');
         logoEl.innerHTML = '';
+        logoEl.classList.add('has-logo');
         const img = document.createElement('img');
         img.src = profil.logo;
         img.alt = 'Logo Sekolah';
@@ -979,12 +841,12 @@
   let lastFilteredRowsKelas = [];
 
   async function loadDaftarKelas(){
-    kelasPilihEl.innerHTML = '<option value="">Pilih Kelas...</option>';
+    kelasPilihEl.innerHTML = '<option value="">Semua Kelas</option>';
     try{
       const res = await fetch(`${SUPABASE_URL}/${TABLE_ROMBEL}?select=id,nama_rombel&order=nama_rombel.asc`, { headers: sbHeaders() });
       if(!res.ok) throw new Error('Status ' + res.status);
       const rows = await res.json();
-      kelasPilihEl.innerHTML = '<option value="">Pilih Kelas...</option>' +
+      kelasPilihEl.innerHTML = '<option value="">Semua Kelas</option>' +
         rows.map(r => `<option value="${escapeHtml(r.nama_rombel)}">${escapeHtml(r.nama_rombel)}</option>`).join('');
       daftarKelasNames = rows.map(r => String(r.nama_rombel ?? '')).filter(Boolean);
     }catch(err){
@@ -1026,6 +888,7 @@
   }
 
   function renderTabelKelas(){
+    renderChipsFilter();
     let rows = selectedKelasUtama
       ? semuaNilaiRows.filter(r => String(r.kelas ?? '') === selectedKelasUtama)
       : semuaNilaiRows.slice();
@@ -1045,16 +908,6 @@
     tableNilaiKelasBody.innerHTML = renderBarisNilai(rows);
   }
 
-  kelasPilihEl.addEventListener('change', (e) => {
-    selectedKelasUtama = e.target.value;
-    selectedMapelKelas = '';
-    populateMapelKelasOptions();
-    renderTabelKelas();
-  });
-  mapelPilihKelasEl.addEventListener('change', (e) => {
-    selectedMapelKelas = e.target.value;
-    renderTabelKelas();
-  });
 
   // ================= KONTAINER 2: PREVIEW TUNTAS / BELUM TUNTAS PER KELAS =================
   let daftarKelasNames = [];
@@ -1154,7 +1007,11 @@
     }
 
     const originalHtml = btnEl ? btnEl.innerHTML : '';
-    if(btnEl){ btnEl.disabled = true; btnEl.textContent = 'Menyiapkan PDF...'; }
+    if(btnEl){
+      btnEl.disabled = true;
+      const lbl = btnEl.querySelector('.lbl');
+      if(lbl) lbl.textContent = 'Menyiapkan...'; else btnEl.textContent = 'Menyiapkan PDF...';
+    }
 
     try{
       const profil = profilSekolahCache || {};
@@ -1254,7 +1111,7 @@
         margin: { left: marginX, right: marginX },
         tableWidth: pageWidth - marginX * 2,
         styles: { fontSize: 7.6, cellPadding: 1.8, valign: 'middle', overflow: 'linebreak' },
-        headStyles: { fillColor: [61, 107, 253], textColor: 255, fontStyle: 'bold', fontSize: 7.6 },
+        headStyles: { fillColor: [0, 122, 255], textColor: 255, fontStyle: 'bold', fontSize: 7.6 },
         columnStyles: {
           0: { cellWidth: 8, halign: 'center' },
           ...numericCols
@@ -1318,6 +1175,95 @@
       btnExportKelas
     );
   });
+
+  // ================= Filter lewat footer (modal) =================
+  const toastEl = document.getElementById('toast');
+  let toastTimer = null;
+  function showToast(text){
+    toastEl.textContent = text;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 2400);
+  }
+
+  function openModal(id){ document.getElementById(id).classList.add('open'); }
+  function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+  document.querySelectorAll('[data-close]').forEach(btn => {
+    btn.addEventListener('click', () => closeModal(btn.getAttribute('data-close')));
+  });
+  document.querySelectorAll('.modal-backdrop').forEach(bd => {
+    bd.addEventListener('click', (e) => { if(e.target === bd) closeModal(bd.id); });
+  });
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape') document.querySelectorAll('.modal-backdrop.open').forEach(bd => closeModal(bd.id));
+  });
+
+  const btnFilterKelas = document.getElementById('btnFilterKelas');
+  const btnFilterMapel = document.getElementById('btnFilterMapel');
+  const activeChipsEl = document.getElementById('activeChips');
+
+  function renderChipsFilter(){
+    const chips = [];
+    if(selectedKelasUtama) chips.push({ key: 'kelas', text: 'Kelas: ' + selectedKelasUtama });
+    if(selectedMapelKelas) chips.push({ key: 'mapel', text: 'Mapel: ' + selectedMapelKelas });
+    activeChipsEl.innerHTML = chips.map(c =>
+      `<span class="chip-filter"><span title="${escapeHtml(c.text)}">${escapeHtml(c.text)}</span><button type="button" data-chip="${c.key}" aria-label="Hapus filter ${c.key}">×</button></span>`
+    ).join('');
+    btnFilterKelas.classList.toggle('is-active', !!selectedKelasUtama);
+    btnFilterMapel.classList.toggle('is-active', !!selectedMapelKelas);
+  }
+
+  activeChipsEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-chip]');
+    if(!btn) return;
+    if(btn.dataset.chip === 'kelas'){
+      selectedKelasUtama = '';
+      selectedMapelKelas = '';
+      kelasPilihEl.value = '';
+    }else{
+      selectedMapelKelas = '';
+    }
+    populateMapelKelasOptions();
+    renderTabelKelas();
+  });
+
+  btnFilterKelas.addEventListener('click', () => {
+    kelasPilihEl.value = selectedKelasUtama;
+    openModal('modalKelas');
+    setTimeout(() => kelasPilihEl.focus(), 150);
+  });
+  document.getElementById('btnApplyKelas').addEventListener('click', () => {
+    selectedKelasUtama = kelasPilihEl.value;
+    selectedMapelKelas = '';
+    populateMapelKelasOptions();
+    renderTabelKelas();
+    closeModal('modalKelas');
+    showToast(selectedKelasUtama ? 'Filter kelas: ' + selectedKelasUtama : 'Menampilkan semua kelas.');
+  });
+
+  btnFilterMapel.addEventListener('click', () => {
+    populateMapelKelasOptions();
+    openModal('modalMapel');
+    setTimeout(() => mapelPilihKelasEl.focus(), 150);
+  });
+  document.getElementById('btnApplyMapel').addEventListener('click', () => {
+    selectedMapelKelas = mapelPilihKelasEl.value;
+    renderTabelKelas();
+    closeModal('modalMapel');
+    showToast(selectedMapelKelas ? 'Filter mapel: ' + selectedMapelKelas : 'Menampilkan semua mata pelajaran.');
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    selectedKelasUtama = '';
+    selectedMapelKelas = '';
+    kelasPilihEl.value = '';
+    populateMapelKelasOptions();
+    renderTabelKelas();
+    showToast('Filter direset.');
+  });
+
+  renderChipsFilter();
+
   // ================= Inisialisasi =================
   async function muatSemuaData(){
     listTuntasEl.innerHTML = '<li class="siswa-empty">Memuat data...</li>';
