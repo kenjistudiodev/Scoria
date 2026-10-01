@@ -4,365 +4,463 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Data Siswa — SCORIA</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
   :root{
-    --ink:#3B2E63;
-    --ink-soft:#7A7191;
-    --paper:#FFFAF0;
-    --paper-deep:#FFEFD6;
-    --paper-line:#F5DDAE;
-    --brand:#6C4FE0;
-    --gold:#FFC93C;
-    --brick:#D6336C;
-    --green:#1A8754;
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
     --turquoise:#0F766E;
-    --purple:#7B5EEA;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
   }
-
   *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
   body{
     margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Inter',sans-serif;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
     -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 24px);
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
   }
-  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
 
-  /* ---------- Navbar ---------- */
+  /* ---------- Menu bar ---------- */
   .navbar{
     position:sticky; top:0; z-index:20;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:var(--brand);
-    color:#FFFFFF;
-    padding:14px clamp(16px,4vw,40px);
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
   }
-  .navbar-title{
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.82rem;
-    letter-spacing:0.02em;
-    color:rgba(255,255,255,0.75);
+  .navbar-brand{display:flex; align-items:center; gap:8px; font-weight:700; color:var(--text);}
+  .brand-icon{
+    width:18px; height:18px; border-radius:5px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .navbar-hint{color:var(--text-dim); font-weight:500;}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 28px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 20px;}
+
+  /* ---------- Tab kelas (segmented control) ---------- */
+  .tabs-wrap{
+    overflow-x:auto; margin-bottom:16px; padding:2px 0 4px;
+    scrollbar-width:thin;
+  }
+  .segmented{
+    display:inline-flex; gap:2px; padding:2px;
+    min-width:min-content;
+    background:rgba(120,120,128,0.12);
+    border-radius:10px;
+  }
+  .seg-tab{
+    display:inline-flex; align-items:center; gap:7px;
+    border:none; background:none;
+    font-family:inherit; font-size:13px; font-weight:500; color:var(--text);
+    padding:6px 14px; border-radius:8px;
+    cursor:pointer; white-space:nowrap;
+    transition:background .15s ease;
+  }
+  .seg-tab:hover:not(.active){background:rgba(0,0,0,0.05);}
+  .seg-tab.active{
+    background:#fff; font-weight:600;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.18), 0 3px 8px rgba(0,0,0,0.08);
+  }
+  .seg-count{
+    font-size:11px; font-weight:600; color:var(--text-dim);
+    background:rgba(0,0,0,0.06); border-radius:999px; padding:1px 7px;
+  }
+  .seg-tab.active .seg-count{background:rgba(0,122,255,0.12); color:var(--mac-blue);}
+
+  .table-header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .table-header h2{margin:0; font-size:15px; font-weight:600;}
+  .table-count{font-size:12px; color:var(--text-dim); white-space:nowrap;}
+  .page-msg{font-size:13px; margin:0 0 10px; line-height:1.45;}
+  .page-msg:empty{display:none;}
+  .page-msg.ok{color:var(--ok);}
+  .page-msg.err{color:var(--err);}
+
+  /* ---------- Tabel ala Finder ---------- */
+  .table-wrap{
+    overflow-x:auto; background:#fff;
+    border:1px solid var(--field-border); border-radius:10px;
+  }
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  thead th{
+    text-align:left; font-size:12px; font-weight:600; color:var(--text-dim);
+    padding:9px 14px; background:rgba(120,120,128,0.06);
+    border-bottom:1px solid var(--hairline); white-space:nowrap;
+  }
+  tbody td{padding:11px 14px; border-bottom:1px solid var(--hairline); vertical-align:middle; white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:rgba(0,122,255,0.025);}
+  tbody tr:hover{background:rgba(0,122,255,0.08);}
+  td.id-col{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:var(--text-dim);}
+  td.wrap-col{white-space:normal; max-width:220px;}
+  .row-actions{display:flex; gap:6px; justify-content:flex-end;}
+  .icon-btn{
+    font-family:inherit; font-size:12.5px; font-weight:500;
+    padding:4px 11px; border-radius:6px; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border);
+    color:var(--text);
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .icon-btn.edit:hover{background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .icon-btn.delete:hover{background:var(--err); border-color:var(--err); color:#fff;}
+  .empty-state{text-align:center; color:var(--text-dim); font-size:13.5px; padding:30px 12px; margin:0;}
+
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
+  }
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac:disabled{
+    background:#e6e6ea; border-color:var(--field-border); color:#a1a1a6;
+    box-shadow:none; cursor:not-allowed;
   }
 
-  /* ---------- Main ---------- */
-  main{
-    max-width:960px;
-    margin:0 auto;
-    padding:32px clamp(16px,4vw,40px) 60px;
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
   }
-  .page-heading{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:clamp(1.4rem,2.6vw,1.85rem);
-    margin:0 0 4px;
-  }
-  .page-sub{
-    font-size:0.92rem;
-    color:var(--ink-soft);
-    margin:0 0 28px;
-  }
-
-  .card{
-    background:#fffdf7;
-    border:1px solid var(--paper-line);
-    border-radius:8px;
-    padding:24px clamp(18px,3vw,28px);
-    margin-bottom:24px;
-  }
-  .card h2{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:1.15rem;
-    margin:0 0 18px;
-  }
-
-  form{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:16px 18px;
-  }
-  .field{display:flex; flex-direction:column; gap:6px;}
-  .field.full{grid-column:1 / -1;}
-  label{
-    font-size:0.82rem;
-    font-weight:500;
-    color:var(--ink-soft);
-  }
-  .label-hint{
-    font-weight:400;
-    color:var(--ink-soft);
-    opacity:0.75;
-    font-size:0.78rem;
-  }
-  input, select, textarea{
-    font-family:inherit;
-    font-size:0.95rem;
-    padding:10px 12px;
-    border:1px solid var(--paper-line);
-    border-radius:5px;
-    background:#fbf8f0;
-    color:var(--ink);
-    width:100%;
-  }
-  textarea{resize:vertical; min-height:64px;}
-  input:focus, select:focus, textarea:focus{border-color:var(--brick);}
-  input:disabled{background:var(--paper-deep); color:var(--ink-soft); cursor:not-allowed;}
-  select{appearance:none; cursor:pointer;
-    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237A7191' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
-    background-repeat:no-repeat;
-    background-position:right 10px center;
-    padding-right:32px;
-  }
-
-  .id-row{display:flex; gap:8px;}
-  .id-row input{flex:1;}
-  .btn-regen{padding:10px 14px; font-size:0.8rem; white-space:nowrap; flex-shrink:0;}
-
-  .form-actions{
-    grid-column:1 / -1;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-    margin-top:4px;
-  }
-  .form-buttons{display:flex; gap:12px;}
-  .form-buttons > *{flex:1; text-align:center; justify-content:center;}
-
-  .btn-primary{
-    background:var(--gold);
-    color:#2E2308;
-    border:none;
-    border-radius:5px;
-    padding:11px 24px;
-    font-size:0.92rem;
-    font-weight:600;
-    cursor:pointer;
+  .footer-btn{
+    flex:1 1 0; max-width:170px; min-width:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; padding:0 2px;
+    background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600; line-height:1.15; text-align:center;
+    cursor:pointer; text-decoration:none;
     transition:background 0.15s ease;
   }
-  .btn-primary:hover{background:#F0B62E;}
-  .btn-primary:disabled{background:#e8dfc4; color:#9a916f; cursor:not-allowed;}
-  .btn-ghost{
-    background:none;
-    border:1px solid var(--paper-line);
-    color:var(--ink-soft);
-    border-radius:5px;
-    padding:10px 18px;
-    font-size:0.88rem;
-    font-weight:500;
-    cursor:pointer;
-    transition:border-color 0.15s ease, color 0.15s ease;
-  }
-  .btn-ghost:hover{border-color:var(--ink); color:var(--ink);}
-  .btn-ghost.btn-export:hover{border-color:var(--turquoise); color:var(--turquoise);}
-  .btn-ghost.btn-import:hover{border-color:var(--purple); color:var(--purple);}
-  a.btn-ghost{display:inline-flex; align-items:center; gap:6px; text-decoration:none;}
-  .btn-ghost{display:inline-flex; align-items:center; gap:6px; justify-content:center;}
-  .form-msg{font-size:0.85rem;}
-  .form-msg.ok{color:var(--green);}
-  .form-msg.err{color:var(--brick);}
+  .footer-btn:hover:not(:disabled){background:rgba(255,255,255,0.16);}
+  .footer-btn:disabled{opacity:0.6; cursor:wait;}
+  .footer-btn:focus-visible{outline-color:#fff; outline-offset:-3px;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover:not(:disabled) .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
 
-  /* ---------- Table ---------- */
-  .table-header{
-    display:flex;
-    align-items:baseline;
-    justify-content:space-between;
-    margin-bottom:14px;
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
   }
-  .table-header h2{margin:0;}
-  .table-count{
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.78rem;
-    color:var(--ink-soft);
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
   }
-  .table-wrap{overflow-x:auto;}
-  table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:0.9rem;
-  }
-  thead th{
-    text-align:left;
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.7rem;
-    letter-spacing:0.02em;
-    color:var(--ink-soft);
-    font-weight:700;
-    padding:0 10px 10px;
-    border-bottom:1px solid var(--paper-line);
-    white-space:nowrap;
-  }
-  tbody td{
-    padding:12px 10px;
-    border-bottom:1px solid var(--paper-line);
-    vertical-align:middle;
-    white-space:nowrap;
-  }
-  tbody tr:last-child td{border-bottom:none;}
-  td.id-col{
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.82rem;
-    color:var(--brick);
-  }
-  td.wrap-col{white-space:normal; max-width:220px;}
-  .kelas-badge{
-    display:inline-block;
-    background:var(--paper-deep);
-    border:1px solid var(--paper-line);
-    color:var(--ink);
-    border-radius:999px;
-    padding:3px 10px;
-    font-size:0.78rem;
-    font-weight:500;
-  }
-  .row-actions{display:flex; gap:8px; justify-content:flex-end;}
-  .icon-btn{
-    background:none;
-    border:1px solid var(--paper-line);
-    border-radius:5px;
-    padding:6px 10px;
-    font-size:0.8rem;
-    font-weight:500;
-    cursor:pointer;
-    color:var(--ink-soft);
-    transition:border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
-  }
-  .icon-btn.edit:hover{border-color:var(--purple); color:var(--purple);}
-  .icon-btn.delete:hover{border-color:var(--brick); color:var(--brick); background:#FFE3EE;}
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
 
-  .empty-state{
-    text-align:center;
-    color:var(--ink-soft);
-    font-size:0.9rem;
-    padding:30px 0;
+  /* ---------- Modal Tambah / Ubah Siswa ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
   }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:640px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
 
-  /* ---------- Flatpickr theme tweaks ---------- */
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 18px;}
+  .field{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .field.full{grid-column:1 / -1;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .label-hint{font-weight:400; opacity:0.8;}
+  input, select, textarea{
+    font-family:inherit; font-size:14px;
+    padding:9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{resize:vertical; min-height:70px;}
+  input:focus, select:focus, textarea:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  input:disabled{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
+  select{
+    appearance:none; -webkit-appearance:none; cursor:pointer; padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .id-row{display:flex; gap:8px;}
+  .id-row input{flex:1; min-width:0;}
+  .btn-regen{padding:8px 14px; font-size:13px; white-space:nowrap; flex-shrink:0;}
+
+  .modal-actions{
+    grid-column:1 / -1;
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:2px; padding-top:18px; border-top:1px solid var(--hairline);
+  }
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+  .form-msg{font-size:13px;}
+  .form-msg.ok{color:var(--ok);}
+  .form-msg.err{color:var(--err);}
+
+  /* ---------- Flatpickr ala macOS ---------- */
   .flatpickr-calendar{
-    font-family:'Inter',sans-serif;
-    border-radius:8px;
-    box-shadow:0 12px 28px rgba(59,46,99,0.18);
+    font-family:var(--font);
+    border-radius:12px;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.12), 0 14px 36px rgba(30,40,80,0.28);
   }
-  .flatpickr-day.selected, .flatpickr-day.selected:hover{
-    background:var(--brick);
-    border-color:var(--brick);
+  .flatpickr-day.selected, .flatpickr-day.selected:hover{background:var(--mac-blue); border-color:var(--mac-blue);}
+  .flatpickr-day.today{border-color:var(--mac-blue);}
+  .flatpickr-day.today:hover{background:var(--mac-blue); color:#fff;}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px; max-width:92vw; text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
   }
-  .flatpickr-day.today{border-color:var(--gold);}
-  .flatpickr-months .flatpickr-month, .flatpickr-current-month .flatpickr-monthDropdown-months{
-    color:var(--ink);
-  }
-  .flatpickr-months .flatpickr-prev-month, .flatpickr-months .flatpickr-next-month{color:var(--ink-soft);}
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
 
   @media (max-width:560px){
-    form{grid-template-columns:1fr;}
+    main{padding-left:8px; padding-right:8px;}
+    .window-body{padding:20px 14px 22px;}
+    .navbar-hint{display:none;}
     .row-actions{flex-direction:column; align-items:flex-end;}
-    .form-buttons{flex-wrap:wrap;}
-    .form-buttons > *{flex:1 1 45%;}
+    .form-grid{grid-template-columns:1fr;}
+    .modal-buttons{flex-direction:column-reverse;}
+    .footer-btn{font-size:0.66rem;}
+    .footer-btn .mac-icon{width:30px; height:30px; border-radius:7px;}
+    .footer-btn .mac-icon svg{width:18px; height:18px;}
+    .footer-divider{margin:18px 0;}
   }
 </style>
 </head>
 <body>
 
 <header class="navbar">
-  <span class="navbar-title">DATA SISWA</span>
+  <span class="navbar-brand"><span class="brand-icon">S</span>SCORIA</span>
+  <span class="navbar-hint">Data Siswa</span>
 </header>
 
 <main>
-  <h1 class="page-heading">Data Siswa</h1>
-  <p class="page-sub">Tambah, ubah, atau hapus data siswa yang terdaftar di SCORIA.</p>
-
-  <div class="card">
-    <h2 id="formHeading">Tambah Siswa Baru</h2>
-    <form id="siswaForm">
-      <div class="field">
-        <label for="siswaId">ID <span class="label-hint">(otomatis)</span></label>
-        <div class="id-row">
-          <input type="text" id="siswaId" required autocomplete="off" disabled>
-          <button type="button" class="btn-ghost btn-regen" id="btnRegenId">Acak Ulang</button>
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="namaSiswa">Nama Siswa</label>
-        <input type="text" id="namaSiswa" required autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="nisn">NISN</label>
-        <input type="text" id="nisn" required autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="kelas">Kelas</label>
-        <select id="kelas" required>
-          <option value="">Memuat data kelas...</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label for="tempatLahir">Tempat Lahir</label>
-        <input type="text" id="tempatLahir" required autocomplete="off">
-      </div>
-
-      <div class="field">
-        <label for="tanggalLahir">Tanggal Lahir</label>
-        <input type="text" id="tanggalLahir" placeholder="Pilih tanggal" required autocomplete="off">
-      </div>
-
-      <div class="field full">
-        <label for="alamat">Alamat</label>
-        <textarea id="alamat"></textarea>
-      </div>
-
-      <div class="form-actions">
-        <div class="form-buttons">
-          <button type="submit" class="btn-primary" id="btnSubmit">Simpan</button>
-          <button type="button" class="btn-ghost btn-export" id="btnExportTemplate">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></svg>
-            Export Template (Excel)
-          </button>
-          <button type="button" class="btn-ghost btn-import" id="btnImportData">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21V9M7 14l5-5 5 5M4 3h16"/></svg>
-            Import Data (Excel)
-          </button>
-          <input type="file" id="importFileInput" accept=".xlsx,.xls" hidden>
-          <a href="admin.html" class="btn-ghost">Dashboard</a>
-          <button type="button" class="btn-ghost" id="btnCancelEdit" hidden>Batal Ubah</button>
-        </div>
-        <span class="form-msg" id="formMsg"></span>
-      </div>
-    </form>
-  </div>
-
-  <div class="card">
-    <div class="table-header">
-      <h2>Daftar Siswa</h2>
-      <span class="table-count" id="tableCount">0 siswa</span>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Data Siswa</div>
     </div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nama Siswa</th>
-            <th>NISN</th>
-            <th>Kelas</th>
-            <th>Tempat, Tgl Lahir</th>
-            <th>Alamat</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="siswaBody"></tbody>
-      </table>
+    <div class="window-body">
+      <h1 class="page-title">Data Siswa</h1>
+      <p class="page-sub">Tambah, ubah, atau hapus data siswa yang terdaftar di SCORIA. Pilih tab kelas untuk melihat siswa di kelas tersebut. Gunakan tombol di bagian bawah untuk menambah siswa, export/import template Excel, atau kembali ke Dashboard.</p>
+
+      <p class="page-msg" id="pageMsg"></p>
+
+      <div class="tabs-wrap" id="tabsWrap" hidden>
+        <div class="segmented" id="kelasTabs" role="tablist" aria-label="Daftar kelas"></div>
+      </div>
+
+      <div class="table-header">
+        <h2 id="tableTitle">Daftar Siswa</h2>
+        <span class="table-count" id="tableCount">0 siswa</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nama Siswa</th>
+              <th>NISN</th>
+              <th>Tempat, Tgl Lahir</th>
+              <th>Alamat</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="siswaBody"></tbody>
+        </table>
+        <p class="empty-state" id="emptyState" hidden></p>
+      </div>
     </div>
-    <p class="empty-state" id="emptyState" hidden>Belum ada data siswa. Tambahkan lewat formulir di atas.</p>
   </div>
 </main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnOpenAdd">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-width="2.4"/></svg></span>
+    <span>Tambah Siswa Baru</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnExportTemplate">
+    <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 10.5 12 15l4.5-4.5"/><path d="M5 19.5h14"/></svg></span>
+    <span>Export Template</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnImportData">
+    <span class="mac-icon purple"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V5"/><path d="M7.5 9.5 12 5l4.5 4.5"/><path d="M5 19.5h14"/></svg></span>
+    <span id="importLabel">Import Template</span>
+  </button>
+  <input type="file" id="importFileInput" accept=".xlsx,.xls" hidden>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    <span>Dashboard</span>
+  </a>
+</div>
+
+<!-- Modal Tambah / Ubah Siswa -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="formHeading">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" id="btnCloseModal" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title" id="modalTitle">Siswa Baru</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="formHeading">Tambah Siswa Baru</h2>
+      <p class="modal-sub">Isi data siswa di bawah ini.</p>
+      <form id="siswaForm" class="form-grid">
+        <div class="field">
+          <label for="siswaId">ID <span class="label-hint">(otomatis)</span></label>
+          <div class="id-row">
+            <input type="text" id="siswaId" required autocomplete="off" disabled>
+            <button type="button" class="btn-mac btn-regen" id="btnRegenId">Acak Ulang</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="namaSiswa">Nama Siswa</label>
+          <input type="text" id="namaSiswa" required autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="nisn">NISN</label>
+          <input type="text" id="nisn" required autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="kelas">Kelas</label>
+          <select id="kelas" required>
+            <option value="">Memuat data kelas...</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="tempatLahir">Tempat Lahir</label>
+          <input type="text" id="tempatLahir" required autocomplete="off">
+        </div>
+
+        <div class="field">
+          <label for="tanggalLahir">Tanggal Lahir</label>
+          <input type="text" id="tanggalLahir" placeholder="Pilih tanggal" required autocomplete="off">
+        </div>
+
+        <div class="field full">
+          <label for="alamat">Alamat</label>
+          <textarea id="alamat"></textarea>
+        </div>
+
+        <div class="modal-actions">
+          <div class="modal-buttons">
+            <button type="submit" class="btn-mac" id="btnSubmit">Simpan</button>
+            <button type="button" class="btn-mac" id="btnCancelModal">Batal</button>
+          </div>
+          <span class="form-msg" id="formMsg"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
@@ -388,18 +486,29 @@
   const alamatInput = document.getElementById('alamat');
 
   const formHeading = document.getElementById('formHeading');
+  const modalTitle = document.getElementById('modalTitle');
   const btnSubmit = document.getElementById('btnSubmit');
-  const btnCancelEdit = document.getElementById('btnCancelEdit');
   const btnRegenId = document.getElementById('btnRegenId');
   const btnExportTemplate = document.getElementById('btnExportTemplate');
   const btnImportData = document.getElementById('btnImportData');
+  const importLabel = document.getElementById('importLabel');
   const importFileInput = document.getElementById('importFileInput');
   const formMsg = document.getElementById('formMsg');
+  const pageMsg = document.getElementById('pageMsg');
   const siswaBody = document.getElementById('siswaBody');
   const emptyState = document.getElementById('emptyState');
   const tableCount = document.getElementById('tableCount');
+  const tableTitle = document.getElementById('tableTitle');
+  const tabsWrap = document.getElementById('tabsWrap');
+  const kelasTabs = document.getElementById('kelasTabs');
+  const modalBackdrop = document.getElementById('modalBackdrop');
+  const toast = document.getElementById('toast');
 
   let editingId = null;
+  let allSiswa = [];
+  let rombelNames = [];
+  let activeKelas = null;
+  let toastTimer = null;
 
   const datePicker = flatpickr(tanggalLahirInput, {
     dateFormat: "Y-m-d",
@@ -410,9 +519,41 @@
     allowInput: false
   });
 
+  /* ---------- Modal ---------- */
+  function openModal(){
+    modalBackdrop.classList.add('open');
+    setTimeout(() => namaSiswaInput.focus(), 150);
+  }
+  function closeModal(){
+    modalBackdrop.classList.remove('open');
+    enterAddMode();
+  }
+  document.getElementById('btnCloseModal').addEventListener('click', closeModal);
+  document.getElementById('btnCancelModal').addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape' && modalBackdrop.classList.contains('open')) closeModal();
+  });
+
+  document.getElementById('btnOpenAdd').addEventListener('click', () => {
+    enterAddMode();
+    openModal();
+  });
+
+  /* ---------- Util ---------- */
   function setFormMsg(text, type){
     formMsg.textContent = text || '';
     formMsg.className = 'form-msg' + (type ? ' ' + type : '');
+  }
+  function setPageMsg(text, type){
+    pageMsg.textContent = text || '';
+    pageMsg.className = 'page-msg' + (type ? ' ' + type : '');
+  }
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
   }
 
   function generateSiswaId(){
@@ -434,41 +575,47 @@
   function enterAddMode(){
     editingId = null;
     formHeading.textContent = 'Tambah Siswa Baru';
+    modalTitle.textContent = 'Siswa Baru';
     btnSubmit.textContent = 'Simpan';
-    btnCancelEdit.hidden = true;
     btnRegenId.hidden = false;
     form.reset();
     siswaIdInput.value = generateSiswaId();
     siswaIdInput.disabled = true;
     datePicker.clear();
+    // kelas otomatis mengikuti tab yang sedang aktif
+    kelasSelect.value = activeKelas || '';
+    if(kelasSelect.value !== (activeKelas || '')) kelasSelect.value = '';
     setFormMsg('', '');
   }
 
   function enterEditMode(row){
     editingId = row.id;
     formHeading.textContent = 'Ubah Data Siswa';
+    modalTitle.textContent = 'Ubah Siswa';
     btnSubmit.textContent = 'Simpan Perubahan';
-    btnCancelEdit.hidden = false;
     btnRegenId.hidden = true;
     siswaIdInput.value = row.id;
     siswaIdInput.disabled = true;
     namaSiswaInput.value = row.nama_siswa ?? '';
     nisnInput.value = row.nisn ?? '';
+
+    // pastikan kelas siswa tersedia di pilihan
+    if(row.kelas && !Array.from(kelasSelect.options).some(o => o.value === row.kelas)){
+      const opt = document.createElement('option');
+      opt.value = row.kelas;
+      opt.textContent = row.kelas;
+      kelasSelect.appendChild(opt);
+    }
     kelasSelect.value = row.kelas ?? '';
     tempatLahirInput.value = row.tempat_lahir ?? '';
     datePicker.setDate(row.tanggal_lahir || null, true);
     alamatInput.value = row.alamat ?? '';
     setFormMsg('', '');
-    namaSiswaInput.focus();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    openModal();
   }
 
   btnRegenId.addEventListener('click', () => {
     siswaIdInput.value = generateSiswaId();
-  });
-
-  btnCancelEdit.addEventListener('click', () => {
-    enterAddMode();
   });
 
   function escapeHtml(str){
@@ -493,16 +640,17 @@
       if(!res.ok) throw new Error('Status ' + res.status);
       const rows = await res.json();
 
+      rombelNames = rows.map(r => r.nama_rombel).filter(Boolean);
+
       kelasSelect.innerHTML = '<option value="">Pilih kelas</option>';
-      rows.forEach(r => {
-        if(!r.nama_rombel) return;
+      rombelNames.forEach(nama => {
         const opt = document.createElement('option');
-        opt.value = r.nama_rombel;
-        opt.textContent = r.nama_rombel;
+        opt.value = nama;
+        opt.textContent = nama;
         kelasSelect.appendChild(opt);
       });
 
-      if(rows.length === 0){
+      if(rombelNames.length === 0){
         kelasSelect.innerHTML = '<option value="">Belum ada data rombel</option>';
       }
       if(selectedValue) kelasSelect.value = selectedValue;
@@ -512,11 +660,58 @@
     }
   }
 
-  function renderRows(rows){
+  /* ---------- Tab kelas ---------- */
+  function getKelasList(){
+    const names = [...rombelNames];
+    allSiswa.forEach(s => {
+      if(s.kelas && !names.includes(s.kelas)) names.push(s.kelas);
+    });
+    return names.sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+  }
+
+  function selectKelas(name){
+    activeKelas = name;
+    renderAll();
+  }
+
+  function renderTabs(list){
+    kelasTabs.innerHTML = '';
+    list.forEach(name => {
+      const count = allSiswa.filter(s => s.kelas === name).length;
+      const isActive = name === activeKelas;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'seg-tab' + (isActive ? ' active' : '');
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', String(isActive));
+      btn.tabIndex = isActive ? 0 : -1;
+      btn.dataset.kelas = name;
+      btn.innerHTML = `<span>${escapeHtml(name)}</span><span class="seg-count">${count}</span>`;
+      btn.addEventListener('click', () => selectKelas(name));
+      kelasTabs.appendChild(btn);
+    });
+    const act = kelasTabs.querySelector('.active');
+    if(act) act.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }
+
+  kelasTabs.addEventListener('keydown', (e) => {
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const tabs = Array.from(kelasTabs.querySelectorAll('.seg-tab'));
+    const i = tabs.findIndex(t => t.classList.contains('active'));
+    if(i < 0) return;
+    const next = e.key === 'ArrowRight' ? Math.min(i + 1, tabs.length - 1) : Math.max(i - 1, 0);
+    e.preventDefault();
+    selectKelas(tabs[next].dataset.kelas);
+    const act = kelasTabs.querySelector('.active');
+    if(act) act.focus();
+  });
+
+  function renderRows(rows, emptyMessage){
     siswaBody.innerHTML = '';
     tableCount.textContent = rows.length + ' siswa';
 
     if(rows.length === 0){
+      emptyState.textContent = emptyMessage || 'Belum ada siswa di kelas ini. Tambahkan lewat tombol Tambah Siswa Baru di bawah.';
       emptyState.hidden = false;
       return;
     }
@@ -528,7 +723,6 @@
         <td class="id-col">${escapeHtml(row.id)}</td>
         <td>${escapeHtml(row.nama_siswa)}</td>
         <td>${escapeHtml(row.nisn)}</td>
-        <td><span class="kelas-badge">${escapeHtml(row.kelas)}</span></td>
         <td class="wrap-col">${escapeHtml(row.tempat_lahir)}, ${formatTanggal(row.tanggal_lahir)}</td>
         <td class="wrap-col">${escapeHtml(row.alamat)}</td>
         <td>
@@ -544,17 +738,37 @@
     });
   }
 
+  function renderAll(){
+    const list = getKelasList();
+
+    if(list.length === 0){
+      activeKelas = null;
+      kelasTabs.innerHTML = '';
+      tabsWrap.hidden = true;
+      tableTitle.textContent = 'Daftar Siswa';
+      renderRows([], 'Belum ada data kelas. Tambahkan rombel terlebih dahulu di halaman Rombongan Belajar.');
+      return;
+    }
+
+    tabsWrap.hidden = false;
+    if(!activeKelas || !list.includes(activeKelas)) activeKelas = list[0];
+
+    renderTabs(list);
+    tableTitle.textContent = 'Daftar Siswa — ' + activeKelas;
+    renderRows(allSiswa.filter(s => s.kelas === activeKelas));
+  }
+
   async function loadSiswa(){
     try{
       const res = await fetch(`${SUPABASE_URL}/${TABLE}?select=*&order=nama_siswa.asc`, {
         headers: headersBase
       });
       if(!res.ok) throw new Error('Status ' + res.status);
-      const rows = await res.json();
-      renderRows(rows);
+      allSiswa = await res.json();
+      renderAll();
     }catch(err){
       console.error(err);
-      setFormMsg('Gagal memuat daftar siswa: ' + err.message, 'err');
+      setPageMsg('Gagal memuat daftar siswa: ' + err.message, 'err');
     }
   }
 
@@ -569,7 +783,7 @@
       });
       if(!res.ok) throw new Error('Status ' + res.status);
 
-      if(editingId === row.id) enterAddMode();
+      if(editingId === row.id) closeModal();
       await loadSiswa();
     }catch(err){
       console.error(err);
@@ -577,6 +791,7 @@
     }
   }
 
+  /* ---------- Export / Import template Excel ---------- */
   function exportTemplate(){
     const headers = IMPORT_HEADERS;
     const example = [
@@ -633,7 +848,7 @@
   }
 
   async function handleImportFile(file){
-    const usedIds = new Set();
+    const usedIds = new Set(allSiswa.map(s => s.id));
     const arrayBuffer = await file.arrayBuffer();
     const wb = XLSX.read(arrayBuffer, { type: 'array', cellDates: true });
     const sheetName = wb.SheetNames.find(n => n.toLowerCase().includes('data')) || wb.SheetNames[0];
@@ -689,10 +904,11 @@
   btnExportTemplate.addEventListener('click', () => {
     try{
       exportTemplate();
-      setFormMsg('Template Excel berhasil diunduh.', 'ok');
+      setPageMsg('', '');
+      showToast('Template Excel berhasil diunduh.');
     }catch(err){
       console.error(err);
-      setFormMsg('Gagal membuat template: ' + err.message, 'err');
+      setPageMsg('Gagal membuat template: ' + err.message, 'err');
     }
   });
 
@@ -704,10 +920,9 @@
     const file = e.target.files[0];
     if(!file) return;
 
-    const originalLabel = btnImportData.innerHTML;
     btnImportData.disabled = true;
-    btnImportData.textContent = 'Mengimpor...';
-    setFormMsg('', '');
+    importLabel.textContent = 'Mengimpor...';
+    setPageMsg('', '');
 
     try{
       const result = await handleImportFile(file);
@@ -715,18 +930,20 @@
       if(result.skipped.length){
         msg += ` ${result.skipped.length} baris dilewati karena belum lengkap (baris: ${result.skipped.join(', ')}).`;
       }
-      setFormMsg(msg, 'ok');
+      setPageMsg(msg, 'ok');
+      showToast(`${result.imported} data siswa berhasil diimpor.`);
       await loadSiswa();
     }catch(err){
       console.error(err);
-      setFormMsg('Gagal mengimpor data: ' + err.message, 'err');
+      setPageMsg('Gagal mengimpor data: ' + err.message, 'err');
     }finally{
       btnImportData.disabled = false;
-      btnImportData.innerHTML = originalLabel;
+      importLabel.textContent = 'Import Template';
       importFileInput.value = '';
     }
   });
 
+  /* ---------- Simpan (tambah / ubah) ---------- */
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     setFormMsg('', '');
@@ -744,6 +961,7 @@
       return;
     }
 
+    const wasEditing = !!editingId;
     btnSubmit.disabled = true;
     btnSubmit.textContent = 'Menyimpan...';
 
@@ -774,8 +992,9 @@
         throw new Error(errBody || ('Status ' + res.status));
       }
 
-      setFormMsg(editingId ? 'Perubahan berhasil disimpan.' : 'Data siswa baru berhasil ditambahkan.', 'ok');
-      enterAddMode();
+      activeKelas = kelas; // tampilkan tab kelas siswa yang baru disimpan
+      closeModal();
+      showToast(wasEditing ? 'Perubahan berhasil disimpan.' : 'Data siswa baru berhasil ditambahkan.');
       await loadSiswa();
     }catch(err){
       console.error(err);
