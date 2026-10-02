@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi Ekskul — SCORIA</title>
+<style>
+  :root{
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
+    --turquoise:#0F766E;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 24px);
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
+
+  /* ---------- Menu bar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
+  }
+  .navbar-brand{display:flex; align-items:center; gap:8px; font-weight:700; color:var(--text);}
+  .brand-icon{
+    width:18px; height:18px; border-radius:5px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:11px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .navbar-hint{color:var(--text-dim); font-weight:500;}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 28px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 20px;}
+
+  /* ---------- Tab kelas (segmented control) ---------- */
+  .tabs-wrap{
+    overflow-x:auto; margin-bottom:16px; padding:2px 0 4px;
+    scrollbar-width:thin;
+  }
+  .segmented{
+    display:inline-flex; gap:2px; padding:2px;
+    min-width:min-content;
+    background:rgba(120,120,128,0.12);
+    border-radius:10px;
+  }
+  .seg-tab{
+    display:inline-flex; align-items:center; gap:7px;
+    border:none; background:none;
+    font-family:inherit; font-size:13px; font-weight:500; color:var(--text);
+    padding:6px 14px; border-radius:8px;
+    cursor:pointer; white-space:nowrap;
+    transition:background .15s ease;
+  }
+  .seg-tab:hover:not(.active){background:rgba(0,0,0,0.05);}
+  .seg-tab.active{
+    background:#fff; font-weight:600;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.18), 0 3px 8px rgba(0,0,0,0.08);
+  }
+  .seg-count{
+    font-size:11px; font-weight:600; color:var(--text-dim);
+    background:rgba(0,0,0,0.06); border-radius:999px; padding:1px 7px;
+  }
+  .seg-tab.active .seg-count{background:rgba(0,122,255,0.12); color:var(--mac-blue);}
+
+  .table-header{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .table-header h2{margin:0; font-size:15px; font-weight:600;}
+  .table-count{font-size:12px; color:var(--text-dim); white-space:nowrap;}
+  .page-msg{font-size:13px; margin:0 0 10px; line-height:1.45;}
+  .page-msg:empty{display:none;}
+  .page-msg.ok{color:var(--ok);}
+  .page-msg.err{color:var(--err);}
+
+  /* ---------- Tabel ala Finder ---------- */
+  .table-wrap{
+    overflow-x:auto; background:#fff;
+    border:1px solid var(--field-border); border-radius:10px;
+  }
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  thead th{
+    text-align:left; font-size:12px; font-weight:600; color:var(--text-dim);
+    padding:9px 14px; background:rgba(120,120,128,0.06);
+    border-bottom:1px solid var(--hairline); white-space:nowrap;
+  }
+  tbody td{padding:11px 14px; border-bottom:1px solid var(--hairline); vertical-align:middle; white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:rgba(0,122,255,0.025);}
+  tbody tr:hover{background:rgba(0,122,255,0.08);}
+  td.id-col{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12.5px; color:var(--text-dim);}
+  td.wrap-col{white-space:normal; max-width:220px;}
+  .row-actions{display:flex; gap:6px; justify-content:flex-end;}
+  .icon-btn{
+    font-family:inherit; font-size:12.5px; font-weight:500;
+    padding:4px 11px; border-radius:6px; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border);
+    color:var(--text);
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .icon-btn.edit:hover{background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .icon-btn.delete:hover{background:var(--err); border-color:var(--err); color:#fff;}
+  .empty-state{text-align:center; color:var(--text-dim); font-size:13.5px; padding:30px 12px; margin:0;}
+
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
+  }
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac:disabled{
+    background:#e6e6ea; border-color:var(--field-border); color:#a1a1a6;
+    box-shadow:none; cursor:not-allowed;
+  }
+
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    flex:1 1 0; max-width:170px; min-width:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; padding:0 2px;
+    background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600; line-height:1.15; text-align:center;
+    cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-btn:hover:not(:disabled){background:rgba(255,255,255,0.16);}
+  .footer-btn:disabled{opacity:0.6; cursor:wait;}
+  .footer-btn:focus-visible{outline-color:#fff; outline-offset:-3px;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover:not(:disabled) .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
+
+  /* ---------- Modal Tambah / Ubah Siswa ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:640px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
+
+  .form-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px 18px;}
+  .field{display:flex; flex-direction:column; gap:6px; min-width:0;}
+  .field.full{grid-column:1 / -1;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .label-hint{font-weight:400; opacity:0.8;}
+  input, select, textarea{
+    font-family:inherit; font-size:14px;
+    padding:9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea{resize:vertical; min-height:70px;}
+  input:focus, select:focus, textarea:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  input:disabled{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
+  select{
+    appearance:none; -webkit-appearance:none; cursor:pointer; padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .id-row{display:flex; gap:8px;}
+  .id-row input{flex:1; min-width:0;}
+  .btn-regen{padding:8px 14px; font-size:13px; white-space:nowrap; flex-shrink:0;}
+
+  .modal-actions{
+    grid-column:1 / -1;
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:2px; padding-top:18px; border-top:1px solid var(--hairline);
+  }
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+  .form-msg{font-size:13px;}
+  .form-msg.ok{color:var(--ok);}
+  .form-msg.err{color:var(--err);}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px; max-width:92vw; text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  }
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
+
+  @media (max-width:560px){
+    main{padding-left:8px; padding-right:8px;}
+    .window-body{padding:20px 14px 22px;}
+    .navbar-hint{display:none;}
+    .row-actions{flex-direction:column; align-items:flex-end;}
+    .form-grid{grid-template-columns:1fr;}
+    .modal-buttons{flex-direction:column-reverse;}
+    .footer-btn{font-size:0.66rem;}
+    .footer-btn .mac-icon{width:30px; height:30px; border-radius:7px;}
+    .footer-btn .mac-icon svg{width:18px; height:18px;}
+    .footer-divider{margin:18px 0;}
+  }
+
+
+  /* ---------- Khusus Mapping Siswa ---------- */
+  [hidden]{display:none !important;}
+  .ekskul-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    margin-bottom:16px; padding:12px 14px;
+    background:rgba(15,118,110,0.08); border:1px solid rgba(15,118,110,0.2); border-radius:12px;
+  }
+  .ekskul-pick{display:flex; align-items:center; gap:10px; min-width:0; flex:1 1 240px;}
+  .ekskul-pick label{font-size:12px; font-weight:600; color:var(--text-dim); white-space:nowrap;}
+  .ekskul-pick select, .ekskul-name{
+    font-family:inherit; font-size:14px; font-weight:600; color:var(--text);
+    padding:7px 32px 7px 12px; min-width:0; max-width:100%;
+    background:#fff; border:1px solid var(--field-border); border-radius:8px; outline:none;
+    appearance:none; -webkit-appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .ekskul-pick select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  .ekskul-name{background-image:none; padding-right:12px; cursor:default; display:inline-block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .sum-pill{
+    font-size:12px; font-weight:600; color:#0E6B64; white-space:nowrap;
+    background:rgba(15,118,110,0.13); padding:4px 12px; border-radius:999px;
+  }
+  .sum-pill.dirty{color:#8A5200; background:rgba(255,149,0,0.18);}
+
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap;}
+  .search-wrap{position:relative; flex:1; max-width:320px; min-width:200px;}
+  .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-dim); pointer-events:none;}
+  .search-wrap input{
+    width:100%; font-family:inherit; font-size:14px; padding:8px 12px 8px 34px;
+    background:rgba(255,255,255,0.92); color:var(--text);
+    border:1px solid var(--field-border); border-radius:999px; outline:none;
+  }
+  .search-wrap input:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+
+  .seg-count.has{background:rgba(40,185,74,0.16); color:#1C8A39;}
+  .seg-tab.active .seg-count.has{background:rgba(40,185,74,0.2); color:#1C8A39;}
+  .nisn-col{font-variant-numeric:tabular-nums; color:var(--text-dim);}
+  .footer-btn:disabled{cursor:not-allowed;}
+  @media (max-width:560px){
+    .ekskul-pick{flex-basis:100%;}
+    .search-wrap{max-width:none;}
+  }
+
+  /* ---------- Khusus Absensi Ekskul ---------- */
+  .section-head{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:4px 0 10px;}
+  .section-head h2{margin:0; font-size:16px; font-weight:700;}
+  .hist-wrap{max-height:460px; overflow:auto; background:#fff; border:1px solid var(--field-border); border-radius:10px;}
+  .hist-wrap thead th, #modalAbsen .table-wrap thead th{position:sticky; top:0; z-index:1; background:#f1f1f4;}
+  th.num, td.num{text-align:center; font-variant-numeric:tabular-nums;}
+  td.tgl-col{font-weight:600;}
+  tr.hist-row.open{background:rgba(0,122,255,0.08);}
+  tr.detail-row, tr.detail-row:hover{background:rgba(120,120,128,0.05);}
+  tr.detail-row > td{padding:10px 14px 14px; white-space:normal;}
+  .detail-table{width:100%; font-size:13px; background:#fff; border:1px solid var(--hairline); border-radius:8px; overflow:hidden;}
+  .detail-table th{padding:7px 12px; background:rgba(120,120,128,0.06);}
+  .detail-table td{padding:7px 12px; border-bottom:1px solid var(--hairline);}
+  .detail-table tr:last-child td{border-bottom:none;}
+  .chip{display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:999px;}
+  .chip.hadir{color:#1C8A39; background:rgba(40,185,74,0.16);}
+  .chip.tidak{color:#B3261E; background:rgba(255,59,48,0.13);}
+  .cnt-zero{color:var(--text-dim); opacity:.55;}
+  .btn-primary{background:linear-gradient(180deg,#4CD964,#34C759); border-color:#2AAE4E; color:#fff; box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);}
+
+  /* modal input absensi */
+  #modalAbsen .modal{max-width:900px;}
+  #modalAbsen .table-wrap{max-height:44vh; overflow:auto;}
+  .modal-top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:6px;}
+  .date-pick{display:flex; align-items:center; gap:8px;}
+  .date-pick label{white-space:nowrap;}
+  .date-pick input{width:auto; padding:7px 10px; font-weight:600;}
+  .tgl-label{font-size:13px; font-weight:600; color:var(--turquoise); margin:0 0 14px 2px;}
+  .tgl-label:empty{display:none;}
+  .notice{display:flex; gap:10px; align-items:flex-start; padding:13px 15px; margin:0 0 14px; border-radius:10px; font-size:13.5px; line-height:1.5;}
+  .notice svg{flex:0 0 auto; width:20px; height:20px; margin-top:1px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .notice.warn{background:rgba(255,149,0,0.14); border:1px solid rgba(255,149,0,0.5); color:#7A4700;}
+  .toolbar-right{display:flex; align-items:center; gap:10px; flex:1; justify-content:flex-end; flex-wrap:wrap;}
+  .btn-small{padding:7px 14px; min-height:34px; font-size:13px; white-space:nowrap;}
+  th.no-col, td.no-col{width:44px; text-align:center; color:var(--text-dim);}
+  th.cb-col{width:104px; text-align:center;}
+  td.cb-cell{width:104px; padding:0; text-align:center;}
+  .cb-label{display:flex; align-items:center; justify-content:center; width:100%; padding:11px 0; cursor:pointer;}
+  input.cb{width:22px; height:22px; margin:0; padding:0; cursor:pointer; box-shadow:none;}
+  input.cb-hadir{accent-color:#28B94A;}
+  input.cb-tidak{accent-color:#FF3B30;}
+  tbody tr.st-hadir{background:rgba(52,199,89,0.14);}
+  tbody tr.st-hadir:hover{background:rgba(52,199,89,0.2);}
+  tbody tr.st-tidak{background:rgba(255,59,48,0.09);}
+  tbody tr.st-tidak:hover{background:rgba(255,59,48,0.14);}
+  tbody tr.miss td:first-child{box-shadow:inset 3px 0 0 #FF9500;}
+  td.ket-cell{min-width:180px;}
+  .ket-select{width:100%; min-width:160px; padding:6px 30px 6px 10px; font-size:13px;}
+  .ket-select.need{border-color:var(--err); box-shadow:0 0 0 3px rgba(255,59,48,0.18);}
+  .ket-kosong{color:var(--text-dim);}
+  .modal-foot{position:sticky; bottom:0; z-index:2; display:flex; gap:12px; justify-content:flex-end; align-items:center; margin-top:16px; padding:14px 0 2px; border-top:1px solid var(--hairline); background:rgba(250,250,252,0.96);}
+  .modal-foot .btn-mac{min-width:150px;}
+  @media (max-width:560px){
+    .date-pick{flex:1 1 100%;}
+    .date-pick input{flex:1;}
+    .toolbar-right{justify-content:stretch;}
+    th.nisn-th, td.nisn-col{display:none;}
+    th.cb-col, td.cb-cell{width:78px;}
+    .modal-foot{flex-direction:column-reverse;}
+    .modal-foot .btn-mac{width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <span class="navbar-brand"><span class="brand-icon">S</span>SCORIA</span>
+  <span class="navbar-hint">Absensi Ekskul</span>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Absensi Ekstrakurikuler</div>
+    </div>
+
+    <div class="window-body">
+      <h1 class="page-title">Absensi Ekstrakurikuler</h1>
+      <p class="page-sub">Riwayat absensi ekstrakurikuler ditampilkan di bawah ini. Untuk mengabsen siswa, tekan <strong>Input Absensi</strong> pada menu bawah. Absensi hanya dapat dilakukan satu kali untuk setiap tanggal.</p>
+
+      <p class="page-msg" id="pageMsg"></p>
+
+      <div class="ekskul-bar">
+        <div class="ekskul-pick">
+          <label for="ekskulSelect" id="ekskulLabel">Ekstrakurikuler</label>
+          <select id="ekskulSelect" hidden></select>
+          <span class="ekskul-name" id="ekskulName">Memuat...</span>
+        </div>
+        <span class="sum-pill" id="topPill">Memuat...</span>
+      </div>
+
+      <div class="section-head">
+        <h2>Riwayat Absensi</h2>
+        <span class="table-count" id="histCount"></span>
+      </div>
+      <div class="hist-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tanggal</th>
+              <th class="num">Hadir</th>
+              <th class="num">Sakit</th>
+              <th class="num">Ijin</th>
+              <th class="num">Tanpa Ket.</th>
+              <th class="num">Total</th>
+              <th class="num">Detail</th>
+            </tr>
+          </thead>
+          <tbody id="histBody"></tbody>
+        </table>
+        <p class="empty-state" id="histEmpty" hidden></p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Modal Input Absensi -->
+<div class="modal-backdrop" id="modalAbsen" aria-hidden="true">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" id="btnTutup" aria-label="Tutup" title="Tutup"></button></div>
+      <div class="titlebar-title" id="modalTitle">Input Absensi</div>
+    </div>
+    <div class="modal-body">
+      <h2>Input Absensi — <span id="modalEkskul"></span></h2>
+      <p class="modal-sub">Pilih tanggal, lalu centang Hadir atau Tidak Hadir untuk setiap siswa di tiap tab kelas. Semua siswa harus diisi sebelum disimpan.</p>
+
+      <div class="modal-top">
+        <div class="date-pick">
+          <label for="modalTgl">Tanggal</label>
+          <input type="date" id="modalTgl">
+        </div>
+        <span class="sum-pill" id="modalSum"></span>
+      </div>
+      <p class="tgl-label" id="tglLabel"></p>
+
+      <div class="notice warn" id="dupNotice" role="alert" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 2.8 19.5h18.4L12 3.5z"/><path d="M12 10v4.2"/><path d="M12 17.2v.1"/></svg>
+        <div id="dupText"></div>
+      </div>
+      <p class="page-msg" id="modalMsg"></p>
+
+      <div id="formArea">
+        <div class="tabs-wrap" id="tabsWrap" hidden>
+          <div class="segmented" id="kelasTabs" role="tablist" aria-label="Daftar kelas"></div>
+        </div>
+
+        <div class="toolbar">
+          <div class="table-header" style="margin:0;">
+            <h2 id="tableTitle">Daftar Siswa</h2>
+          </div>
+          <div class="toolbar-right">
+            <button type="button" class="btn-mac btn-small" id="btnHadirSemua" title="Tandai Hadir untuk siswa di kelas ini yang belum diisi">Hadir Semua</button>
+            <div class="search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+              <input type="text" id="searchInput" placeholder="Cari nama atau NISN..." aria-label="Cari siswa">
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="no-col">No</th>
+                <th>Nama Siswa</th>
+                <th class="nisn-th">NISN</th>
+                <th class="cb-col">Hadir</th>
+                <th class="cb-col">Tidak Hadir</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="siswaBody"></tbody>
+          </table>
+          <p class="empty-state" id="emptyState" hidden></p>
+        </div>
+      </div>
+
+      <div class="modal-foot">
+        <button type="button" class="btn-mac" id="btnBatal">Batal</button>
+        <button type="button" class="btn-mac btn-primary" id="btnSimpan"><span id="saveLabel">Simpan Absensi</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnInput" disabled>
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9z"/><path d="M8 5.5H6.5A1.5 1.5 0 0 0 5 7v12a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19V7a1.5 1.5 0 0 0-1.5-1.5H16"/><path d="M9 14l2.2 2.2L15.5 12"/></svg></span>
+    <span>Input Absensi</span>
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="ekskulguru.html" id="btnBack">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    <span>Beranda</span>
+  </a>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const SISWA_TABLE = "datasiswa";
+  const EKSKUL_TABLE = "ekstrakurikuler";
+  const MAP_TABLE = "mapping_siswa_ekskul";
+  const ABSEN_TABLE = "absensi_ekskul";
+
+  const HADIR = "Hadir";
+  const TIDAK = "Tidak Hadir";
+  const KET_OPTIONS = ["Sakit", "Ijin", "Tanpa Keterangan"];
+
+  const headersBase = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+  const headersJson = { ...headersBase, "Content-Type": "application/json" };
+
+  /* ---------- Session pembina (dibuat oleh index.html) ---------- */
+  let session = null;
+  try{ session = JSON.parse(localStorage.getItem('ekskul_session') || 'null'); }catch(e){}
+  if(!session || !session.nama_guru){ window.location.replace('index.html'); }
+
+  const $ = (id) => document.getElementById(id);
+  const pageMsg = $('pageMsg'), toast = $('toast');
+  const ekskulSelect = $('ekskulSelect'), ekskulName = $('ekskulName'), topPill = $('topPill');
+  const histBody = $('histBody'), histEmpty = $('histEmpty'), histCount = $('histCount');
+  const btnInput = $('btnInput');
+  // modal
+  const modalAbsen = $('modalAbsen'), modalEkskul = $('modalEkskul'), modalTgl = $('modalTgl'), tglLabel = $('tglLabel');
+  const modalSum = $('modalSum'), dupNotice = $('dupNotice'), dupText = $('dupText'), modalMsg = $('modalMsg');
+  const formArea = $('formArea'), tabsWrap = $('tabsWrap'), kelasTabs = $('kelasTabs');
+  const tableTitle = $('tableTitle'), searchInput = $('searchInput'), btnHadirSemua = $('btnHadirSemua');
+  const siswaBody = $('siswaBody'), emptyState = $('emptyState');
+  const btnSimpan = $('btnSimpan'), btnBatal = $('btnBatal'), btnTutup = $('btnTutup'), saveLabel = $('saveLabel');
+  let toastTimer = null;
+
+  let ekskulList = [];          // ekstrakurikuler milik pembina
+  let ekskulId = null;          // ekskul yang sedang dilihat
+  let siswaRef = new Map();     // data terkini dari datasiswa (nisn, kelas, nama)
+  let members = [];             // siswa anggota ekskul (dari mapping_siswa_ekskul)
+  let history = [];             // semua baris absensi tersimpan untuk ekskul ini
+  let byDate = new Map();       // tanggal -> baris absensi
+  let expanded = new Set();     // tanggal yang detailnya sedang dibuka
+
+  // state modal
+  let modalOpen = false;
+  let tanggal = todayStr();
+  let cur = new Map();          // siswa_id -> {status, ket}
+  let activeKelas = null;
+  let dupDone = false;          // true = absensi tanggal ini sudah pernah dilakukan
+  let validated = false;        // true setelah simpan gagal validasi -> tandai siswa yang belum diisi
+  let checkToken = 0;
+  let saving = false;
+
+  class DuplikatError extends Error {}
+
+  /* ---------- Util ---------- */
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function setPageMsg(text, type){ pageMsg.textContent = text || ''; pageMsg.className = 'page-msg' + (type ? ' ' + type : ''); }
+  function setModalMsg(text, type){ modalMsg.textContent = text || ''; modalMsg.className = 'page-msg' + (type ? ' ' + type : ''); }
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3200);
+  }
+  function todayStr(){
+    const d = new Date();   // tanggal lokal perangkat (bukan UTC)
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  function formatTanggal(str){
+    const p = String(str).split('-').map(Number);
+    if(p.length !== 3 || p.some(isNaN)) return '';
+    return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+  function ekskulAktif(){ return ekskulList.find(e => String(e.id) === String(ekskulId)); }
+  function namaEkskul(){ const e = ekskulAktif(); return e ? e.nama_ekstrakurikuler : ''; }
+
+  /* ---------- Pilihan ekstrakurikuler ---------- */
+  function renderEkskulPicker(){
+    if(ekskulList.length === 0){
+      ekskulSelect.hidden = true; ekskulName.hidden = false;
+      ekskulName.textContent = 'Belum ada ekstrakurikuler';
+      return;
+    }
+    if(ekskulList.length === 1){
+      ekskulSelect.hidden = true; ekskulName.hidden = false;
+      ekskulName.textContent = ekskulList[0].nama_ekstrakurikuler;
+      return;
+    }
+    ekskulName.hidden = true; ekskulSelect.hidden = false;
+    ekskulSelect.innerHTML = ekskulList.map(e =>
+      `<option value="${escapeHtml(e.id)}"${String(e.id) === String(ekskulId) ? ' selected' : ''}>${escapeHtml(e.nama_ekstrakurikuler)}</option>`
+    ).join('');
+  }
+  ekskulSelect.addEventListener('change', async () => {
+    ekskulId = ekskulSelect.value;
+    localStorage.setItem('ekskul_aktif', String(ekskulId));
+    expanded = new Set();
+    await reloadAll();
+  });
+
+  /* ---------- Muat data ---------- */
+  async function loadEkskul(){
+    ekskulList = (session.ekskul || []).map(e => ({ id: e.id, nama_ekstrakurikuler: e.nama_ekstrakurikuler, nama_guru: session.nama_guru }));
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${EKSKUL_TABLE}?nama_guru=eq.${encodeURIComponent(session.nama_guru)}&select=id,nama_ekstrakurikuler,nama_guru&order=nama_ekstrakurikuler.asc`, { headers: headersBase });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      ekskulList = await res.json();
+    }catch(err){ console.error('Gagal memuat ekstrakurikuler:', err); }
+
+    const aktif = localStorage.getItem('ekskul_aktif');
+    ekskulId = ekskulList.some(e => String(e.id) === String(aktif)) ? aktif : (ekskulList[0] ? ekskulList[0].id : null);
+    if(ekskulId) localStorage.setItem('ekskul_aktif', String(ekskulId));
+    renderEkskulPicker();
+  }
+
+  // Data siswa terkini (NISN, kelas) sebagai pelengkap data mapping
+  async function loadSiswaRef(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${SISWA_TABLE}?select=id,nama_siswa,nisn,kelas`, { headers: headersBase });
+      if(!res.ok) throw new Error('Status ' + res.status);
+      siswaRef = new Map((await res.json()).map(s => [String(s.id), s]));
+    }catch(err){ console.error('Gagal memuat data siswa:', err); }
+  }
+
+  // Anggota ekskul = siswa yang sudah dimapping ke ekskul ini
+  async function loadMembers(){
+    members = [];
+    if(!ekskulId) return;
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${MAP_TABLE}?ekskul_id=eq.${encodeURIComponent(ekskulId)}&select=siswa_id,nama_siswa,kelas&order=nama_siswa.asc`, { headers: headersBase });
+      if(!res.ok) throw new Error(await res.text());
+      members = (await res.json()).map(r => {
+        const id = String(r.siswa_id);
+        const ref = siswaRef.get(id) || {};
+        return {
+          id,
+          nama: ref.nama_siswa || r.nama_siswa || '(tanpa nama)',
+          kelas: ref.kelas || r.kelas || 'Tanpa Kelas',
+          nisn: ref.nisn || ''
+        };
+      }).sort((a, b) => a.nama.localeCompare(b.nama, 'id'));
+    }catch(err){
+      console.error(err);
+      setPageMsg('Gagal memuat siswa ekskul. Pastikan tabel "mapping_siswa_ekskul" sudah dibuat dan siswa sudah dimapping.', 'err');
+    }
+  }
+
+  // Riwayat absensi (semua tanggal) untuk ekskul ini
+  async function loadHistory(){
+    history = [];
+    if(ekskulId){
+      try{
+        const PAGE = 1000;
+        for(let off = 0; ; off += PAGE){
+          const res = await fetch(`${SUPABASE_URL}/${ABSEN_TABLE}?ekskul_id=eq.${encodeURIComponent(ekskulId)}&select=tanggal,siswa_id,nama_siswa,kelas,status,keterangan&order=tanggal.desc,siswa_id.asc&limit=${PAGE}&offset=${off}`, { headers: headersBase });
+          if(!res.ok) throw new Error(await res.text());
+          const rows = await res.json();
+          history.push(...rows);
+          if(rows.length < PAGE) break;
+        }
+        if(members.length) setPageMsg('', '');
+      }catch(err){
+        console.error(err);
+        history = [];
+        setPageMsg('Gagal memuat riwayat absensi. Pastikan tabel "absensi_ekskul" sudah dibuat (jalankan absensiekskul.sql di Supabase).', 'err');
+      }
+    }
+    byDate = new Map();
+    history.forEach(r => {
+      if(!byDate.has(r.tanggal)) byDate.set(r.tanggal, []);
+      byDate.get(r.tanggal).push(r);
+    });
+  }
+
+  async function reloadAll(){
+    setPageMsg('', '');
+    histEmpty.textContent = 'Memuat data...';
+    histEmpty.hidden = false;
+    histBody.innerHTML = '';
+    await loadMembers();
+    await loadHistory();
+    renderMain();
+  }
+
+  /* ---------- Halaman utama: Riwayat Absensi ---------- */
+  function renderMain(){
+    btnInput.disabled = !ekskulId || members.length === 0;
+    topPill.textContent = ekskulId ? `${members.length} siswa • ${byDate.size} pertemuan` : 'Belum ada ekskul';
+    renderHistory();
+  }
+
+  function renderHistory(){
+    histBody.innerHTML = '';
+    const dates = [...byDate.keys()];
+    histCount.textContent = dates.length ? `${dates.length} pertemuan` : '';
+    if(!ekskulId){
+      histEmpty.textContent = 'Belum ada ekstrakurikuler atas nama Anda. Minta admin menambahkannya di halaman Ekstrakurikuler.';
+      histEmpty.hidden = false; return;
+    }
+    if(dates.length === 0){
+      histEmpty.textContent = members.length
+        ? 'Belum ada riwayat absensi. Tekan Input Absensi pada menu bawah untuk memulai.'
+        : 'Belum ada siswa yang dimapping ke ekstrakurikuler ini. Atur terlebih dahulu di halaman Mapping Siswa.';
+      histEmpty.hidden = false; return;
+    }
+    histEmpty.hidden = true;
+
+    const cell = (n) => `<td class="num${n ? '' : ' cnt-zero'}">${n}</td>`;
+    dates.forEach(date => {
+      const rows = byDate.get(date);
+      let h = 0, s = 0, i = 0, t = 0;
+      rows.forEach(r => {
+        if(r.status === HADIR) h++;
+        else if(r.keterangan === 'Sakit') s++;
+        else if(r.keterangan === 'Ijin') i++;
+        else t++;
+      });
+      const open = expanded.has(date);
+      const tr = document.createElement('tr');
+      tr.className = 'hist-row' + (open ? ' open' : '');
+      tr.dataset.date = date;
+      tr.innerHTML = `
+        <td class="tgl-col">${escapeHtml(formatTanggal(date))}</td>
+        ${cell(h)}${cell(s)}${cell(i)}${cell(t)}
+        <td class="num"><strong>${rows.length}</strong></td>
+        <td class="num"><button type="button" class="icon-btn edit btn-detail" aria-expanded="${open}">${open ? 'Tutup' : 'Lihat'}</button></td>`;
+      histBody.appendChild(tr);
+
+      if(open){
+        const sorted = rows.slice().sort((a, b) =>
+          (a.kelas || '').localeCompare(b.kelas || '', 'id', { numeric: true }) ||
+          (a.nama_siswa || '').localeCompare(b.nama_siswa || '', 'id'));
+        const body = sorted.map((r, n) => `
+          <tr>
+            <td class="num">${n + 1}</td>
+            <td>${escapeHtml(r.nama_siswa)}</td>
+            <td>${escapeHtml(r.kelas)}</td>
+            <td><span class="chip ${r.status === HADIR ? 'hadir' : 'tidak'}">${escapeHtml(r.status)}</span></td>
+            <td>${escapeHtml(r.keterangan || '—')}</td>
+          </tr>`).join('');
+        const dt = document.createElement('tr');
+        dt.className = 'detail-row';
+        dt.innerHTML = `<td colspan="7"><table class="detail-table">
+          <thead><tr><th class="num">No</th><th>Nama Siswa</th><th>Kelas</th><th>Status</th><th>Keterangan</th></tr></thead>
+          <tbody>${body}</tbody></table></td>`;
+        histBody.appendChild(dt);
+      }
+    });
+  }
+  histBody.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn-detail');
+    if(!btn) return;
+    const date = btn.closest('tr.hist-row').dataset.date;
+    if(expanded.has(date)) expanded.delete(date); else expanded.add(date);
+    renderHistory();
+  });
+
+  /* ---------- Modal: status per siswa ---------- */
+  function getCur(id){ return cur.get(id) || { status: null, ket: '' }; }
+  function setStatus(id, status){
+    const c = { ...getCur(id) };
+    if(c.status === status){ c.status = null; c.ket = ''; }          // klik lagi = kosongkan
+    else { c.status = status; if(status === HADIR) c.ket = ''; }
+    cur.set(id, c);
+  }
+  function isDraftDirty(){ return [...cur.values()].some(v => v.status); }
+
+  function updateModalSummary(){
+    let h = 0, t = 0, b = 0;
+    members.forEach(m => {
+      const st = getCur(m.id).status;
+      if(st === HADIR) h++; else if(st === TIDAK) t++; else b++;
+    });
+    modalSum.textContent = `Hadir ${h} • Tidak hadir ${t} • Belum diisi ${b}`;
+    modalSum.classList.toggle('dirty', b > 0);
+    const rows = activeKelas ? members.filter(m => m.kelas === activeKelas) : [];
+    btnHadirSemua.disabled = saving || rows.every(m => getCur(m.id).status);
+    btnSimpan.disabled = saving || dupDone;
+    btnBatal.disabled = saving;
+  }
+  window.addEventListener('beforeunload', (e) => {
+    if(modalOpen && isDraftDirty()){ e.preventDefault(); e.returnValue = ''; }
+  });
+  $('btnBack').addEventListener('click', (e) => {
+    if(modalOpen && isDraftDirty() && !confirm('Absensi yang diisi belum disimpan. Tetap keluar dari halaman ini?')) e.preventDefault();
+  });
+
+  /* ---------- Modal: buka / tutup ---------- */
+  function openModal(){
+    if(!ekskulId || members.length === 0) return;
+    modalOpen = true;
+    tanggal = todayStr();
+    cur = new Map();
+    activeKelas = null;
+    validated = false;
+    dupDone = false;
+    searchInput.value = '';
+    setModalMsg('', '');
+    modalTgl.max = todayStr();
+    modalTgl.value = tanggal;
+    tglLabel.textContent = formatTanggal(tanggal);
+    modalEkskul.textContent = namaEkskul();
+    modalAbsen.classList.add('open');
+    modalAbsen.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    refreshDuplikat();
+  }
+  function closeModal(force){
+    if(saving) return;
+    if(!force && isDraftDirty() && !confirm('Absensi yang sudah diisi belum disimpan dan akan dibuang. Tutup?')) return;
+    modalOpen = false;
+    checkToken++;
+    modalAbsen.classList.remove('open');
+    modalAbsen.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    cur = new Map();
+    setModalMsg('', '');
+  }
+  btnInput.addEventListener('click', openModal);
+  btnTutup.addEventListener('click', () => closeModal(false));
+  btnBatal.addEventListener('click', () => closeModal(false));
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape' && modalOpen) closeModal(false); });
+
+  /* ---------- Cegah absensi ganda di tanggal yang sama ---------- */
+  async function existsOnServer(date){
+    const res = await fetch(`${SUPABASE_URL}/${ABSEN_TABLE}?ekskul_id=eq.${encodeURIComponent(ekskulId)}&tanggal=eq.${encodeURIComponent(date)}&select=id&limit=1`, { headers: headersBase });
+    if(!res.ok) throw new Error(await res.text());
+    return (await res.json()).length > 0;
+  }
+  function notifSudahAbsen(date){
+    return `Absensi ${namaEkskul()} pada ${formatTanggal(date)} sudah dilakukan. Absensi tidak dapat diinput dua kali pada tanggal yang sama, silakan pilih tanggal lain.`;
+  }
+  async function refreshDuplikat(){
+    const my = ++checkToken, date = tanggal;
+    dupDone = byDate.has(date);            // cek cepat dari riwayat yang sudah dimuat
+    renderModal();
+    try{
+      const ada = await existsOnServer(date);   // cek ulang ke database
+      if(my !== checkToken) return;
+      dupDone = ada;
+    }catch(err){
+      console.error(err);
+      if(my !== checkToken) return;
+      setModalMsg('Gagal memeriksa absensi pada tanggal ini. Pastikan tabel "absensi_ekskul" sudah dibuat.', 'err');
+    }
+    renderModal();
+    if(dupDone) showToast('Sudah melakukan absensi pada ' + formatTanggal(date) + '.');
+  }
+  modalTgl.addEventListener('change', () => {
+    if(!modalTgl.value){ modalTgl.value = tanggal; return; }
+    if(modalTgl.value > todayStr()){
+      modalTgl.value = tanggal;
+      showToast('Tanggal absensi tidak boleh melebihi hari ini.');
+      return;
+    }
+    tanggal = modalTgl.value;
+    tglLabel.textContent = formatTanggal(tanggal);
+    setModalMsg('', '');
+    refreshDuplikat();
+  });
+
+  /* ---------- Modal: render ---------- */
+  function getKelasList(){
+    return [...new Set(members.map(m => m.kelas))].sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+  }
+  function siswaDiKelas(name){ return members.filter(m => m.kelas === name); }
+
+  function selectKelas(name){
+    activeKelas = name;
+    searchInput.value = '';
+    renderModal();
+  }
+  function renderTabs(list){
+    kelasTabs.innerHTML = '';
+    list.forEach(name => {
+      const rows = siswaDiKelas(name);
+      const filled = rows.filter(m => getCur(m.id).status).length;
+      const done = rows.length > 0 && filled === rows.length;
+      const isActive = name === activeKelas;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'seg-tab' + (isActive ? ' active' : '');
+      btn.setAttribute('role', 'tab');
+      btn.setAttribute('aria-selected', String(isActive));
+      btn.tabIndex = isActive ? 0 : -1;
+      btn.dataset.kelas = name;
+      btn.title = `${filled} dari ${rows.length} siswa sudah diabsen di ${name}`;
+      btn.innerHTML = `<span>${escapeHtml(name)}</span><span class="seg-count${done ? ' has' : ''}">${filled}/${rows.length}</span>`;
+      btn.addEventListener('click', () => selectKelas(name));
+      kelasTabs.appendChild(btn);
+    });
+    const act = kelasTabs.querySelector('.active');
+    if(act) act.scrollIntoView({ inline: 'nearest', block: 'nearest' });
+  }
+  kelasTabs.addEventListener('keydown', (e) => {
+    if(e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+    const tabs = Array.from(kelasTabs.querySelectorAll('.seg-tab'));
+    const i = tabs.findIndex(t => t.classList.contains('active'));
+    if(i < 0) return;
+    const next = e.key === 'ArrowRight' ? Math.min(i + 1, tabs.length - 1) : Math.max(i - 1, 0);
+    e.preventDefault();
+    selectKelas(tabs[next].dataset.kelas);
+    const act = kelasTabs.querySelector('.active');
+    if(act) act.focus();
+  });
+
+  function visibleRows(){
+    const q = searchInput.value.trim().toLowerCase();
+    return siswaDiKelas(activeKelas).filter(m =>
+      !q || m.nama.toLowerCase().includes(q) || String(m.nisn || '').toLowerCase().includes(q));
+  }
+
+  function paintRow(tr){
+    const c = getCur(tr.dataset.id);
+    tr.classList.toggle('st-hadir', c.status === HADIR);
+    tr.classList.toggle('st-tidak', c.status === TIDAK);
+    tr.classList.toggle('miss', validated && !c.status);
+    tr.querySelector('.cb-hadir').checked = c.status === HADIR;
+    tr.querySelector('.cb-tidak').checked = c.status === TIDAK;
+    const sel = tr.querySelector('.ket-select');
+    const dash = tr.querySelector('.ket-kosong');
+    sel.hidden = c.status !== TIDAK;
+    dash.hidden = c.status === TIDAK;
+    sel.value = c.ket || '';
+    sel.classList.toggle('need', c.status === TIDAK && !c.ket);
+  }
+
+  function renderRows(){
+    const rows = visibleRows();
+    siswaBody.innerHTML = '';
+    if(rows.length === 0){
+      emptyState.textContent = searchInput.value.trim()
+        ? 'Tidak ada siswa yang cocok dengan pencarian.'
+        : 'Belum ada siswa di kelas ini.';
+      emptyState.hidden = false;
+    } else {
+      emptyState.hidden = true;
+    }
+    const opts = KET_OPTIONS.map(k => `<option value="${k}">${k}</option>`).join('');
+    rows.forEach((m, i) => {
+      const tr = document.createElement('tr');
+      tr.dataset.id = m.id;
+      tr.innerHTML = `
+        <td class="no-col">${i + 1}</td>
+        <td>${escapeHtml(m.nama)}</td>
+        <td class="nisn-col">${escapeHtml(m.nisn)}</td>
+        <td class="cb-cell"><label class="cb-label"><input type="checkbox" class="cb cb-hadir" aria-label="Hadir: ${escapeHtml(m.nama)}"></label></td>
+        <td class="cb-cell"><label class="cb-label"><input type="checkbox" class="cb cb-tidak" aria-label="Tidak hadir: ${escapeHtml(m.nama)}"></label></td>
+        <td class="ket-cell">
+          <select class="ket-select" aria-label="Keterangan: ${escapeHtml(m.nama)}" hidden>
+            <option value="">Pilih keterangan...</option>${opts}
+          </select>
+          <span class="ket-kosong">—</span>
+        </td>`;
+      siswaBody.appendChild(tr);
+      paintRow(tr);
+    });
+  }
+
+  function renderModal(){
+    modalEkskul.textContent = namaEkskul();
+    dupNotice.hidden = !dupDone;
+    if(dupDone) dupText.textContent = notifSudahAbsen(tanggal);
+    formArea.hidden = dupDone;
+    const list = getKelasList();
+    if(!dupDone && list.length){
+      tabsWrap.hidden = false;
+      if(!activeKelas || !list.includes(activeKelas)) activeKelas = list[0];
+      renderTabs(list);
+      tableTitle.textContent = 'Daftar Siswa — ' + activeKelas;
+      renderRows();
+    } else {
+      tabsWrap.hidden = true;
+    }
+    updateModalSummary();
+  }
+
+  /* ---------- Modal: interaksi checklist ---------- */
+  siswaBody.addEventListener('change', (e) => {
+    const tr = e.target.closest('tr');
+    if(!tr || !tr.dataset.id) return;
+    const id = tr.dataset.id;
+    if(e.target.classList.contains('cb-hadir')) setStatus(id, HADIR);
+    else if(e.target.classList.contains('cb-tidak')) setStatus(id, TIDAK);
+    else if(e.target.classList.contains('ket-select')) cur.set(id, { ...getCur(id), ket: e.target.value });
+    else return;
+    setModalMsg('', '');
+    paintRow(tr);
+    renderTabs(getKelasList());
+    updateModalSummary();
+    // setelah memilih Tidak Hadir, langsung arahkan ke dropdown keterangan
+    if(e.target.classList.contains('cb-tidak') && e.target.checked){
+      const sel = tr.querySelector('.ket-select');
+      if(sel && !sel.hidden) sel.focus();
+    }
+  });
+  searchInput.addEventListener('input', renderRows);
+
+  btnHadirSemua.addEventListener('click', () => {
+    let n = 0;
+    siswaDiKelas(activeKelas).forEach(m => {
+      if(!getCur(m.id).status){ cur.set(m.id, { status: HADIR, ket: '' }); n++; }
+    });
+    setModalMsg('', '');
+    renderModal();
+    if(n) showToast(`${n} siswa ditandai Hadir.`);
+  });
+
+  /* ---------- Simpan (hanya boleh sekali per tanggal) ---------- */
+  async function simpanAbsensi(){
+    if(saving || dupDone) return;
+    if(tanggal > todayStr()){ setModalMsg('Tanggal absensi tidak boleh melebihi hari ini.', 'err'); return; }
+
+    // semua siswa wajib diisi, yang Tidak Hadir wajib punya keterangan
+    const belum = members.filter(m => !getCur(m.id).status);
+    const kurang = members.filter(m => { const c = getCur(m.id); return c.status === TIDAK && !c.ket; });
+    if(belum.length || kurang.length){
+      validated = true;
+      const target = belum.length ? belum : kurang;
+      const kls = [...new Set(target.map(m => m.kelas))];
+      setModalMsg(belum.length
+        ? `Masih ada ${belum.length} siswa yang belum diabsen (kelas ${kls.join(', ')}). Semua siswa harus diisi sebelum disimpan.`
+        : `Pilih keterangan untuk ${kurang.length} siswa yang tidak hadir (kelas ${kls.join(', ')}).`, 'err');
+      if(!kls.includes(activeKelas)) activeKelas = kls[0];
+      renderModal();
+      const first = belum.length ? siswaBody.querySelector('tr.miss') : siswaBody.querySelector('.ket-select.need');
+      if(first) first.scrollIntoView({ block: 'center' });
+      return;
+    }
+    if(!confirm(`Simpan absensi ${namaEkskul()} untuk ${formatTanggal(tanggal)}?\n\nAbsensi hanya dapat diinput satu kali pada tanggal yang sama.`)) return;
+
+    saving = true;
+    saveLabel.textContent = 'Menyimpan...';
+    updateModalSummary();
+    const pembina = (ekskulAktif() && ekskulAktif().nama_guru) || session.nama_guru || null;
+    try{
+      if(await existsOnServer(tanggal)) throw new DuplikatError();   // cek terakhir sebelum menyimpan
+
+      const body = members.map(m => {
+        const c = getCur(m.id);
+        return {
+          ekskul_id: ekskulId,
+          tanggal,
+          siswa_id: m.id,
+          nama_siswa: m.nama,
+          kelas: m.kelas,
+          nama_ekskul: namaEkskul() || null,
+          nama_pembina: pembina,
+          status: c.status,
+          keterangan: c.status === TIDAK ? c.ket : null
+        };
+      });
+      // INSERT biasa (bukan upsert): jika sudah ada, database menolak lewat unique constraint
+      const res = await fetch(`${SUPABASE_URL}/${ABSEN_TABLE}`, {
+        method: 'POST',
+        headers: { ...headersJson, 'Prefer': 'return=minimal' },
+        body: JSON.stringify(body)
+      });
+      if(!res.ok){
+        const txt = await res.text();
+        if(res.status === 409 || txt.includes('23505')) throw new DuplikatError();
+        throw new Error('Gagal menyimpan absensi: ' + txt);
+      }
+      const tglSimpan = tanggal;
+      saving = false;
+      closeModal(true);
+      await loadHistory();
+      renderMain();
+      showToast('Absensi ' + formatTanggal(tglSimpan) + ' berhasil disimpan.');
+    }catch(err){
+      saving = false;
+      if(err instanceof DuplikatError){
+        dupDone = true;
+        showToast('Sudah melakukan absensi pada ' + formatTanggal(tanggal) + '.');
+        loadHistory().then(renderMain);
+      } else {
+        console.error(err);
+        setModalMsg(err.message || 'Terjadi kesalahan saat menyimpan.', 'err');
+      }
+    }finally{
+      saveLabel.textContent = 'Simpan Absensi';
+      if(modalOpen) renderModal();
+    }
+  }
+  btnSimpan.addEventListener('click', simpanAbsensi);
+
+  /* ---------- Mulai ---------- */
+  (async function init(){
+    if(!session || !session.nama_guru) return;
+    await Promise.all([loadEkskul(), loadSiswaRef()]);
+    await reloadAll();
+  })();
+</script>
+
+</body>
+</html>
