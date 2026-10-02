@@ -897,7 +897,7 @@
             guru_id: rows[0].guru_id || null,
             ekskul: rows.map(r => ({ id: r.id, nama_ekstrakurikuler: r.nama_ekstrakurikuler }))
           }));
-          showWelcomeAndRedirect(rows[0].nama_guru, 'adminekskul.html');
+          showWelcomeAndRedirect(rows[0].nama_guru, 'ekskulguru.html');
         } else {
           showLoginError('Nama pembina atau password salah.');
         }
