@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ekstrakurikuler — SCORIA</title>
+<style>
+
+  :root{
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --ok:#28A745;
+    --err:#FF3B30;
+    --turquoise:#0F766E;
+    --hairline:rgba(0,0,0,0.1);
+    --field-border:rgba(0,0,0,0.14);
+    --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 24px);
+    overflow-x:hidden;
+    max-width:100vw;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
+
+  /* ---------- Menu bar (sama seperti admin.html) ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    height:30px; padding:0 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px; color:var(--text);
+  }
+  .nav-left{display:flex; align-items:center; gap:8px;}
+  .school-logo{
+    width:20px; height:20px; border-radius:6px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .nav-right{display:flex; align-items:center; gap:14px; min-width:0;}
+  .nav-schoolinfo{display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0;}
+  .school-name{
+    font-size:13px; font-weight:700; color:var(--text);
+    max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .term-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:500; color:var(--text-dim);
+    background:rgba(0,0,0,0.06);
+    padding:2px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .term-badge .dot{width:6px; height:6px; border-radius:50%; background:#34C759; flex-shrink:0;}
+  .admin-account{display:flex; align-items:center; gap:7px; padding-left:12px; border-left:1px solid var(--hairline);}
+  .avatar{
+    width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,#B0B0B8,#7C7C84);
+    color:#fff; font-size:8px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .admin-name{font-size:13px; font-weight:500;}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:36px 16px 20px;}
+  .window{
+    background:rgba(255,255,255,0.82);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span, .traffic button{
+    width:12px; height:12px; border-radius:50%; padding:0; border:none;
+    box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .traffic button{cursor:pointer;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px 28px 28px;}
+
+  .page-title{font-size:26px; font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{color:var(--text-dim); font-size:13.5px; line-height:1.5; margin:0 0 22px;}
+
+  .table-header{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .table-header h2{margin:0; font-size:15px; font-weight:600;}
+  .count-pill{
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:12px; font-weight:600; color:#0E6B64;
+    background:rgba(15,118,110,0.12);
+    padding:3px 11px; border-radius:999px; white-space:nowrap;
+  }
+  .count-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--turquoise);}
+
+  /* ---------- Kartu Wali Kelas ---------- */
+  .card-grid{
+    display:grid; gap:16px;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  }
+  .wk-card{
+    position:relative;
+    display:flex; flex-direction:column; align-items:center; text-align:center;
+    padding:24px 16px 16px;
+    background:rgba(255,255,255,0.92);
+    border:1px solid var(--field-border);
+    border-radius:14px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(30,40,80,0.08);
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    animation:cardIn .3s ease both;
+  }
+  .wk-card:hover{
+    transform:translateY(-3px);
+    border-color:rgba(0,122,255,0.35);
+    box-shadow:0 2px 4px rgba(0,0,0,0.06), 0 14px 30px rgba(30,40,80,0.16);
+  }
+  @keyframes cardIn{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  .wk-id{
+    position:absolute; top:10px; left:12px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+    font-size:11px; color:var(--text-dim);
+    background:rgba(120,120,128,0.1);
+    padding:2px 8px; border-radius:999px;
+  }
+  .wk-photo{
+    width:92px; height:92px; border-radius:50%;
+    margin:10px 0 14px; overflow:hidden; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; font-size:30px; font-weight:700; letter-spacing:0.02em;
+    border:3px solid #fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.12), 0 6px 14px rgba(0,60,160,0.25);
+  }
+  .wk-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+  .wk-name{font-size:15px; font-weight:700; letter-spacing:-0.01em; line-height:1.3; margin:0 0 4px; word-break:break-word;}
+  .wk-nip{font-size:12.5px; color:var(--text-dim); margin:0 0 12px; font-variant-numeric:tabular-nums;}
+  .rombel-chip{
+    display:inline-block;
+    background:rgba(255,149,0,0.14); color:#B25F00;
+    font-weight:600; font-size:12px;
+    padding:3px 12px; border-radius:999px; white-space:nowrap;
+  }
+  .row-actions{
+    display:flex; gap:8px; justify-content:center;
+    width:100%; margin-top:16px; padding-top:14px;
+    border-top:1px solid var(--hairline);
+  }
+  .icon-btn{
+    width:34px; height:30px; border-radius:7px;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border);
+    color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .icon-btn svg{width:15px; height:15px;}
+  .icon-btn.edit:hover{background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .icon-btn.delete:hover{background:var(--err); border-color:var(--err); color:#fff;}
+  .icon-btn:disabled{opacity:.5; cursor:not-allowed;}
+  .empty-state{grid-column:1/-1; text-align:center; padding:34px 12px; color:var(--text-dim); font-size:13.5px;}
+
+  /* ---------- Dialog konfirmasi hapus (alert macOS) ---------- */
+  .alert-box{
+    width:100%; max-width:300px; padding:22px 20px 16px; text-align:center;
+    background:rgba(246,246,248,0.95);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7); border-radius:14px;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.2), 0 22px 60px rgba(30,40,80,0.35);
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .alert-box{transform:none;}
+  .alert-icon{margin:0 auto 10px; width:52px; height:52px; border-radius:13px; --c1:#FF6B60; --c2:#FF3B30;}
+  .alert-icon svg{width:28px; height:28px;}
+  .alert-box h3{margin:0 0 6px; font-size:15px; font-weight:700;}
+  .alert-box p{margin:0 0 16px; font-size:12.5px; color:var(--text-dim); line-height:1.45;}
+  .alert-buttons{display:flex; gap:10px;}
+  .alert-buttons > *{flex:1;}
+  .btn-danger:hover:not(:disabled){
+    background:linear-gradient(180deg,#FF6B60,#FF3B30);
+    border-color:#E0281E; color:#fff;
+    box-shadow:0 1px 2px rgba(255,59,48,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+
+  /* ---------- Tombol (gaya macOS) ---------- */
+  .btn-mac{
+    min-height:36px; border-radius:8px; padding:8px 18px;
+    font-family:inherit; font-size:14px; font-weight:500;
+    cursor:pointer; text-align:center; text-decoration:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    color:var(--text);
+    border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+    transition:background .15s, transform .1s;
+  }
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover:not(:disabled){
+    background:linear-gradient(180deg,#4CD964,#34C759);
+    border-color:#2AAE4E; color:#fff;
+    box-shadow:0 1px 2px rgba(40,170,80,0.4), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .btn-mac:disabled{
+    background:#e6e6ea; border-color:var(--field-border); color:#a1a1a6;
+    box-shadow:none; cursor:not-allowed;
+  }
+
+  /* ---------- Footer ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:4px; background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600;
+    width:160px; cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-btn:hover{background:rgba(255,255,255,0.16);}
+  .footer-btn:focus-visible{outline-color:#fff; outline-offset:-3px;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+
+  /* Ikon gaya macOS */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.green{--c1:#6CE37F; --c2:#28B94A;}
+
+  /* ---------- Modal Tambah Walikelas ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,30,50,0.35);
+    -webkit-backdrop-filter:blur(6px);
+    backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:480px; max-height:92vh; overflow-y:auto;
+    transform:scale(0.94) translateY(8px);
+    transition:transform 0.25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal.window{background:rgba(250,250,252,0.92);}
+  .modal-body{padding:22px 24px 24px;}
+  .modal-body h2{font-size:18px; font-weight:700; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-sub{font-size:13px; color:var(--text-dim); margin:0 0 18px;}
+
+  .field{display:flex; flex-direction:column; gap:6px; margin-bottom:16px;}
+  label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .label-hint{font-weight:400; opacity:0.8;}
+  .form-hint{font-size:12px; color:var(--text-dim); margin:0;}
+  input, select{
+    font-family:inherit; font-size:14px;
+    padding:9px 12px; width:100%;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px;
+    outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  input:focus, select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  input[readonly]{background:rgba(120,120,128,0.1); color:var(--text-dim); cursor:not-allowed;}
+  input[readonly]:focus{border-color:var(--field-border); box-shadow:none;}
+  select{
+    appearance:none; -webkit-appearance:none; cursor:pointer; padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .id-row{display:flex; gap:8px;}
+  .id-row input{flex:1; min-width:0;}
+  .btn-regen{padding:8px 14px; font-size:13px; white-space:nowrap; flex-shrink:0;}
+
+  .modal-actions{
+    display:flex; flex-direction:column; gap:10px;
+    margin-top:6px; padding-top:18px; border-top:1px solid var(--hairline);
+  }
+  .modal-buttons{display:flex; gap:12px;}
+  .modal-buttons > *{flex:1;}
+  .form-msg{font-size:13px;}
+  .form-msg.ok{color:var(--ok);}
+  .form-msg.err{color:var(--err);}
+
+  /* ---------- Toast ---------- */
+  .toast{
+    position:fixed; top:42px; left:50%;
+    transform:translate(-50%,-12px);
+    z-index:80;
+    background:rgba(40,40,45,0.88);
+    -webkit-backdrop-filter:blur(16px);
+    backdrop-filter:blur(16px);
+    color:#fff; font-size:13px; font-weight:500;
+    padding:10px 18px; border-radius:12px; max-width:92vw; text-align:center;
+    box-shadow:0 8px 24px rgba(0,0,0,0.25);
+    opacity:0; visibility:hidden;
+    transition:opacity .2s ease, transform .2s ease, visibility 0s linear .2s;
+  }
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s ease, transform .2s ease, visibility 0s linear 0s;}
+
+  @media (max-width:560px){
+    .card-grid{grid-template-columns:1fr;}
+    main{padding-left:8px; padding-right:8px;}
+    .navbar{padding-left:10px; padding-right:10px;}
+    .window-body{padding:20px 14px 22px;}
+    .modal-buttons{flex-direction:column-reverse;}
+  }
+  @media (max-width:520px){
+    .nav-schoolinfo{display:none;}
+  }
+
+  /* ---------- Tambahan khusus Data Guru ---------- */
+  .toolbar{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;}
+  .search-wrap{position:relative; flex:1; max-width:320px; min-width:200px;}
+  .search-wrap svg{position:absolute; left:11px; top:50%; transform:translateY(-50%); width:15px; height:15px; color:var(--text-dim); pointer-events:none;}
+  .search-wrap input{padding-left:34px; border-radius:999px; background:rgba(255,255,255,0.9);}
+  .g-info{display:flex; flex-direction:column; gap:7px; width:100%; margin-top:14px; text-align:left;}
+  .g-row{display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:#48484A; line-height:1.4; word-break:break-word;}
+  .g-row svg{flex-shrink:0; width:14px; height:14px; margin-top:1px; color:var(--mac-blue);}
+  .wk-card .wk-nip{margin-bottom:0;}
+  .wk-photo.c-blue{background:linear-gradient(180deg,#5AC8FA,#007AFF);}
+  .wk-photo.c-green{background:linear-gradient(180deg,#6CE37F,#28B94A);}
+  .wk-photo.c-orange{background:linear-gradient(180deg,#FFB340,#FF9500);}
+  .wk-photo.c-purple{background:linear-gradient(180deg,#C69CFF,#8E5CF0);}
+  .wk-photo.c-pink{background:linear-gradient(180deg,#FF8FB1,#FF2D6F);}
+  .wk-photo.c-teal{background:linear-gradient(180deg,#5FD6C8,#0F766E);}
+  .wk-photo:has(img){background:#e9e9ee;}
+
+  .modal{max-width:640px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .field.full{grid-column:1/-1;}
+  .section-title{
+    display:flex; align-items:center; gap:8px;
+    font-size:13px; font-weight:700; color:var(--text);
+    margin:0 0 14px;
+  }
+  .section-title .dot{width:8px; height:8px; border-radius:50%; background:var(--mac-blue); flex-shrink:0;}
+  .section-title.green .dot{background:#34C759;}
+  .section-title.orange .dot{background:#FF9500;}
+  .section-title.purple .dot{background:#AF52DE;}
+  .section-title:not(:first-child){margin-top:8px; padding-top:18px; border-top:1px solid var(--hairline);}
+  .opt{font-weight:400; opacity:.8;}
+  textarea{
+    font-family:inherit; font-size:14px; padding:9px 12px; width:100%; min-height:70px; resize:vertical;
+    background:#fff; color:var(--text);
+    border:1px solid var(--field-border); border-radius:8px; outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+    transition:border-color .15s, box-shadow .15s;
+  }
+  textarea:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  .pass-wrap{position:relative;}
+  .pass-wrap input{padding-right:92px;}
+  .pass-toggle{
+    position:absolute; right:8px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:var(--mac-blue);
+    font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; padding:4px 6px;
+  }
+  .photo-field{display:flex; align-items:center; gap:16px;}
+  .photo-preview{
+    width:76px; height:76px; border-radius:50%; overflow:hidden; flex-shrink:0;
+    border:2px dashed var(--field-border); background:rgba(120,120,128,0.06);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-dim); font-size:10.5px; text-align:center; padding:6px;
+  }
+  .photo-preview img{width:100%; height:100%; object-fit:cover; margin:-6px;}
+  .photo-controls{display:flex; flex-direction:column; gap:6px; align-items:flex-start;}
+  label.file-btn{
+    display:inline-flex; align-items:center; font-size:13px; font-weight:500; color:var(--text);
+    padding:7px 16px; border-radius:8px; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#f5f5f7); border:1px solid var(--field-border);
+    box-shadow:0 1px 1px rgba(0,0,0,0.08);
+  }
+  label.file-btn:hover{background:linear-gradient(180deg,#fff,#ececf0);}
+  input[type=file]{display:none;}
+  .modal-body{padding-bottom:22px;}
+  #formMsg:empty{display:none;}
+
+  @media (max-width:560px){
+    .grid2{grid-template-columns:1fr;}
+    .search-wrap{max-width:none;}
+  }
+
+
+  /* ---------- Tambahan khusus Ekstrakurikuler ---------- */
+  .mac-icon.indigo{--c1:#8E8CF0; --c2:#5856D6;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .ek-icon{width:64px; height:64px; border-radius:16px; margin:10px 0 14px;}
+  .ek-icon svg{width:36px; height:36px;}
+  .ek-icon.c-indigo{--c1:#8E8CF0; --c2:#5856D6;}
+  .ek-icon.c-green{--c1:#6CE37F; --c2:#28B94A;}
+  .ek-icon.c-orange{--c1:#FFB340; --c2:#FF9500;}
+  .ek-icon.c-pink{--c1:#FF7CA3; --c2:#FF2D55;}
+  .ek-icon.c-teal{--c1:#6FDDE6; --c2:#30B0C7;}
+  .ek-icon.c-blue{--c1:#5AC8FA; --c2:#007AFF;}
+  .pembina{
+    display:inline-flex; align-items:center; gap:6px; max-width:100%;
+    font-size:12.5px; font-weight:600; color:#3F3E9E;
+    background:rgba(88,86,214,0.12); padding:3px 12px; border-radius:999px;
+  }
+  .pembina span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pembina.manual{color:#8A5200; background:rgba(255,149,0,0.14);}
+  .ek-card .wk-name{margin-bottom:10px;}
+
+  /* pilihan sumber nama guru */
+  .seg{
+    display:grid; grid-template-columns:1fr 1fr; gap:2px; padding:2px;
+    background:rgba(120,120,128,0.16); border-radius:9px;
+  }
+  .seg button{
+    font-family:inherit; font-size:13px; font-weight:500; color:var(--text);
+    border:none; background:transparent; border-radius:7px; padding:7px 10px; cursor:pointer;
+    transition:background .15s, box-shadow .15s;
+  }
+  .seg button[aria-pressed="true"]{background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.18), 0 0 0 0.5px rgba(0,0,0,0.06); font-weight:600;}
+  .seg button:focus-visible{outline-offset:1px;}
+  .guru-hint{display:flex; align-items:center; gap:8px; margin-top:2px;}
+  .btn-link{
+    background:none; border:none; padding:0; font-family:inherit; font-size:12px; font-weight:600;
+    color:var(--mac-blue); cursor:pointer;
+  }
+  .btn-link:disabled{opacity:.5; cursor:default;}
+  .time-sep{display:none;}
+  @media (prefers-reduced-motion:reduce){ .ek-card{animation:none;} }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <div class="school-logo" id="schoolLogo">SMA</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
+    <div class="admin-account">
+      <span class="avatar">AD</span>
+      <span class="admin-name">Admin</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Ekstrakurikuler</div>
+    </div>
+    <div class="window-body">
+      <h1 class="page-title">Ekstrakurikuler</h1>
+      <p class="page-sub">Catat kegiatan ekstrakurikuler beserta guru pembinanya. Nama guru bisa dipilih dari Data Guru atau diketik manual untuk pembina dari luar sekolah.</p>
+
+      <div class="table-header">
+        <h2>Daftar Ekstrakurikuler</h2>
+        <span class="count-pill"><span class="dot"></span><span id="countLabel">Memuat...</span></span>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input type="text" id="searchInput" placeholder="Cari kegiatan atau nama pembina..." aria-label="Cari ekstrakurikuler">
+        </div>
+      </div>
+
+      <div class="card-grid" id="listBody">
+        <div class="empty-state">Memuat data ekstrakurikuler...</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnOpenModal">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke-width="2.4"/></svg></span>
+    Tambah Ekstrakurikuler
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    Dashboard
+  </a>
+</div>
+
+<!-- Modal Tambah / Edit -->
+<div class="modal-backdrop" id="overlay">
+  <div class="modal window" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="titlebar">
+      <div class="traffic"><button type="button" class="t-red" id="btnCloseModal" aria-label="Tutup"></button><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title" id="modalTitlebar">Ekstrakurikuler Baru</div>
+    </div>
+    <div class="modal-body">
+      <h2 id="modalTitle">Tambah Ekstrakurikuler</h2>
+      <p class="modal-sub" id="modalDesc">Isi data kegiatan dan guru pembinanya, lalu simpan.</p>
+
+      <form id="formEkskul" autocomplete="off">
+        <div class="section-title"><span class="dot"></span>Kegiatan</div>
+        <div class="grid2">
+          <div class="field full">
+            <label for="nama_ekstrakurikuler">Nama Ekstrakurikuler</label>
+            <input type="text" id="nama_ekstrakurikuler" required placeholder="cth. Pramuka, Paskibra, Futsal">
+          </div>
+        </div>
+
+        <div class="section-title purple"><span class="dot"></span>Guru Pembina</div>
+        <div class="field">
+          <div class="seg" role="group" aria-label="Sumber nama guru">
+            <button type="button" id="modeData" aria-pressed="true">Pilih dari Data Guru</button>
+            <button type="button" id="modeManual" aria-pressed="false">Ketik Manual</button>
+          </div>
+        </div>
+        <div class="field" id="fieldGuruSelect">
+          <label for="guruSelect">Nama Guru</label>
+          <select id="guruSelect"><option value="">Memuat data guru...</option></select>
+          <div class="guru-hint">
+            <p class="form-hint" id="guruHint">Daftar diambil dari halaman Data Guru.</p>
+            <button type="button" class="btn-link" id="btnReloadGuru">Muat ulang</button>
+          </div>
+        </div>
+        <div class="field" id="fieldGuruManual" hidden>
+          <label for="guruManual">Nama Guru</label>
+          <input type="text" id="guruManual" placeholder="cth. Budi Santoso, S.Pd.">
+          <p class="form-hint">Gunakan untuk pembina yang belum ada di Data Guru.</p>
+        </div>
+
+        <div class="section-title orange"><span class="dot"></span>Jadwal</div>
+        <div class="grid2">
+          <div class="field full">
+            <label for="hari">Hari <span class="opt">(opsional)</span></label>
+            <select id="hari">
+              <option value="">Belum ditentukan</option>
+              <option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option>
+              <option>Jumat</option><option>Sabtu</option><option>Minggu</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="jam_mulai">Jam Mulai <span class="opt">(opsional)</span></label>
+            <input type="time" id="jam_mulai">
+          </div>
+          <div class="field">
+            <label for="jam_selesai">Jam Selesai <span class="opt">(opsional)</span></label>
+            <input type="time" id="jam_selesai">
+          </div>
+          <div class="field full">
+            <label for="tempat">Tempat <span class="opt">(opsional)</span></label>
+            <input type="text" id="tempat" placeholder="cth. Lapangan Utama, Aula">
+          </div>
+          <div class="field full">
+            <label for="keterangan">Keterangan <span class="opt">(opsional)</span></label>
+            <textarea id="keterangan" placeholder="Catatan tambahan tentang kegiatan"></textarea>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <div class="modal-buttons">
+            <button type="submit" class="btn-mac" id="btnSubmit">Simpan Ekstrakurikuler</button>
+            <button type="button" class="btn-mac" id="btnCancel">Batal</button>
+          </div>
+          <span class="form-msg" id="formMsg"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Dialog Konfirmasi Hapus -->
+<div class="modal-backdrop" id="deleteBackdrop">
+  <div class="alert-box" role="alertdialog" aria-modal="true" aria-labelledby="deleteTitle" aria-describedby="deleteDesc">
+    <span class="mac-icon alert-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></span>
+    <h3 id="deleteTitle">Hapus Ekstrakurikuler?</h3>
+    <p id="deleteDesc">Data akan dihapus permanen dari database.</p>
+    <div class="alert-buttons">
+      <button type="button" class="btn-mac" id="cancelDeleteBtn">Batal</button>
+      <button type="button" class="btn-mac btn-danger" id="confirmDeleteBtn">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co";
+  const SUPABASE_REST = SUPABASE_URL + "/rest/v1/";
+  const ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const TABLE = "ekstrakurikuler";
+  const GURU_TABLE = "dataguru";
+  const sbHeaders = {
+    "apikey": ANON_KEY,
+    "Authorization": "Bearer " + ANON_KEY,
+    "Content-Type": "application/json"
+  };
+  const ICON_COLORS = ["c-indigo","c-green","c-orange","c-pink","c-teal","c-blue"];
+
+  // Logo & nama sekolah dari tabel "profil" (sama seperti halaman lain)
+  (async function loadSchoolProfile(){
+    try{
+      const res = await fetch(`${SUPABASE_REST}profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: sbHeaders });
+      if(!res.ok) return;
+      const rows = await res.json();
+      const profil = rows && rows[0];
+      if(!profil) return;
+      if(profil.nama_sekolah) document.getElementById('schoolName').textContent = profil.nama_sekolah;
+      const termBadgeText = document.getElementById('termBadgeText');
+      const semester = (profil.semester || '').trim();
+      const tahunPelajaran = (profil.tahun_pelajaran || '').trim();
+      if(semester || tahunPelajaran){
+        termBadgeText.textContent = [semester ? 'Semester ' + semester : '', tahunPelajaran].filter(Boolean).join(' • ');
+      } else {
+        document.getElementById('termBadge').style.display = 'none';
+      }
+      if(profil.logo){
+        const logoEl = document.getElementById('schoolLogo');
+        logoEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = profil.logo; img.alt = 'Logo Sekolah';
+        logoEl.appendChild(img);
+      }
+    }catch(err){ console.error('Gagal memuat profil sekolah:', err); }
+  })();
+
+  const overlay = document.getElementById("overlay");
+  const form = document.getElementById("formEkskul");
+  const btnSubmit = document.getElementById("btnSubmit");
+  const formMsg = document.getElementById("formMsg");
+  const listBody = document.getElementById("listBody");
+  const countLabel = document.getElementById("countLabel");
+  const searchInput = document.getElementById("searchInput");
+  const modalTitle = document.getElementById("modalTitle");
+  const modalTitlebar = document.getElementById("modalTitlebar");
+  const modalDesc = document.getElementById("modalDesc");
+  const toast = document.getElementById("toast");
+  const modeData = document.getElementById("modeData");
+  const modeManual = document.getElementById("modeManual");
+  const fieldGuruSelect = document.getElementById("fieldGuruSelect");
+  const fieldGuruManual = document.getElementById("fieldGuruManual");
+  const guruSelect = document.getElementById("guruSelect");
+  const guruManual = document.getElementById("guruManual");
+  const guruHint = document.getElementById("guruHint");
+  const btnReloadGuru = document.getElementById("btnReloadGuru");
+  let toastTimer = null;
+
+  let allEkskul = [];
+  let allGuru = [];
+  let guruMode = "data"; // "data" | "manual"
+  let editing = null;    // null = tambah, object = edit
+
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function showToast(text){
+    toast.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+  function setStatus(text, type){
+    formMsg.textContent = text || '';
+    formMsg.className = 'form-msg' + (type ? ' ' + type : '');
+  }
+
+  /* ---------- Data guru (untuk dropdown) ---------- */
+  function fillGuruSelect(selectedId, selectedName){
+    const opts = ['<option value="">— Pilih guru —</option>'];
+    allGuru.forEach(g => {
+      const sel = (selectedId && String(g.id) === String(selectedId)) ? ' selected' : '';
+      opts.push(`<option value="${escapeHtml(g.id)}"${sel}>${escapeHtml(g.nama_guru)}</option>`);
+    });
+    guruSelect.innerHTML = opts.join('');
+  }
+  async function loadGuru(){
+    btnReloadGuru.disabled = true;
+    guruHint.textContent = "Memuat daftar guru...";
+    try{
+      const res = await fetch(`${SUPABASE_REST}${GURU_TABLE}?select=id,nama_guru&order=nama_guru.asc`, { headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      allGuru = await res.json();
+      fillGuruSelect(editing && editing.guru_id, editing && editing.nama_guru);
+      guruHint.textContent = allGuru.length
+        ? `${allGuru.length} guru tersedia dari Data Guru.`
+        : "Data Guru masih kosong. Gunakan Ketik Manual.";
+    }catch(err){
+      console.error(err);
+      guruHint.textContent = "Gagal memuat Data Guru. Gunakan Ketik Manual atau coba muat ulang.";
+    }finally{
+      btnReloadGuru.disabled = false;
+    }
+  }
+  btnReloadGuru.addEventListener("click", loadGuru);
+
+  function setGuruMode(mode){
+    guruMode = mode;
+    const isData = mode === "data";
+    modeData.setAttribute("aria-pressed", String(isData));
+    modeManual.setAttribute("aria-pressed", String(!isData));
+    fieldGuruSelect.hidden = !isData;
+    fieldGuruManual.hidden = isData;
+  }
+  modeData.addEventListener("click", () => setGuruMode("data"));
+  modeManual.addEventListener("click", () => { setGuruMode("manual"); setTimeout(() => guruManual.focus(), 50); });
+
+  /* ---------- Modal ---------- */
+  function openModal(){
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => document.getElementById("nama_ekstrakurikuler").focus(), 150);
+  }
+  function closeModal(){
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+    form.reset();
+    editing = null;
+    setGuruMode("data");
+    fillGuruSelect();
+    setStatus("", "");
+  }
+  function openAddModal(){
+    editing = null;
+    form.reset();
+    setGuruMode("data");
+    fillGuruSelect();
+    modalTitle.textContent = "Tambah Ekstrakurikuler";
+    modalTitlebar.textContent = "Ekstrakurikuler Baru";
+    modalDesc.textContent = "Isi data kegiatan dan guru pembinanya, lalu simpan.";
+    btnSubmit.textContent = "Simpan Ekstrakurikuler";
+    openModal();
+  }
+  function openEditModal(ek){
+    editing = ek;
+    form.reset();
+    modalTitle.textContent = "Edit Ekstrakurikuler";
+    modalTitlebar.textContent = "Edit Ekstrakurikuler";
+    modalDesc.textContent = "Perbarui data ekstrakurikuler di bawah ini.";
+    btnSubmit.textContent = "Simpan Perubahan";
+
+    document.getElementById("nama_ekstrakurikuler").value = ek.nama_ekstrakurikuler || "";
+    document.getElementById("hari").value = ek.hari || "";
+    document.getElementById("jam_mulai").value = (ek.jam_mulai || "").slice(0,5);
+    document.getElementById("jam_selesai").value = (ek.jam_selesai || "").slice(0,5);
+    document.getElementById("tempat").value = ek.tempat || "";
+    document.getElementById("keterangan").value = ek.keterangan || "";
+
+    const inData = ek.guru_id && allGuru.some(g => String(g.id) === String(ek.guru_id));
+    if(inData){
+      setGuruMode("data");
+      fillGuruSelect(ek.guru_id);
+    } else {
+      setGuruMode("manual");
+      fillGuruSelect();
+      guruManual.value = ek.nama_guru || "";
+    }
+    openModal();
+  }
+  document.getElementById("btnOpenModal").addEventListener("click", openAddModal);
+  document.getElementById("btnCloseModal").addEventListener("click", closeModal);
+  document.getElementById("btnCancel").addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e) => { if(e.target === overlay) closeModal(); });
+
+  /* ---------- Supabase CRUD ---------- */
+  async function insertEkskul(data){
+    const res = await fetch(SUPABASE_REST + TABLE, {
+      method: "POST",
+      headers: { ...sbHeaders, "Prefer": "return=representation" },
+      body: JSON.stringify(data)
+    });
+    if(!res.ok) throw new Error("Gagal menyimpan data: " + (await res.text()));
+    return res.json();
+  }
+  async function updateEkskul(id, data){
+    const res = await fetch(SUPABASE_REST + TABLE + "?id=eq." + encodeURIComponent(id), {
+      method: "PATCH",
+      headers: { ...sbHeaders, "Prefer": "return=representation" },
+      body: JSON.stringify(data)
+    });
+    if(!res.ok) throw new Error("Gagal memperbarui data: " + (await res.text()));
+    const rows = await res.json();
+    if(!rows || rows.length === 0) throw new Error('Tidak ada data yang diperbarui. Periksa policy UPDATE (RLS) pada tabel "ekstrakurikuler".');
+    return rows;
+  }
+  async function deleteEkskul(id){
+    const res = await fetch(SUPABASE_REST + TABLE + "?id=eq." + encodeURIComponent(id), {
+      method: "DELETE",
+      headers: { ...sbHeaders, "Prefer": "return=representation" }
+    });
+    if(!res.ok) throw new Error("Gagal menghapus data: " + (await res.text()));
+    const rows = await res.json();
+    if(!rows || rows.length === 0) throw new Error('Tidak ada data yang dihapus. Periksa policy DELETE (RLS) pada tabel "ekstrakurikuler".');
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    setStatus("", "");
+
+    let namaGuru = "", guruId = null;
+    if(guruMode === "data"){
+      const opt = guruSelect.options[guruSelect.selectedIndex];
+      if(!guruSelect.value){ setStatus("Pilih guru dari daftar, atau ganti ke Ketik Manual.", "err"); return; }
+      guruId = guruSelect.value;
+      namaGuru = opt.textContent.trim();
+    } else {
+      namaGuru = guruManual.value.trim();
+      if(!namaGuru){ setStatus("Nama guru wajib diisi.", "err"); guruManual.focus(); return; }
+    }
+
+    const mulai = document.getElementById("jam_mulai").value;
+    const selesai = document.getElementById("jam_selesai").value;
+    if(mulai && selesai && selesai <= mulai){
+      setStatus("Jam selesai harus lebih akhir dari jam mulai.", "err");
+      return;
+    }
+
+    btnSubmit.disabled = true;
+    const isEdit = !!editing;
+    btnSubmit.textContent = isEdit ? "Menyimpan perubahan..." : "Menyimpan data...";
+
+    const payload = {
+      nama_ekstrakurikuler: document.getElementById("nama_ekstrakurikuler").value.trim(),
+      nama_guru: namaGuru,
+      guru_id: guruId,
+      hari: document.getElementById("hari").value || null,
+      jam_mulai: mulai || null,
+      jam_selesai: selesai || null,
+      tempat: document.getElementById("tempat").value.trim() || null,
+      keterangan: document.getElementById("keterangan").value.trim() || null
+    };
+
+    try{
+      if(!isEdit){
+        const inserted = await insertEkskul(payload);
+        allEkskul.unshift(Array.isArray(inserted) && inserted.length ? inserted[0] : payload);
+      } else {
+        const updated = await updateEkskul(editing.id, payload);
+        const idx = allEkskul.findIndex(x => x.id === editing.id);
+        if(idx !== -1) allEkskul[idx] = updated[0];
+      }
+      sortList();
+      renderList();
+      closeModal();
+      showToast(isEdit ? "Perubahan berhasil disimpan." : "Ekstrakurikuler berhasil disimpan.");
+    }catch(err){
+      console.error(err);
+      setStatus(err.message || "Terjadi kesalahan, coba lagi.", "err");
+    }finally{
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = editing ? "Simpan Perubahan" : "Simpan Ekstrakurikuler";
+    }
+  });
+
+  /* ---------- Hapus ---------- */
+  const deleteBackdrop = document.getElementById("deleteBackdrop");
+  const deleteDesc = document.getElementById("deleteDesc");
+  const cancelDeleteBtn = document.getElementById("cancelDeleteBtn");
+  const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+  let pendingDelete = null;
+
+  function openDeleteDialog(ek){
+    pendingDelete = ek;
+    deleteDesc.textContent = `Data ekstrakurikuler "${ek.nama_ekstrakurikuler}" akan dihapus permanen dari database dan tidak dapat dikembalikan.`;
+    deleteBackdrop.classList.add("open");
+    setTimeout(() => cancelDeleteBtn.focus(), 150);
+  }
+  function closeDeleteDialog(){
+    deleteBackdrop.classList.remove("open");
+    pendingDelete = null;
+  }
+  cancelDeleteBtn.addEventListener("click", closeDeleteDialog);
+  deleteBackdrop.addEventListener("click", (e) => { if(e.target === deleteBackdrop) closeDeleteDialog(); });
+
+  confirmDeleteBtn.addEventListener("click", async () => {
+    if(!pendingDelete) return;
+    const ek = pendingDelete;
+    confirmDeleteBtn.disabled = true;
+    cancelDeleteBtn.disabled = true;
+    confirmDeleteBtn.textContent = "Menghapus...";
+    try{
+      await deleteEkskul(ek.id);
+      allEkskul = allEkskul.filter(x => x.id !== ek.id);
+      renderList();
+      closeDeleteDialog();
+      showToast("Ekstrakurikuler berhasil dihapus.");
+    }catch(err){
+      console.error(err);
+      closeDeleteDialog();
+      showToast('Gagal menghapus. Pastikan policy DELETE di tabel "ekstrakurikuler" sudah aktif.');
+    }finally{
+      confirmDeleteBtn.disabled = false;
+      cancelDeleteBtn.disabled = false;
+      confirmDeleteBtn.textContent = "Hapus";
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if(e.key !== "Escape") return;
+    if(deleteBackdrop.classList.contains("open")) closeDeleteDialog();
+    else if(overlay.classList.contains("open")) closeModal();
+  });
+
+  /* ---------- Render kartu ---------- */
+  function colorFor(str){
+    let hash = 0;
+    for(let i = 0; i < (str || "").length; i++) hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+    return ICON_COLORS[hash % ICON_COLORS.length];
+  }
+  function sortList(){
+    allEkskul.sort((a, b) => (a.nama_ekstrakurikuler || "").localeCompare(b.nama_ekstrakurikuler || "", "id"));
+  }
+  function jadwalText(ek){
+    const jam = [ (ek.jam_mulai || "").slice(0,5), (ek.jam_selesai || "").slice(0,5) ].filter(Boolean).join(" – ");
+    return [ek.hari, jam].filter(Boolean).join(", ");
+  }
+
+  const ICON_TROPHY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5v1.5A2.5 2.5 0 0 0 8 10"/><path d="M16 6h2.5v1.5A2.5 2.5 0 0 1 16 10"/><path d="M12 13v3.5"/><path d="M8.5 20h7"/><path d="M9.5 20v-3.5h5V20"/></svg>';
+  const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  const ICON_NOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
+  const ICON_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';
+
+  function renderList(){
+    const q = searchInput.value.trim().toLowerCase();
+    const filtered = q
+      ? allEkskul.filter(x => (x.nama_ekstrakurikuler || "").toLowerCase().includes(q) || (x.nama_guru || "").toLowerCase().includes(q))
+      : allEkskul;
+
+    countLabel.textContent = allEkskul.length === 0
+      ? "0 kegiatan"
+      : (q ? `${filtered.length} dari ${allEkskul.length} kegiatan` : `${allEkskul.length} kegiatan`);
+
+    if(allEkskul.length === 0){
+      listBody.innerHTML = '<div class="empty-state">Belum ada ekstrakurikuler. Klik "Tambah Ekstrakurikuler" di bawah untuk menambahkan.</div>';
+      return;
+    }
+    if(filtered.length === 0){
+      listBody.innerHTML = '<div class="empty-state">Tidak ada data yang cocok dengan pencarian.</div>';
+      return;
+    }
+
+    listBody.innerHTML = filtered.map((x, i) => {
+      const jadwal = jadwalText(x);
+      const manual = !x.guru_id;
+      return `
+      <article class="wk-card ek-card" style="animation-delay:${Math.min(i, 12) * 30}ms">
+        <span class="mac-icon ek-icon ${colorFor(x.nama_ekstrakurikuler || x.id)}">${ICON_TROPHY}</span>
+        <h3 class="wk-name">${escapeHtml(x.nama_ekstrakurikuler || "-")}</h3>
+        <span class="pembina${manual ? " manual" : ""}" title="${manual ? "Diketik manual" : "Dari Data Guru"}">${ICON_USER}<span>${escapeHtml(x.nama_guru || "-")}</span></span>
+        <div class="g-info">
+          ${jadwal ? `<div class="g-row">${ICON_CLOCK}<span>${escapeHtml(jadwal)}</span></div>` : ""}
+          ${x.tempat ? `<div class="g-row">${ICON_PIN}<span>${escapeHtml(x.tempat)}</span></div>` : ""}
+          ${x.keterangan ? `<div class="g-row">${ICON_NOTE}<span>${escapeHtml(x.keterangan)}</span></div>` : ""}
+        </div>
+        <div class="row-actions">
+          <button class="icon-btn edit" title="Edit" aria-label="Edit ${escapeHtml(x.nama_ekstrakurikuler)}" type="button" data-action="edit" data-id="${escapeHtml(x.id)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+          </button>
+          <button class="icon-btn delete" title="Hapus" aria-label="Hapus ${escapeHtml(x.nama_ekstrakurikuler)}" type="button" data-action="delete" data-id="${escapeHtml(x.id)}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  listBody.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if(!btn) return;
+    const ek = allEkskul.find(x => String(x.id) === btn.getAttribute("data-id"));
+    if(!ek) return;
+    if(btn.getAttribute("data-action") === "edit") openEditModal(ek);
+    else openDeleteDialog(ek);
+  });
+  searchInput.addEventListener("input", renderList);
+
+  async function loadEkskul(){
+    try{
+      const res = await fetch(SUPABASE_REST + TABLE + "?select=*&order=nama_ekstrakurikuler.asc", { headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      allEkskul = await res.json();
+      renderList();
+    }catch(err){
+      console.error(err);
+      countLabel.textContent = "– kegiatan";
+      listBody.innerHTML = '<div class="empty-state">Tidak dapat memuat data. Pastikan tabel "ekstrakurikuler" sudah dibuat (jalankan ekstrakurikuler.sql di Supabase) dan periksa koneksi.</div>';
+    }
+  }
+  loadGuru();
+  loadEkskul();
+</script>
+
+</body>
+</html>
