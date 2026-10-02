@@ -599,10 +599,16 @@
             <label for="tempat">Tempat <span class="opt">(opsional)</span></label>
             <input type="text" id="tempat" placeholder="cth. Lapangan Utama, Aula">
           </div>
-          <div class="field full">
-            <label for="keterangan">Keterangan <span class="opt">(opsional)</span></label>
-            <textarea id="keterangan" placeholder="Catatan tambahan tentang kegiatan"></textarea>
+        </div>
+
+        <div class="section-title green"><span class="dot"></span>Akun Login</div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="pass-wrap">
+            <input type="password" id="password" required placeholder="Minimal 6 karakter">
+            <button type="button" class="pass-toggle" id="togglePass">Tampilkan</button>
           </div>
+          <p class="form-hint" id="passwordHint" hidden>Kosongkan jika password tidak ingin diubah.</p>
         </div>
 
         <div class="modal-actions">
@@ -691,6 +697,9 @@
   const guruManual = document.getElementById("guruManual");
   const guruHint = document.getElementById("guruHint");
   const btnReloadGuru = document.getElementById("btnReloadGuru");
+  const passInput = document.getElementById("password");
+  const togglePass = document.getElementById("togglePass");
+  const passwordHint = document.getElementById("passwordHint");
   let toastTimer = null;
 
   let allEkskul = [];
@@ -752,6 +761,12 @@
   modeData.addEventListener("click", () => setGuruMode("data"));
   modeManual.addEventListener("click", () => { setGuruMode("manual"); setTimeout(() => guruManual.focus(), 50); });
 
+  togglePass.addEventListener("click", () => {
+    const isPass = passInput.type === "password";
+    passInput.type = isPass ? "text" : "password";
+    togglePass.textContent = isPass ? "Sembunyikan" : "Tampilkan";
+  });
+
   /* ---------- Modal ---------- */
   function openModal(){
     overlay.classList.add("open");
@@ -765,6 +780,8 @@
     editing = null;
     setGuruMode("data");
     fillGuruSelect();
+    passInput.type = "password";
+    togglePass.textContent = "Tampilkan";
     setStatus("", "");
   }
   function openAddModal(){
@@ -776,6 +793,9 @@
     modalTitlebar.textContent = "Ekstrakurikuler Baru";
     modalDesc.textContent = "Isi data kegiatan dan guru pembinanya, lalu simpan.";
     btnSubmit.textContent = "Simpan Ekstrakurikuler";
+    passInput.required = true;
+    passInput.placeholder = "Minimal 6 karakter";
+    passwordHint.hidden = true;
     openModal();
   }
   function openEditModal(ek){
@@ -791,7 +811,10 @@
     document.getElementById("jam_mulai").value = (ek.jam_mulai || "").slice(0,5);
     document.getElementById("jam_selesai").value = (ek.jam_selesai || "").slice(0,5);
     document.getElementById("tempat").value = ek.tempat || "";
-    document.getElementById("keterangan").value = ek.keterangan || "";
+    passInput.value = "";
+    passInput.required = false;
+    passInput.placeholder = "Kosongkan jika tidak diubah";
+    passwordHint.hidden = false;
 
     const inData = ek.guru_id && allGuru.some(g => String(g.id) === String(ek.guru_id));
     if(inData){
@@ -873,9 +896,10 @@
       hari: document.getElementById("hari").value || null,
       jam_mulai: mulai || null,
       jam_selesai: selesai || null,
-      tempat: document.getElementById("tempat").value.trim() || null,
-      keterangan: document.getElementById("keterangan").value.trim() || null
+      tempat: document.getElementById("tempat").value.trim() || null
     };
+    // Password: wajib saat tambah; saat edit hanya dikirim jika diisi
+    if(passInput.value) payload.password = passInput.value;
 
     try{
       if(!isEdit){
@@ -965,7 +989,6 @@
   const ICON_TROPHY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5v1.5A2.5 2.5 0 0 0 8 10"/><path d="M16 6h2.5v1.5A2.5 2.5 0 0 1 16 10"/><path d="M12 13v3.5"/><path d="M8.5 20h7"/><path d="M9.5 20v-3.5h5V20"/></svg>';
   const ICON_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   const ICON_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
-  const ICON_NOTE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
   const ICON_USER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>';
 
   function renderList(){
@@ -998,7 +1021,6 @@
         <div class="g-info">
           ${jadwal ? `<div class="g-row">${ICON_CLOCK}<span>${escapeHtml(jadwal)}</span></div>` : ""}
           ${x.tempat ? `<div class="g-row">${ICON_PIN}<span>${escapeHtml(x.tempat)}</span></div>` : ""}
-          ${x.keterangan ? `<div class="g-row">${ICON_NOTE}<span>${escapeHtml(x.keterangan)}</span></div>` : ""}
         </div>
         <div class="row-actions">
           <button class="icon-btn edit" title="Edit" aria-label="Edit ${escapeHtml(x.nama_ekstrakurikuler)}" type="button" data-action="edit" data-id="${escapeHtml(x.id)}">
