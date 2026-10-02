@@ -372,6 +372,19 @@
   .seg-count.has{background:rgba(40,185,74,0.16); color:#1C8A39;}
   .seg-tab.active .seg-count.has{background:rgba(40,185,74,0.2); color:#1C8A39;}
   .nisn-col{font-variant-numeric:tabular-nums; color:var(--text-dim);}
+  th.aksi-col, td.aksi-col{width:70px; text-align:center;}
+  .btn-hapus{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:30px; height:28px; padding:0; border-radius:6px; cursor:pointer;
+    background:linear-gradient(180deg,#fff,#f5f5f7);
+    border:1px solid var(--field-border); color:var(--err);
+    box-shadow:0 1px 1px rgba(0,0,0,0.06);
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .btn-hapus svg{width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .btn-hapus:hover{background:var(--err); border-color:var(--err); color:#fff;}
+  .btn-hapus:disabled{opacity:.5; cursor:wait;}
+  .aksi-kosong{color:var(--text-dim);}
   .footer-btn:disabled{cursor:not-allowed;}
   @media (max-width:560px){
     .ekskul-pick{flex-basis:100%;}
@@ -428,6 +441,7 @@
               <th class="chk-col"><input type="checkbox" class="chk" id="checkAll" aria-label="Pilih semua siswa di kelas ini"></th>
               <th>Nama Siswa</th>
               <th>NISN</th>
+              <th class="aksi-col">Aksi</th>
             </tr>
           </thead>
           <tbody id="siswaBody"></tbody>
@@ -687,7 +701,10 @@
       tr.innerHTML = `
         <td class="chk-col"><input type="checkbox" class="chk" ${on ? 'checked' : ''} aria-label="Pilih ${escapeHtml(s.nama_siswa)}"></td>
         <td>${escapeHtml(s.nama_siswa)}</td>
-        <td class="nisn-col">${escapeHtml(s.nisn)}</td>`;
+        <td class="nisn-col">${escapeHtml(s.nisn)}</td>
+        <td class="aksi-col">${saved.has(s.id)
+          ? `<button type="button" class="btn-hapus" title="Hapus mapping ${escapeHtml(s.nama_siswa)}" aria-label="Hapus mapping ${escapeHtml(s.nama_siswa)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12"/><path d="M9 7V4h6v3"/></svg></button>`
+          : '<span class="aksi-kosong" title="Belum tersimpan">—</span>'}</td>`;
       siswaBody.appendChild(tr);
     });
     // status "pilih semua" untuk baris yang tampil
@@ -730,9 +747,35 @@
   function toggle(id, on){
     if(on) picked.add(id); else picked.delete(id);
   }
+  /* ---------- Hapus satu mapping langsung dari database ---------- */
+  async function hapusMapping(id, btn){
+    const sw = allSiswa.find(x => String(x.id) === String(id)) || {};
+    if(!confirm(`Hapus mapping "${sw.nama_siswa || id}" dari ekstrakurikuler ini?`)) return;
+    if(btn) btn.disabled = true;
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${MAP_TABLE}?ekskul_id=eq.${encodeURIComponent(ekskulId)}&siswa_id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: { ...headersJson, 'Prefer': 'return=representation' }
+      });
+      if(!res.ok) throw new Error('Gagal menghapus mapping: ' + (await res.text()));
+      const rows = await res.json();
+      if(!rows || rows.length === 0) throw new Error('Tidak ada mapping yang dihapus. Periksa policy DELETE (RLS) pada tabel "mapping_siswa_ekskul".');
+      saved.delete(id); picked.delete(id);
+      setPageMsg('', '');
+      showToast(`Mapping ${sw.nama_siswa || ''} dihapus.`.replace('  ', ' '));
+    }catch(err){
+      console.error(err);
+      setPageMsg(err.message || 'Terjadi kesalahan saat menghapus.', 'err');
+    }finally{
+      renderAll();
+    }
+  }
+
   siswaBody.addEventListener('click', (e) => {
     const tr = e.target.closest('tr.pick-row');
     if(!tr) return;
+    const del = e.target.closest('.btn-hapus');
+    if(del){ hapusMapping(tr.dataset.id, del); return; }
     const cb = tr.querySelector('input.chk');
     if(e.target !== cb) cb.checked = !cb.checked;   // klik di mana saja pada baris
     toggle(tr.dataset.id, cb.checked);
