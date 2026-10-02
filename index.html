@@ -411,7 +411,7 @@
 
   <section class="roles">
     <div class="roles-inner">
-      <h2>Satu sistem, tiga cara memakainya</h2>
+      <h2>Satu sistem, empat cara memakainya</h2>
 
       <div class="role-row">
         <div class="role-name" style="color:var(--turquoise);">Siswa</div>
@@ -427,6 +427,11 @@
         <div class="role-name" style="color:var(--brick);">Admin</div>
         <div class="role-desc">Mengatur data sekolah, guru, siswa, dan seluruh sistem penilaian dari satu tempat.</div>
         <button class="role-go" data-role="admin">Masuk sebagai Admin</button>
+      </div>
+      <div class="role-row">
+        <div class="role-name" style="color:var(--green);">Ekstrakurikuler</div>
+        <div class="role-desc">Untuk guru pembina: mengelola kegiatan ekstrakurikuler yang diampu.</div>
+        <button class="role-go" data-role="ekskul">Masuk sebagai Pembina</button>
       </div>
     </div>
   </section>
@@ -454,6 +459,10 @@
         <strong>Admin</strong>
         <span>Kelola seluruh sistem sekolah</span>
       </button>
+      <button class="role-pick" data-role="ekskul">
+        <strong>Ekstrakurikuler</strong>
+        <span>Masuk sebagai guru pembina</span>
+      </button>
     </div>
 
     <div class="modal-step" id="stepForm" hidden>
@@ -471,6 +480,11 @@
         <label id="guruSelectLabel" hidden>Pilih Guru
           <select id="guruSelect" autocomplete="username">
             <option value="">Memuat data guru...</option>
+          </select>
+        </label>
+        <label id="pembinaSelectLabel" hidden>Pilih Pembina
+          <select id="pembinaSelect" autocomplete="username">
+            <option value="">Memuat data pembina...</option>
           </select>
         </label>
         <label id="passwordLabel">Kata sandi
@@ -531,6 +545,8 @@
   const guruSelect = document.getElementById('guruSelect');
   const siswaSelectLabel = document.getElementById('siswaSelectLabel');
   const siswaSelect = document.getElementById('siswaSelect');
+  const pembinaSelectLabel = document.getElementById('pembinaSelectLabel');
+  const pembinaSelect = document.getElementById('pembinaSelect');
   const passwordLabel = document.getElementById('passwordLabel');
   const stepWelcome = document.getElementById('stepWelcome');
   const welcomeTitle = document.getElementById('welcomeTitle');
@@ -540,12 +556,14 @@
   const roleMeta = {
     siswa: { label: 'Siswa', idText: 'Username', passwordText: 'Kata sandi (NISN)' },
     guru:  { label: 'Guru',  idText: 'NIP atau Username', passwordText: 'Password' },
-    admin: { label: 'Admin', idText: 'Username', passwordText: 'Kata sandi' }
+    admin: { label: 'Admin', idText: 'Username', passwordText: 'Kata sandi' },
+    ekskul: { label: 'Ekstrakurikuler', idText: 'Username', passwordText: 'Password' }
   };
 
   let currentRole = 'siswa';
   let guruOptionsLoaded = false;
   let siswaOptionsLoaded = false;
+  let pembinaOptionsLoaded = false;
 
   function openModal(){
     backdrop.classList.add('open');
@@ -562,6 +580,7 @@
     idLabel.hidden = true;
     guruSelectLabel.hidden = true;
     siswaSelectLabel.hidden = true;
+    pembinaSelectLabel.hidden = true;
     welcomeProgress.classList.remove('run');
   }
   function selectRole(role){
@@ -573,8 +592,14 @@
     idLabel.hidden = true; idInput.required = false;
     guruSelectLabel.hidden = true; guruSelect.required = false;
     siswaSelectLabel.hidden = true; siswaSelect.required = false;
+    pembinaSelectLabel.hidden = true; pembinaSelect.required = false;
 
-    if(role === 'guru'){
+    if(role === 'ekskul'){
+      pembinaSelectLabel.hidden = false;
+      pembinaSelect.required = true;
+      if(!pembinaOptionsLoaded) loadPembinaOptions();
+      pembinaSelect.focus();
+    } else if(role === 'guru'){
       guruSelectLabel.hidden = false;
       guruSelect.required = true;
       if(!guruOptionsLoaded) loadGuruOptions();
@@ -663,6 +688,34 @@
     }
   }
 
+  // Ambil daftar pembina dari tabel "ekstrakurikuler" (kolom nama_guru) untuk dropdown login
+  async function loadPembinaOptions(){
+    const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+    try{
+      const res = await fetch(`${SUPABASE_URL}/ekstrakurikuler?select=nama_guru&order=nama_guru.asc`, {
+        headers:{
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        }
+      });
+      if(!res.ok) throw new Error('Gagal mengambil data pembina.');
+      const rows = await res.json();
+      // satu pembina bisa membina lebih dari satu kegiatan -> tampilkan satu kali
+      const names = [...new Set((rows || []).map(r => r.nama_guru).filter(Boolean))];
+      if(names.length === 0){
+        pembinaSelect.innerHTML = '<option value="">Belum ada data pembina</option>';
+        return;
+      }
+      pembinaSelect.innerHTML = '<option value="" disabled selected>Pilih nama pembina</option>' +
+        names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+      pembinaOptionsLoaded = true;
+    }catch(err){
+      console.error('Gagal memuat data pembina:', err);
+      pembinaSelect.innerHTML = '<option value="">Gagal memuat data pembina</option>';
+    }
+  }
+
   document.getElementById('openLoginB').addEventListener('click', openModal);
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('backToRole').addEventListener('click', () => {
@@ -725,6 +778,19 @@
     if(!res.ok) throw new Error('Gagal menghubungi server.');
     const rows = await res.json();
     return rows && rows.length > 0 ? rows[0] : null;
+  }
+
+  async function loginPembina(namaGuru, password){
+    const url = `${SUPABASE_URL}/ekstrakurikuler?nama_guru=eq.${encodeURIComponent(namaGuru)}&password=eq.${encodeURIComponent(password)}&select=id,nama_guru,guru_id,nama_ekstrakurikuler`;
+    const res = await fetch(url, {
+      headers:{
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + SUPABASE_ANON_KEY
+      }
+    });
+    if(!res.ok) throw new Error('Gagal menghubungi server.');
+    const rows = await res.json();
+    return rows && rows.length > 0 ? rows : null;
   }
 
   async function loginSiswa(namaSiswa, nisn){
@@ -803,6 +869,37 @@
           window.location.href = 'adminguru.html';
         } else {
           showLoginError('Nama guru atau password salah.');
+        }
+      }catch(err){
+        console.error(err);
+        showLoginError('Terjadi kesalahan saat memeriksa data. Coba lagi.');
+      }finally{
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Masuk';
+      }
+      return;
+    }
+
+    if(currentRole === 'ekskul'){
+      const namaPembina = pembinaSelect.value;
+      if(!namaPembina){
+        showLoginError('Pilih nama pembina terlebih dahulu.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Memeriksa...';
+      try{
+        const rows = await loginPembina(namaPembina, password);
+        if(rows){
+          localStorage.setItem('ekskul_session', JSON.stringify({
+            nama_guru: rows[0].nama_guru,
+            guru_id: rows[0].guru_id || null,
+            ekskul: rows.map(r => ({ id: r.id, nama_ekstrakurikuler: r.nama_ekstrakurikuler }))
+          }));
+          showWelcomeAndRedirect(rows[0].nama_guru, 'adminekskul.html');
+        } else {
+          showLoginError('Nama pembina atau password salah.');
         }
       }catch(err){
         console.error(err);
