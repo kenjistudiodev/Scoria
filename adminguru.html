@@ -503,6 +503,51 @@
   .compare-fill{height:100%; border-radius:5px;}
   .compare-num{width:40px; text-align:right; font-size:0.8rem; font-weight:600; color:var(--text-dim); flex-shrink:0;}
 
+
+  /* ---------- Modal Guru Piket ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; z-index:60;
+    display:flex; align-items:center; justify-content:center;
+    padding:16px;
+    background:rgba(30,40,80,0.35);
+    -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.22s ease, visibility 0s linear 0.22s;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity 0.22s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:380px;
+    background:rgba(255,255,255,0.86);
+    -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:14px; overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 24px 60px rgba(30,40,80,0.35);
+    transform:scale(0.94); transition:transform 0.22s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:scale(1);}
+  .modal .titlebar{height:40px;}
+  .modal-close{
+    position:absolute; left:14px; top:50%; transform:translateY(-50%);
+    width:12px; height:12px; border-radius:50%; border:none; padding:0; cursor:pointer;
+    background:#FF5F57; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);
+  }
+  .modal-close:hover{filter:brightness(0.9);}
+  .modal-body{padding:16px; display:flex; flex-direction:column; gap:10px;}
+  .modal-desc{margin:0 0 4px; font-size:0.85rem; color:var(--text-dim);}
+  .modal-btn{
+    display:flex; align-items:center; gap:14px;
+    padding:12px 14px; border-radius:12px;
+    background:rgba(255,255,255,0.92); border:1px solid var(--hairline);
+    color:var(--text); text-decoration:none; font-size:0.92rem; font-weight:600;
+    box-shadow:0 1px 3px rgba(30,40,80,0.08);
+    transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+  .modal-btn:hover{transform:translateY(-1px); background:#fff; box-shadow:0 6px 16px rgba(30,40,80,0.14);}
+  .modal-btn:active{transform:scale(0.98);}
+  .modal-btn .mac-icon{width:42px; height:42px; border-radius:10px;}
+  .modal-btn .mac-icon svg{width:24px; height:24px;}
+  .modal-btn .chev{margin-left:auto; color:var(--text-dim); font-weight:500;}
+
   .menu-item.logout-item{color:#D70015;}
   @media (max-width:560px){ .panel-search{min-width:0; width:100%;} }
 </style>
@@ -727,6 +772,10 @@
         <span class="mac-icon teal"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3.5" width="16" height="17" rx="2.5"/><circle cx="12" cy="10" r="2.5"/><path d="M7.5 17c.4-2 2.2-3.3 4.5-3.3s4.1 1.3 4.5 3.3"/></svg></span>
         Wali Kelas
       </a>
+      <a class="menu-item" href="#" id="menuGuruPiket">
+        <span class="mac-icon pink"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8" r="3.3"/><path d="M3.8 20c0-3.5 2.8-5.6 6.2-5.6 1.2 0 2.3.3 3.2.8"/><circle cx="17.5" cy="16.5" r="4"/><path d="M17.5 14.5v2l1.4.9"/></svg></span>
+        Guru Piket
+      </a>
       <a class="menu-item" href="backupresetguru.html">
         <span class="mac-icon gray"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M3.5 4v4.5H8"/><path d="M12 8v4.5l3 1.8"/></svg></span>
         Back Up &amp; Reset
@@ -740,6 +789,31 @@
         Log Out
       </a>
     </nav>
+  </div>
+</div>
+
+<!-- Modal Guru Piket -->
+<div class="modal-backdrop" id="piketModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="piketModalTitle">
+    <div class="titlebar">
+      <button class="modal-close" id="piketModalClose" aria-label="Tutup"></button>
+      <div class="titlebar-title" id="piketModalTitle">Guru Piket</div>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">Pilih menu piket yang ingin dibuka.</p>
+      <a class="modal-btn" href="mappingpiketsiswa.html">
+        <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 6h4a4 4 0 0 1 4 4v2"/></svg></span>
+        Mapping Piket Siswa<span class="chev">&rsaquo;</span>
+      </a>
+      <a class="modal-btn" href="inputpiketsiswa.html">
+        <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4.5" width="14" height="16" rx="2.5"/><path d="M9 4.5V3.5h6v1"/><path d="M8.8 11l1.4 1.4 2.4-2.6"/><path d="M8.8 16h6.4"/></svg></span>
+        Input Piket Siswa<span class="chev">&rsaquo;</span>
+      </a>
+      <a class="modal-btn" href="daftarmbghariini.html">
+        <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11h16a8 8 0 0 1-16 0z"/><path d="M8 7c0-1.2 1-1.2 1-2.4M12 7c0-1.2 1-1.2 1-2.4M16 7c0-1.2 1-1.2 1-2.4"/></svg></span>
+        Daftar MBG Hari Ini<span class="chev">&rsaquo;</span>
+      </a>
+    </div>
   </div>
 </div>
 
@@ -1364,6 +1438,24 @@
   document.getElementById('sheetLogout').addEventListener('click', (e) => {
     e.preventDefault();
     doLogout();
+  });
+
+  // ---------- Modal Guru Piket ----------
+  const piketModal = document.getElementById('piketModal');
+  const menuGuruPiket = document.getElementById('menuGuruPiket');
+  if(menuGuruPiket){
+    menuGuruPiket.addEventListener('click', (e) => {
+      e.preventDefault();
+      sheetBackdrop.classList.remove('open');
+      piketModal.classList.add('open');
+    });
+  }
+  document.getElementById('piketModalClose').addEventListener('click', () => piketModal.classList.remove('open'));
+  piketModal.addEventListener('click', (e) => {
+    if (e.target === piketModal) piketModal.classList.remove('open');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') piketModal.classList.remove('open');
   });
 </script>
 
