@@ -569,9 +569,9 @@
   });
 
   async function loadEkskul(){
-    ekskulList = (session.ekskul || []).map(e => ({ id: e.id, nama_ekstrakurikuler: e.nama_ekstrakurikuler }));
+    ekskulList = (session.ekskul || []).map(e => ({ id: e.id, nama_ekstrakurikuler: e.nama_ekstrakurikuler, nama_guru: session.nama_guru }));
     try{
-      const res = await fetch(`${SUPABASE_URL}/${EKSKUL_TABLE}?nama_guru=eq.${encodeURIComponent(session.nama_guru)}&select=id,nama_ekstrakurikuler&order=nama_ekstrakurikuler.asc`, { headers: headersBase });
+      const res = await fetch(`${SUPABASE_URL}/${EKSKUL_TABLE}?nama_guru=eq.${encodeURIComponent(session.nama_guru)}&select=id,nama_ekstrakurikuler,nama_guru&order=nama_ekstrakurikuler.asc`, { headers: headersBase });
       if(!res.ok) throw new Error('Status ' + res.status);
       ekskulList = await res.json();
     }catch(err){ console.error('Gagal memuat ekstrakurikuler:', err); }
@@ -754,6 +754,7 @@
   async function saveMapping(){
     const { add, remove } = diff();
     if(add.length + remove.length === 0) return;
+    const ekskulAktif = ekskulList.find(e => String(e.id) === String(ekskulId));
     saving = true;
     btnSave.disabled = true; btnReset.disabled = true;
     saveLabel.textContent = 'Menyimpan...';
@@ -772,7 +773,17 @@
         const res = await fetch(`${SUPABASE_URL}/${MAP_TABLE}?on_conflict=ekskul_id,siswa_id`, {
           method: 'POST',
           headers: { ...headersJson, 'Prefer': 'resolution=ignore-duplicates,return=representation' },
-          body: JSON.stringify(add.map(id => ({ ekskul_id: ekskulId, siswa_id: id })))
+          body: JSON.stringify(add.map(id => {
+            const sw = allSiswa.find(x => String(x.id) === String(id)) || {};
+            return {
+              ekskul_id: ekskulId,
+              siswa_id: id,
+              nama_siswa: sw.nama_siswa || null,
+              kelas: sw.kelas || null,
+              nama_ekskul: ekskulAktif ? ekskulAktif.nama_ekstrakurikuler : null,
+              nama_pembina: (ekskulAktif && ekskulAktif.nama_guru) || session.nama_guru || null
+            };
+          }))
         });
         if(!res.ok) throw new Error('Gagal menyimpan mapping: ' + (await res.text()));
       }
