@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pembina Ekstrakurikuler — SCORIA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* dipakai oleh footer & slide-up bar (menu tidak diubah) */
+    --ink:#3B2E63;
+    --gold:#FFC93C;
+    --turquoise:#0F766E;
+    --footer-h:72px;
+    /* palet macOS untuk halaman */
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --green:#34C759;
+    --brick:#FF3B30;
+    --blue:#007AFF;
+    --hairline:rgba(0,0,0,0.1);
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0;
+    color:var(--text);
+    font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 20px);
+    overflow-x:hidden;
+    max-width:100vw;
+    min-height:100vh;
+    /* wallpaper ala macOS */
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .navbar :focus-visible, main :focus-visible{outline-color:var(--mac-blue);}
+
+  /* ---------- Menu bar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    height:30px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
+    color:var(--text);
+  }
+  .nav-left{display:flex; align-items:center; gap:8px;}
+  .school-logo{
+    width:20px; height:20px;
+    border-radius:6px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700;
+    flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .nav-right{display:flex; align-items:center; gap:14px; min-width:0;}
+  .nav-schoolinfo{display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0;}
+  .school-name{
+    font-size:13px; font-weight:700; color:var(--text);
+    max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .term-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:500; color:var(--text-dim);
+    background:rgba(0,0,0,0.06);
+    padding:2px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .term-badge .dot{width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0;}
+  .admin-account{
+    display:flex; align-items:center; gap:7px;
+    padding-left:12px; border-left:1px solid var(--hairline);
+  }
+  .avatar{
+    width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,#B0B0B8,#7C7C84);
+    color:#fff; font-size:8px; font-weight:700;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .admin-name{font-size:13px; font-weight:500; color:var(--text);}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:34px clamp(12px,3vw,32px) 12px;}
+  .window{
+    background:rgba(255,255,255,0.78);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span{width:12px; height:12px; border-radius:50%; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);}
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px clamp(14px,3vw,30px) 30px;}
+
+  .page-heading{font-size:clamp(1.5rem,3vw,1.9rem); font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{font-size:0.92rem; color:var(--text-dim); line-height:1.5; margin:0 0 22px;}
+
+  /* ---------- Kartu identitas sekolah (hero) ---------- */
+  .profile-card{
+    display:flex; align-items:center; gap:22px;
+    background:linear-gradient(135deg,#5E5CE6 0%,#0A84FF 55%,#64D2FF 120%);
+    border-radius:16px;
+    padding:24px clamp(18px,3vw,32px);
+    margin-bottom:26px;
+    box-shadow:0 10px 30px rgba(10,132,255,0.3), inset 0 1px 0 rgba(255,255,255,0.3);
+    position:relative; overflow:hidden;
+  }
+  .profile-card::after{
+    content:""; position:absolute; top:-40%; right:-10%;
+    width:240px; height:240px;
+    background:radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 70%);
+    pointer-events:none;
+  }
+  .profile-photo{
+    flex-shrink:0; width:96px; height:96px; border-radius:22px;
+    background:#fff; color:#007AFF;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1.5rem;
+    border:3px solid rgba(255,255,255,0.6);
+    box-shadow:0 6px 16px rgba(0,0,0,0.22);
+    overflow:hidden; position:relative; z-index:1;
+  }
+  .profile-photo img{width:100%; height:100%; object-fit:cover;}
+  .profile-info{position:relative; z-index:1; flex:1; min-width:0;}
+  .profile-tag{font-size:0.7rem; font-weight:700; letter-spacing:0.08em; color:rgba(255,255,255,0.8); margin:0 0 4px;}
+  .profile-name{
+    font-weight:700; letter-spacing:-0.01em;
+    font-size:clamp(1.2rem,2.4vw,1.55rem);
+    color:#fff; margin:0 0 14px; line-height:1.2;
+  }
+  .profile-meta{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px 24px;}
+  .profile-meta-item{display:flex; flex-direction:column; gap:2px;}
+  .profile-meta-item.full{grid-column:1 / -1;}
+  .meta-label{font-size:0.68rem; font-weight:600; letter-spacing:0.04em; color:rgba(255,255,255,0.72); text-transform:uppercase;}
+  .meta-value{font-size:0.95rem; color:#fff; font-weight:600;}
+  .profile-link{
+    display:inline-block; margin-top:16px;
+    font-size:0.82rem; font-weight:600; color:#fff; text-decoration:none;
+    background:rgba(255,255,255,0.22);
+    border:1px solid rgba(255,255,255,0.35);
+    padding:6px 14px; border-radius:999px;
+    position:relative; z-index:1;
+    transition:background 0.15s ease;
+  }
+  .profile-link:hover{background:rgba(255,255,255,0.34);}
+
+  @media (max-width:560px){
+    main{padding-left:5px; padding-right:5px;}
+    .navbar{padding-left:10px; padding-right:10px;}
+    .window-body{padding:20px 12px 22px;}
+    .panel-row{grid-template-columns:1fr;}
+    .panel{padding:16px 12px;}
+    .profile-card{flex-direction:column; text-align:left; align-items:stretch;}
+    .profile-photo{margin:0 auto 4px;}
+    .profile-tag{text-align:center;}
+    .profile-name{text-align:center;}
+    .profile-meta{
+      display:block;
+      background:rgba(0,0,0,0.14);
+      border-radius:12px;
+      padding:4px 12px;
+    }
+    .profile-meta-item{
+      flex-direction:row; justify-content:space-between; align-items:baseline;
+      gap:10px; padding:9px 0;
+      border-bottom:1px solid rgba(255,255,255,0.16);
+    }
+    .profile-meta-item:last-child{border-bottom:none;}
+    .profile-meta-item .meta-label{flex:0 0 auto; white-space:nowrap;}
+    .profile-meta-item .meta-value{text-align:right;}
+  }
+
+  .section-heading{font-size:1.05rem; font-weight:700; letter-spacing:-0.01em; margin:6px 0 12px;}
+  /* ---------- Footer sticky ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0;
+    height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex;
+    align-items:stretch;
+    justify-content:center;
+    z-index:30;
+    box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    background:none;
+    border:none;
+    color:#FFFFFF;
+    font-size:0.75rem;
+    font-weight:600;
+    width:140px;
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .footer-btn .mac-icon{
+    width:34px; height:34px; border-radius:8px;
+    transition:transform 0.15s ease;
+  }
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+  .footer-btn:hover{background:rgba(255,255,255,0.16); color:#FFFFFF;}
+  .footer-divider{
+    width:1px;
+    background:rgba(255,255,255,0.35);
+    margin:14px 0;
+  }
+  .footer-btn.logout:hover{background:rgba(242,80,138,0.35); color:#FFFFFF;}
+
+  /* ---------- Bottom sheet menu ---------- */
+  .sheet-backdrop{
+    position:fixed; inset:0;
+    background:rgba(59,46,99,0.45);
+    opacity:0; visibility:hidden;
+    transition:opacity 0.28s ease, visibility 0s linear 0.28s;
+    z-index:40;
+  }
+  .sheet-backdrop.open{
+    opacity:1; visibility:visible;
+    transition:opacity 0.28s ease, visibility 0s linear 0s;
+  }
+
+  .sheet{
+    font-family:'Inter',sans-serif;
+    position:fixed;
+    left:0; right:0; bottom:0;
+    background:rgba(255,255,255,0.5);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.6);
+    border-bottom:none;
+    box-shadow:0 -8px 32px rgba(0,0,0,0.12);
+    border-radius:16px 16px 0 0;
+    padding:10px 20px calc(20px + var(--footer-h));
+    max-width:640px;
+    margin:0 auto;
+    transform:translateY(100%);
+    transition:transform 0.32s cubic-bezier(.32,.72,.33,1);
+    z-index:41;
+    max-height:78vh;
+    overflow-y:auto;
+  }
+  .sheet-backdrop.open .sheet{transform:translateY(0);}
+
+  .sheet-handle{
+    width:40px; height:4px;
+    background:rgba(0,0,0,0.2);
+    border-radius:2px;
+    margin:8px auto 16px;
+  }
+  .sheet h3{
+    font-family:'Newsreader',serif;
+    font-weight:500;
+    font-size:1.15rem;
+    margin:0 0 16px;
+  }
+  /* Menu memenuhi ruang bar: ikon di atas, nama di bawah, tanpa kotak/kartu */
+  .menu-list{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px 8px;
+    padding:4px 0 8px;
+  }
+  .menu-item{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    gap:8px;
+    padding:6px 2px;
+    border-radius:14px;
+    text-align:center;
+    text-decoration:none;
+    color:var(--ink);
+    font-size:0.78rem;
+    font-weight:500;
+    line-height:1.25;
+    transition:background 0.15s ease, transform 0.15s ease;
+  }
+  .menu-item:hover,
+  .menu-item:focus-visible{background:rgba(0,0,0,0.06); outline:none;}
+  .menu-item:active{background:rgba(0,0,0,0.1); transform:scale(0.96);}
+
+  /* Ikon gaya macOS: squircle bergradien + glyph putih */
+  .mac-icon{
+    flex:0 0 auto;
+    width:56px; height:56px;
+    border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4),
+               inset 0 -1px 0 rgba(0,0,0,0.08),
+               0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px;
+    fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
+  .mac-icon.teal  {--c1:#6FDDE6; --c2:#30B0C7;}
+  .mac-icon.red   {--c1:#FF7A70; --c2:#FF3B30;}
+  .mac-icon.yellow{--c1:#FFDD55; --c2:#FFCC00;}
+  .mac-icon.indigo{--c1:#8E8CF0; --c2:#5856D6;}
+  .mac-icon.pink  {--c1:#FF7CA3; --c2:#FF2D55;}
+  .mac-icon.gray  {--c1:#A4A4AA; --c2:#6E6E73;}
+  .mac-icon.graphite{--c1:#7C8896; --c2:#4A5562;}
+
+  @media (max-width:520px){
+    .footer-btn{width:auto; flex:1; max-width:140px;}
+    .nav-schoolinfo{display:none;}
+    .menu-list{grid-template-columns:repeat(3,1fr);}
+    .mac-icon{width:52px; height:52px;}
+    .mac-icon svg{width:30px; height:30px;}
+  }
+
+
+  /* ---------- Khusus halaman Pembina Ekstrakurikuler ---------- */
+  [hidden]{display:none !important;}
+  .menu-list{grid-template-columns:repeat(3,1fr);}
+  .profile-card{background:linear-gradient(135deg,#1A8F6B 0%,#0F766E 50%,#30B0C7 130%); box-shadow:0 10px 30px rgba(15,118,110,0.32), inset 0 1px 0 rgba(255,255,255,0.3);}
+  .profile-photo{color:#0F766E;}
+  .meta-value{word-break:break-word;}
+
+  .ek-grid{display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+  .ek-card{
+    position:relative; text-align:left; font-family:inherit; color:var(--text);
+    display:flex; flex-direction:column; gap:10px;
+    padding:16px 16px 14px;
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(0,0,0,0.12); border-radius:14px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(30,40,80,0.08);
+    cursor:default;
+  }
+  .ek-card.selectable{cursor:pointer; transition:border-color .15s, box-shadow .15s;}
+  .ek-card.selectable:hover{border-color:rgba(15,118,110,0.45);}
+  .ek-card.active{border-color:var(--turquoise); box-shadow:0 0 0 3px rgba(15,118,110,0.22), 0 6px 18px rgba(30,40,80,0.1);}
+  .ek-head{display:flex; align-items:center; gap:12px;}
+  .ek-head .mac-icon{width:44px; height:44px; border-radius:11px;}
+  .ek-head .mac-icon svg{width:26px; height:26px;}
+  .ek-name{font-size:1rem; font-weight:700; letter-spacing:-0.01em; line-height:1.25; margin:0; word-break:break-word;}
+  .ek-badge{
+    margin-left:auto; flex-shrink:0;
+    font-size:0.68rem; font-weight:700; color:#0E6B64;
+    background:rgba(15,118,110,0.13); padding:2px 9px; border-radius:999px;
+  }
+  .ek-rows{display:flex; flex-direction:column; gap:7px;}
+  .ek-row{display:flex; align-items:flex-start; gap:8px; font-size:0.82rem; color:#48484A; line-height:1.4;}
+  .ek-row svg{flex-shrink:0; width:14px; height:14px; margin-top:2px; color:var(--turquoise);}
+  .empty-note{
+    padding:26px 14px; text-align:center; color:var(--text-dim); font-size:0.9rem;
+    background:rgba(255,255,255,0.7); border:1px dashed rgba(0,0,0,0.18); border-radius:14px;
+  }
+  .ek-hint{font-size:0.8rem; color:var(--text-dim); margin:-4px 0 12px;}
+  .section-heading{margin-top:26px;}
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <div class="school-logo" id="schoolLogo">SMA</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
+    <div class="admin-account">
+      <span class="avatar" id="navAvatar">PB</span>
+      <span class="admin-name" id="navName">Pembina</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Pembina Ekstrakurikuler</div>
+    </div>
+    <div class="window-body">
+      <h1 class="page-heading">Beranda pembina</h1>
+      <p class="page-sub">Identitas Anda dan kegiatan ekstrakurikuler yang dibina. Buka Menu di bawah untuk absensi, materi, dan nilai.</p>
+
+      <div class="profile-card">
+        <div class="profile-photo" id="guruPhoto">PB</div>
+        <div class="profile-info">
+          <p class="profile-tag">IDENTITAS PEMBINA</p>
+          <h2 class="profile-name" id="guruName">Memuat...</h2>
+          <div class="profile-meta" id="guruMeta"></div>
+        </div>
+      </div>
+
+      <h2 class="section-heading" id="ekHeading">Ekstrakurikuler yang dibina</h2>
+      <p class="ek-hint" id="ekHint" hidden>Pilih kegiatan yang sedang dikelola. Pilihan ini dipakai di menu Absensi, Materi, dan Nilai.</p>
+      <div class="ek-grid" id="ekGrid">
+        <div class="empty-note" style="grid-column:1/-1">Memuat data ekstrakurikuler...</div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button class="footer-btn" id="openMenuBtn">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:#fff;stroke:none"><rect x="4" y="4" width="4" height="4" rx="1.2"/><rect x="10" y="4" width="4" height="4" rx="1.2"/><rect x="16" y="4" width="4" height="4" rx="1.2"/><rect x="4" y="10" width="4" height="4" rx="1.2"/><rect x="10" y="10" width="4" height="4" rx="1.2"/><rect x="16" y="10" width="4" height="4" rx="1.2"/><rect x="4" y="16" width="4" height="4" rx="1.2"/><rect x="10" y="16" width="4" height="4" rx="1.2"/><rect x="16" y="16" width="4" height="4" rx="1.2"/></svg></span>
+    Menu
+  </button>
+  <div class="footer-divider"></div>
+  <button class="footer-btn logout" id="logoutBtn">
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H7a2.5 2.5 0 0 0-2.5 2.5v11A2.5 2.5 0 0 0 7 20h3"/><path d="M15 8l4 4-4 4"/><path d="M19 12H9.5"/></svg></span>
+    Log Out
+  </button>
+</div>
+
+<!-- Bottom sheet menu -->
+<div class="sheet-backdrop" id="sheetBackdrop">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetHeading">
+    <div class="sheet-handle"></div>
+    <h3 id="sheetHeading">Menu Ekstrakurikuler</h3>
+    <nav class="menu-list">
+      <a class="menu-item" href="absensiekskul.html">
+        <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4" width="15" height="17" rx="2.5"/><path d="M9 3v3M15 3v3"/><path d="M8.5 13l2.4 2.4L15.5 10.8"/></svg></span>
+        Absensi Ekskul
+      </a>
+      <a class="menu-item" href="materiekskul.html">
+        <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19.5V5.5A2 2 0 0 1 7 3.5h12v15H7a2 2 0 0 0-2 2"/><path d="M9 8h6M9 11.5h4"/></svg></span>
+        Materi Ekskul
+      </a>
+      <a class="menu-item" href="nilaiekskul.html">
+        <span class="mac-icon indigo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l2.4 5 5.4.7-4 3.8 1 5.4-4.8-2.6-4.8 2.6 1-5.4-4-3.8 5.4-.7z"/></svg></span>
+        Nilai Ekskul
+      </a>
+    </nav>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const sbHeaders = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+
+  /* ---------- Session (dibuat oleh index.html saat login Ekstrakurikuler) ---------- */
+  let session = null;
+  try{ session = JSON.parse(localStorage.getItem('ekskul_session') || 'null'); }catch(e){}
+  if(!session || !session.nama_guru){
+    window.location.replace('index.html');
+  }
+
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function initials(name){
+    const parts = String(name || "?").replace(/[.,]/g, " ").trim().split(/\s+/).filter(Boolean);
+    return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[1][0] : "")).toUpperCase();
+  }
+  function formatTanggal(iso){
+    if(!iso) return "-";
+    const d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  }
+
+  /* ---------- Navbar: logo & nama sekolah ---------- */
+  (async function loadSchoolProfile(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: sbHeaders });
+      if(!res.ok) return;
+      const rows = await res.json();
+      const profil = rows && rows[0];
+      if(!profil) return;
+      if(profil.nama_sekolah) document.getElementById('schoolName').textContent = profil.nama_sekolah;
+      const semester = (profil.semester || '').trim();
+      const tahun = (profil.tahun_pelajaran || '').trim();
+      if(semester || tahun){
+        document.getElementById('termBadgeText').textContent = [semester ? 'Semester ' + semester : '', tahun].filter(Boolean).join(' • ');
+      } else {
+        document.getElementById('termBadge').style.display = 'none';
+      }
+      if(profil.logo){
+        const logoEl = document.getElementById('schoolLogo');
+        logoEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = profil.logo; img.alt = 'Logo Sekolah';
+        logoEl.appendChild(img);
+      }
+    }catch(err){ console.error('Gagal memuat profil sekolah:', err); }
+  })();
+
+  /* ---------- Identitas pembina ---------- */
+  function metaItem(label, value, full){
+    return `<div class="profile-meta-item${full ? ' full' : ''}"><span class="meta-label">${escapeHtml(label)}</span><span class="meta-value">${escapeHtml(value || '-')}</span></div>`;
+  }
+  function renderIdentitas(guru){
+    const nama = (guru && guru.nama_guru) || session.nama_guru;
+    document.getElementById('guruName').textContent = nama;
+    document.getElementById('navName').textContent = nama;
+    document.getElementById('navAvatar').textContent = initials(nama);
+
+    const photoEl = document.getElementById('guruPhoto');
+    if(guru && guru.photo){
+      photoEl.innerHTML = `<img src="${escapeHtml(guru.photo)}" alt="Foto ${escapeHtml(nama)}">`;
+      photoEl.querySelector('img').onerror = () => { photoEl.textContent = initials(nama); };
+    } else {
+      photoEl.textContent = initials(nama);
+    }
+
+    const meta = document.getElementById('guruMeta');
+    if(guru){
+      meta.innerHTML =
+        metaItem('NIP / NIY', guru.nip || 'Tanpa NIP/NIY') +
+        metaItem('Telepon', guru.tlp) +
+        metaItem('Tempat, tanggal lahir', [guru.tempat_lahir, formatTanggal(guru.tanggal_lahir)].filter(Boolean).join(', '), true) +
+        metaItem('Alamat', guru.alamat, true);
+    } else {
+      meta.innerHTML = metaItem('Status', 'Pembina dari luar Data Guru', true);
+    }
+  }
+  async function loadIdentitas(){
+    renderIdentitas(null);
+    if(!session.guru_id) return;
+    try{
+      const res = await fetch(`${SUPABASE_URL}/dataguru?id=eq.${encodeURIComponent(session.guru_id)}&select=nama_guru,nip,tempat_lahir,tanggal_lahir,tlp,alamat,photo&limit=1`, { headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      const rows = await res.json();
+      if(rows && rows[0]) renderIdentitas(rows[0]);
+    }catch(err){ console.error('Gagal memuat identitas guru:', err); }
+  }
+
+  /* ---------- Ekstrakurikuler yang dibina ---------- */
+  let ekskulList = [];
+  let aktifId = localStorage.getItem('ekskul_aktif');
+
+  const IC_CLOCK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const IC_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+  const IC_TROPHY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5v1.5A2.5 2.5 0 0 0 8 10"/><path d="M16 6h2.5v1.5A2.5 2.5 0 0 1 16 10"/><path d="M12 13v3.5"/><path d="M8.5 20h7"/><path d="M9.5 20v-3.5h5V20"/></svg>';
+
+  function jadwalText(ek){
+    const jam = [(ek.jam_mulai || '').slice(0,5), (ek.jam_selesai || '').slice(0,5)].filter(Boolean).join(' – ');
+    return [ek.hari, jam].filter(Boolean).join(', ');
+  }
+  function setAktif(id){
+    aktifId = String(id);
+    localStorage.setItem('ekskul_aktif', aktifId);
+    renderEkskul();
+  }
+  function renderEkskul(){
+    const grid = document.getElementById('ekGrid');
+    const hint = document.getElementById('ekHint');
+    if(ekskulList.length === 0){
+      hint.hidden = true;
+      grid.innerHTML = '<div class="empty-note" style="grid-column:1/-1">Belum ada ekstrakurikuler yang tercatat atas nama Anda.</div>';
+      return;
+    }
+    const multi = ekskulList.length > 1;
+    if(!ekskulList.some(e => String(e.id) === String(aktifId))) {
+      aktifId = String(ekskulList[0].id);
+      localStorage.setItem('ekskul_aktif', aktifId);
+    }
+    hint.hidden = !multi;
+    grid.innerHTML = ekskulList.map(ek => {
+      const isActive = String(ek.id) === String(aktifId);
+      const jadwal = jadwalText(ek);
+      const tag = multi ? 'button' : 'div';
+      return `
+      <${tag} class="ek-card${multi ? ' selectable' : ''}${multi && isActive ? ' active' : ''}" ${multi ? `type="button" data-id="${escapeHtml(ek.id)}" aria-pressed="${isActive}"` : ''}>
+        <div class="ek-head">
+          <span class="mac-icon green">${IC_TROPHY}</span>
+          <h3 class="ek-name">${escapeHtml(ek.nama_ekstrakurikuler)}</h3>
+          ${multi && isActive ? '<span class="ek-badge">Aktif</span>' : ''}
+        </div>
+        <div class="ek-rows">
+          <div class="ek-row">${IC_CLOCK}<span>${escapeHtml(jadwal || 'Jadwal belum ditentukan')}</span></div>
+          <div class="ek-row">${IC_PIN}<span>${escapeHtml(ek.tempat || 'Tempat belum ditentukan')}</span></div>
+        </div>
+      </${tag}>`;
+    }).join('');
+  }
+  document.getElementById('ekGrid').addEventListener('click', (e) => {
+    const card = e.target.closest('.ek-card[data-id]');
+    if(card) setAktif(card.getAttribute('data-id'));
+  });
+
+  async function loadEkskul(){
+    // tampilkan dulu dari session, lalu segarkan dari database
+    ekskulList = (session.ekskul || []).map(e => ({ id: e.id, nama_ekstrakurikuler: e.nama_ekstrakurikuler }));
+    renderEkskul();
+    try{
+      const res = await fetch(`${SUPABASE_URL}/ekstrakurikuler?nama_guru=eq.${encodeURIComponent(session.nama_guru)}&select=id,nama_ekstrakurikuler,hari,jam_mulai,jam_selesai,tempat&order=nama_ekstrakurikuler.asc`, { headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      ekskulList = await res.json();
+      renderEkskul();
+    }catch(err){ console.error('Gagal memuat ekstrakurikuler:', err); }
+  }
+
+  if(session && session.nama_guru){
+    loadIdentitas();
+    loadEkskul();
+  }
+
+  /* ---------- Menu & logout ---------- */
+  const sheetBackdrop = document.getElementById('sheetBackdrop');
+  document.getElementById('openMenuBtn').addEventListener('click', () => sheetBackdrop.classList.add('open'));
+  sheetBackdrop.addEventListener('click', (e) => { if(e.target === sheetBackdrop) sheetBackdrop.classList.remove('open'); });
+  document.addEventListener('keydown', (e) => { if(e.key === 'Escape') sheetBackdrop.classList.remove('open'); });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    localStorage.removeItem('ekskul_session');
+    localStorage.removeItem('ekskul_aktif');
+    window.location.href = 'index.html';
+  });
+</script>
+
+</body>
+</html>
