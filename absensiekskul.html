@@ -421,6 +421,8 @@
     .modal-foot .btn-mac{width:100%;}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -465,7 +467,7 @@
               <th class="num">Ijin</th>
               <th class="num">Tanpa Ket.</th>
               <th class="num">Total</th>
-              <th class="num">Detail</th>
+              <th class="num">Aksi</th>
             </tr>
           </thead>
           <tbody id="histBody"></tbody>
@@ -553,6 +555,11 @@
   <button type="button" class="footer-btn" id="btnInput" disabled>
     <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6v3H9z"/><path d="M8 5.5H6.5A1.5 1.5 0 0 0 5 7v12a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 19V7a1.5 1.5 0 0 0-1.5-1.5H16"/><path d="M9 14l2.2 2.2L15.5 12"/></svg></span>
     <span>Input Absensi</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnExport">
+    <span class="mac-icon orange"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+    <span>Export PDF</span>
   </button>
   <div class="footer-divider"></div>
   <a class="footer-btn" href="ekskulguru.html" id="btnBack">
@@ -788,7 +795,10 @@
         <td class="tgl-col">${escapeHtml(formatTanggal(date))}</td>
         ${cell(h)}${cell(s)}${cell(i)}${cell(t)}
         <td class="num"><strong>${rows.length}</strong></td>
-        <td class="num"><button type="button" class="icon-btn edit btn-detail" aria-expanded="${open}">${open ? 'Tutup' : 'Lihat'}</button></td>`;
+        <td class="num"><div class="row-actions" style="justify-content:center;">
+          <button type="button" class="icon-btn edit btn-detail" aria-expanded="${open}">${open ? 'Tutup' : 'Lihat'}</button>
+          <button type="button" class="icon-btn edit btn-pdf" title="Export PDF absensi tanggal ini">PDF</button>
+        </div></td>`;
       histBody.appendChild(tr);
 
       if(open){
@@ -813,6 +823,8 @@
     });
   }
   histBody.addEventListener('click', (e) => {
+    const pdfBtn = e.target.closest('.btn-pdf');
+    if(pdfBtn){ exportTanggalPdf(pdfBtn.closest('tr.hist-row').dataset.date); return; }
     const btn = e.target.closest('.btn-detail');
     if(!btn) return;
     const date = btn.closest('tr.hist-row').dataset.date;
@@ -1148,6 +1160,243 @@
     }
   }
   btnSimpan.addEventListener('click', simpanAbsensi);
+
+
+  /* ---------- Profil sekolah (kop surat PDF) ---------- */
+  let schoolProfil = {};
+  const profilReady = (async function loadSchoolProfile(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran,npsn,status,alamat,tlp,email&limit=1`, { headers: headersBase });
+      if(!res.ok) return;
+      const rows = await res.json();
+      if(rows && rows[0]) schoolProfil = rows[0];
+    }catch(err){
+      console.error('Gagal memuat profil sekolah:', err);
+    }
+  })();
+
+  function getImageFormatFromDataUri(dataUri){
+    const m = /^data:image\/(png|jpe?g|webp);base64,/i.exec(String(dataUri || ''));
+    if(!m) return null;
+    const ext = m[1].toLowerCase();
+    if(ext === 'jpg' || ext === 'jpeg') return 'JPEG';
+    if(ext === 'webp') return 'WEBP';
+    return 'PNG';
+  }
+
+  // Kop surat — sama dengan yang dipakai di halaman Daftar MBG Hari Ini / Wali Kelas
+  function addKopSurat(doc, judul){
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const marginLeft = 14;
+    const logoSize = 20;
+    let textX = marginLeft;
+
+    if(schoolProfil.logo){
+      const fmt = getImageFormatFromDataUri(schoolProfil.logo);
+      if(fmt){
+        try{
+          doc.addImage(schoolProfil.logo, fmt, marginLeft, 10, logoSize, logoSize);
+          textX = marginLeft + logoSize + 6;
+        }catch(err){
+          console.warn('Gagal menambahkan logo ke PDF:', err);
+        }
+      }
+    }
+
+    let y = 15;
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(13);
+    doc.text(schoolProfil.nama_sekolah || 'Nama Sekolah', textX, y);
+    y += 5;
+
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9);
+    const maxWidth = pageWidth - textX - marginLeft;
+
+    const baris1 = [];
+    if(schoolProfil.npsn) baris1.push(`NPSN: ${schoolProfil.npsn}`);
+    if(schoolProfil.status) baris1.push(schoolProfil.status);
+    if(baris1.length){
+      doc.text(baris1.join('  •  '), textX, y);
+      y += 4.5;
+    }
+
+    if(schoolProfil.alamat){
+      const alamatLines = doc.splitTextToSize(schoolProfil.alamat, maxWidth);
+      doc.text(alamatLines, textX, y);
+      y += alamatLines.length * 4.5;
+    }
+
+    const kontak = [];
+    if(schoolProfil.tlp) kontak.push(`Telp: ${schoolProfil.tlp}`);
+    if(schoolProfil.email) kontak.push(`Email: ${schoolProfil.email}`);
+    if(kontak.length){
+      doc.text(kontak.join('  •  '), textX, y);
+      y += 4.5;
+    }
+
+    const lineY = Math.max(y, 10 + logoSize) + 2;
+    doc.setDrawColor(108, 79, 224);
+    doc.setLineWidth(0.6);
+    doc.line(marginLeft, lineY, pageWidth - marginLeft, lineY);
+
+    const titleY = lineY + 7;
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(11);
+    doc.text(judul, marginLeft, titleY);
+    doc.setFont(undefined, 'normal');
+
+    return titleY + 5;
+  }
+
+  /* ---------- Util PDF ---------- */
+  const collator = new Intl.Collator('id', { numeric: true, sensitivity: 'base' });
+  const safeName = (str) => String(str).trim().replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '') || 'file';
+  function pdfSiap(){
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      alert('Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.');
+      return false;
+    }
+    return true;
+  }
+  function tanggalPanjang(str){
+    const p = String(str).split('-').map(Number);
+    return new Date(p[0], p[1] - 1, p[2]).toLocaleDateString('id-ID', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  }
+  function hariIniIso(){
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+  // baris info di bawah kop, mengembalikan posisi y berikutnya
+  function infoLines(doc, startY, lines){
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9);
+    lines.forEach(t => { doc.text(t, 14, startY); startY += 4.5; });
+    return startY - 0.5;
+  }
+  // teks tebal di bawah tabel; pindah halaman bila sisa ruang tidak cukup
+  function textBelowTable(doc, text){
+    const pageHeight = doc.internal.pageSize.getHeight();
+    let y = doc.lastAutoTable.finalY + 7;
+    if(y > pageHeight - 20){ doc.addPage(); y = 20; }
+    doc.setFont(undefined, 'bold');
+    doc.setFontSize(9);
+    doc.text(text, 14, y);
+    doc.setFont(undefined, 'normal');
+  }
+  function addNomorHalaman(doc){
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const totalPages = doc.getNumberOfPages();
+    for(let i = 1; i <= totalPages; i++){
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(110);
+      doc.text(`Halaman ${i} dari ${totalPages}`, pageWidth - 14, pageHeight - 8, { align:'right' });
+      doc.setTextColor(0);
+    }
+  }
+
+  /* ---------- Export PDF ---------- */
+  function hitung(rows){
+    let h = 0, s = 0, i = 0, t = 0;
+    rows.forEach(r => {
+      if(r.status === HADIR) h++;
+      else if(r.keterangan === 'Sakit') s++;
+      else if(r.keterangan === 'Ijin') i++;
+      else t++;
+    });
+    return { h, s, i, t, total: rows.length };
+  }
+  function infoEkskul(){
+    const ek = ekskulAktif() || {};
+    return {
+      nama: ek.nama_ekstrakurikuler || '-',
+      pembina: ek.nama_guru || session.nama_guru || '-'
+    };
+  }
+
+  // Footer: rekap seluruh riwayat (satu baris per tanggal)
+  async function exportRiwayatPdf(){
+    if(!pdfSiap()) return;
+    if(!ekskulId){ alert('Belum ada ekstrakurikuler untuk diexport.'); return; }
+    if(byDate.size === 0){ alert('Belum ada riwayat absensi untuk diexport.'); return; }
+    await profilReady;
+
+    const { nama, pembina } = infoEkskul();
+    const today = hariIniIso();
+    const dates = [...byDate.keys()].sort();            // urut dari tanggal terlama
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait' });
+
+    let startY = addKopSurat(doc, 'Rekap Riwayat Absensi Ekstrakurikuler');
+    startY = infoLines(doc, startY, [
+      `Ekstrakurikuler: ${nama}`,
+      `Pembina: ${pembina}`,
+      `Tanggal cetak: ${tanggalPanjang(today)}`
+    ]) + 4;
+
+    const body = dates.map((d, i) => {
+      const c = hitung(byDate.get(d));
+      return [i + 1, tanggalPanjang(d), c.h, c.s, c.i, c.t, c.total];
+    });
+    doc.autoTable({
+      head: [['No', 'Tanggal', 'Hadir', 'Sakit', 'Ijin', 'Tanpa Ket.', 'Total']],
+      body,
+      startY,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [108, 79, 224], halign: 'center' },
+      columnStyles: {
+        0: { cellWidth: 14, halign: 'center' },
+        2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' },
+        5: { halign: 'center' }, 6: { halign: 'center' }
+      }
+    });
+    textBelowTable(doc, `Jumlah pertemuan: ${dates.length}`);
+
+    addNomorHalaman(doc);
+    doc.save(`riwayat-absensi-${safeName(nama)}-${today}.pdf`);
+  }
+
+  // Tombol PDF di tiap baris riwayat: daftar hadir lengkap pada tanggal tersebut
+  async function exportTanggalPdf(date){
+    if(!pdfSiap()) return;
+    const rows = (byDate.get(date) || []).slice().sort((a, b) =>
+      collator.compare(a.kelas || '', b.kelas || '') || collator.compare(a.nama_siswa || '', b.nama_siswa || ''));
+    if(rows.length === 0){ alert('Tidak ada data absensi pada tanggal ini.'); return; }
+    await profilReady;
+
+    const { nama, pembina } = infoEkskul();
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'portrait' });
+
+    let startY = addKopSurat(doc, 'Daftar Hadir Ekstrakurikuler');
+    startY = infoLines(doc, startY, [
+      `Ekstrakurikuler: ${nama}`,
+      `Pembina: ${pembina}`,
+      `Tanggal: ${tanggalPanjang(date)}`
+    ]) + 4;
+
+    doc.autoTable({
+      head: [['No', 'Nama Siswa', 'Kelas', 'Status', 'Keterangan']],
+      body: rows.map((r, i) => [i + 1, String(r.nama_siswa ?? ''), String(r.kelas ?? ''), r.status, r.keterangan || '-']),
+      startY,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [108, 79, 224] },
+      columnStyles: { 0: { cellWidth: 14 } },
+      didParseCell: (data) => {
+        if(data.section === 'body' && data.column.index === 3 && data.cell.raw === TIDAK){
+          data.cell.styles.textColor = [179, 38, 30];
+        }
+      }
+    });
+    const c = hitung(rows);
+    textBelowTable(doc, `Hadir: ${c.h}  •  Sakit: ${c.s}  •  Ijin: ${c.i}  •  Tanpa Keterangan: ${c.t}  •  Total: ${c.total} siswa`);
+
+    addNomorHalaman(doc);
+    doc.save(`absensi-${safeName(nama)}-${date}.pdf`);
+  }
+  $('btnExport').addEventListener('click', exportRiwayatPdf);
 
   /* ---------- Mulai ---------- */
   (async function init(){
