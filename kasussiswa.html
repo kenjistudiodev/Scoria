@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Kasus Siswa — SCORIA</title>
+<style>
+  :root{
+    --text:#1D1D1F; --text-dim:#6E6E73; --mac-blue:#007AFF; --ok:#28A745; --err:#FF3B30;
+    --turquoise:#0F766E; --hairline:rgba(0,0,0,0.1); --field-border:rgba(0,0,0,0.14); --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0; font-family:var(--font); color:var(--text); min-height:100vh; overflow-x:hidden;
+    -webkit-font-smoothing:antialiased; padding-bottom:calc(var(--footer-h) + 24px);
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--mac-blue); outline-offset:2px;}
+
+  .navbar{position:sticky; top:0; z-index:20; height:30px; padding:0 16px; display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.55); -webkit-backdrop-filter:blur(24px) saturate(180%); backdrop-filter:blur(24px) saturate(180%); border-bottom:1px solid rgba(0,0,0,0.08); font-size:13px;}
+  .navbar-brand{display:flex; align-items:center; gap:8px; font-weight:700;}
+  .brand-icon{width:18px; height:18px; border-radius:5px; background:linear-gradient(180deg,#5AC8FA,#007AFF); color:#fff; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);}
+  .navbar-hint{color:var(--text-dim); font-weight:500;}
+
+  main{max-width:1100px; margin:0 auto; padding:32px 16px 20px;}
+  .window{background:rgba(255,255,255,0.82); -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%); border:1px solid rgba(255,255,255,0.7); border-radius:12px; box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);}
+  .titlebar{position:relative; height:44px; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85)); border-bottom:1px solid var(--hairline); border-radius:12px 12px 0 0;}
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span{width:12px; height:12px; border-radius:50%; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);}
+  .t-red{background:#FF5F57;} .t-yellow{background:#FEBC2E;} .t-green{background:#28C840;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:24px 26px 28px;}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    padding:20px 22px; margin-bottom:20px; border-radius:16px; color:#fff; position:relative; overflow:hidden;
+    background:linear-gradient(120deg,#FF9500 0%,#FF5E3A 55%,#FF2D55 100%);
+    box-shadow:0 10px 28px rgba(255,94,58,0.35), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .hero::after{content:""; position:absolute; right:-60px; top:-70px; width:240px; height:240px; border-radius:50%; background:rgba(255,255,255,0.14);}
+  .hero::before{content:""; position:absolute; right:90px; bottom:-90px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.1);}
+  .hero-logo{width:58px; height:58px; border-radius:14px; background:rgba(255,255,255,0.25); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:22px; overflow:hidden; flex-shrink:0; z-index:1; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.4);}
+  .hero-logo img{width:100%; height:100%; object-fit:contain; background:#fff;}
+  .hero-text{z-index:1; min-width:0; flex:1 1 260px;}
+  .hero-eyebrow{font-size:11.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; opacity:.85; margin:0 0 4px;}
+  .hero-title{font-size:26px; font-weight:800; letter-spacing:-0.02em; margin:0 0 4px;}
+  .hero-sub{font-size:13.5px; opacity:.92; margin:0;}
+  .hero-term{z-index:1; font-size:12px; font-weight:600; padding:6px 14px; border-radius:999px; background:rgba(255,255,255,0.22); box-shadow:inset 0 0 0 1px rgba(255,255,255,0.35); white-space:nowrap;}
+
+  .page-msg{font-size:13px; margin:0 0 12px; line-height:1.45;}
+  .page-msg:empty{display:none;} .page-msg.err{color:var(--err);}
+
+  /* ---------- Filter ---------- */
+  .filter-card{padding:14px 16px; margin-bottom:18px; border-radius:14px; background:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.8); box-shadow:0 1px 3px rgba(0,0,0,0.08);}
+  .filter-label{font-size:12px; font-weight:700; color:var(--text-dim); letter-spacing:.04em; text-transform:uppercase; margin:0 0 8px;}
+  .tabs-wrap{overflow-x:auto; padding:2px 0 6px; scrollbar-width:thin;}
+  .segmented{display:inline-flex; gap:2px; padding:3px; min-width:min-content; background:rgba(120,120,128,0.13); border-radius:11px;}
+  .seg-tab{display:inline-flex; align-items:center; gap:7px; border:none; background:none; font-family:inherit; font-size:13px; font-weight:500; color:var(--text); padding:7px 14px; border-radius:8px; cursor:pointer; white-space:nowrap; transition:background .15s;}
+  .seg-tab:hover:not(.active){background:rgba(0,0,0,0.05);}
+  .seg-tab.active{background:#fff; font-weight:700; box-shadow:0 0 0 0.5px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.18), 0 3px 8px rgba(0,0,0,0.08);}
+  .seg-count{font-size:11px; font-weight:700; color:var(--text-dim); background:rgba(0,0,0,0.07); border-radius:999px; padding:1px 7px;}
+  .seg-tab.active .seg-count{background:rgba(255,94,58,0.15); color:#E0431F;}
+  .filter-row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-top:12px;}
+  .f-field{display:flex; flex-direction:column; gap:4px; min-width:0;}
+  .f-field.grow{flex:1 1 220px;}
+  .f-field label{font-size:11.5px; font-weight:600; color:var(--text-dim);}
+  input, select{font-family:inherit; font-size:14px; padding:8px 12px; width:100%; background:#fff; color:var(--text); border:1px solid var(--field-border); border-radius:8px; outline:none; box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04); transition:border-color .15s, box-shadow .15s;}
+  input:focus, select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  .btn-mac{min-height:36px; border-radius:8px; padding:7px 16px; font-family:inherit; font-size:13.5px; font-weight:500; cursor:pointer; background:linear-gradient(180deg,#fff,#f5f5f7); color:var(--text); border:1px solid var(--field-border); box-shadow:0 1px 1px rgba(0,0,0,0.08); transition:background .15s, transform .1s; white-space:nowrap;}
+  .btn-mac:active{transform:scale(0.98);}
+  .btn-mac:hover{background:linear-gradient(180deg,#4CD964,#34C759); border-color:#2AAE4E; color:#fff;}
+
+  /* ---------- Statistik ---------- */
+  .stats-row{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:18px;}
+  .stat-card{position:relative; padding:16px 16px 14px; border-radius:14px; background:#fff; border:1px solid var(--hairline); box-shadow:0 1px 3px rgba(0,0,0,0.07), 0 8px 20px rgba(30,40,80,0.06); overflow:hidden; animation:rise .45s ease both;}
+  .stat-card::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--bar);}
+  .stat-card:nth-child(2){animation-delay:.05s;} .stat-card:nth-child(3){animation-delay:.1s;} .stat-card:nth-child(4){animation-delay:.15s;}
+  @keyframes rise{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:none;}}
+  .stat-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .stat-value{font-size:30px; font-weight:800; letter-spacing:-0.02em; margin:0; line-height:1.1;}
+  .stat-value.small{font-size:19px; line-height:1.25; padding-top:5px; word-break:break-word;}
+  .stat-label{font-size:12.5px; font-weight:600; color:var(--text-dim); margin:4px 0 0;}
+  .stat-foot{font-size:12px; color:var(--text-dim); margin:10px 0 0;}
+  .mac-icon{flex:0 0 auto; width:42px; height:42px; border-radius:11px; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg,var(--c1),var(--c2)); box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);}
+  .mac-icon svg{width:24px; height:24px; fill:none; stroke:#fff; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;} .mac-icon.red{--c1:#FF7A70; --c2:#FF3B30;}
+  .mac-icon.indigo{--c1:#8E8CF0; --c2:#5856D6;} .mac-icon.teal{--c1:#6FDDE6; --c2:#30B0C7;}
+  .mac-icon.green{--c1:#6CE37F; --c2:#28B94A;} .mac-icon.blue{--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
+
+  /* ---------- Panel ---------- */
+  .panel-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(310px,1fr)); gap:14px; margin-bottom:18px;}
+  .panel{padding:16px; border-radius:14px; background:#fff; border:1px solid var(--hairline); box-shadow:0 1px 3px rgba(0,0,0,0.07), 0 8px 20px rgba(30,40,80,0.06); min-width:0;}
+  .panel h3{margin:0 0 12px; font-size:15px; font-weight:700; letter-spacing:-0.01em; display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .panel h3 small{font-size:12px; font-weight:500; color:var(--text-dim);}
+  .empty-mini{font-size:13px; color:var(--text-dim); text-align:center; padding:26px 8px;}
+
+  .donut-wrap{display:flex; align-items:center; gap:16px; flex-wrap:wrap; justify-content:center;}
+  .donut{position:relative; width:150px; height:150px; flex-shrink:0;}
+  .donut svg{width:100%; height:100%; transform:rotate(-90deg);}
+  .donut circle{fill:none; stroke-width:20; transition:stroke-dasharray .5s ease;}
+  .donut-center{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .donut-center b{font-size:26px; font-weight:800; line-height:1;} .donut-center span{font-size:11.5px; color:var(--text-dim); margin-top:3px;}
+  .legend{display:flex; flex-direction:column; gap:7px; flex:1 1 140px; min-width:0;}
+  .legend-item{display:flex; align-items:center; gap:8px; font-size:13px; min-width:0;}
+  .legend-dot{width:10px; height:10px; border-radius:3px; flex-shrink:0;}
+  .legend-name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .legend-val{font-weight:700; font-variant-numeric:tabular-nums;} .legend-pct{color:var(--text-dim); font-size:12px; width:38px; text-align:right;}
+
+  .bar-list{display:flex; flex-direction:column; gap:9px; max-height:250px; overflow-y:auto; padding-right:4px;}
+  .bar-row{display:grid; grid-template-columns:78px 1fr 30px; align-items:center; gap:10px; font-size:13px; background:none; border:none; padding:3px 4px; border-radius:8px; font-family:inherit; text-align:left; cursor:pointer; color:var(--text);}
+  .bar-row:hover{background:rgba(0,122,255,0.07);}
+  .bar-row.on{background:rgba(255,149,0,0.14);}
+  .bar-name{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .bar-track{height:10px; border-radius:999px; background:rgba(120,120,128,0.14); overflow:hidden;}
+  .bar-fill{height:100%; border-radius:999px; background:linear-gradient(90deg,#FFB340,#FF5E3A); transition:width .5s ease;}
+  .bar-num{font-weight:700; text-align:right; font-variant-numeric:tabular-nums;}
+
+  .top-list{display:flex; flex-direction:column; gap:10px;}
+  .top-item{display:flex; align-items:center; gap:11px;}
+  .rank{width:28px; height:28px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12.5px; font-weight:800; color:#fff; background:linear-gradient(180deg,#A4A4AA,#6E6E73);}
+  .rank.r1{background:linear-gradient(180deg,#FFDD55,#FF9500);} .rank.r2{background:linear-gradient(180deg,#D5D8DE,#8E939C);} .rank.r3{background:linear-gradient(180deg,#E8A878,#B8693A);}
+  .top-info{flex:1; min-width:0;} .top-name{font-size:13.5px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .top-meta{font-size:12px; color:var(--text-dim);}
+  .top-badge{font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; background:rgba(255,59,48,0.12); color:#C42B20; white-space:nowrap;}
+  .top-badge.once{background:rgba(120,120,128,0.14); color:var(--text-dim);}
+
+  /* ---------- Tabel ---------- */
+  .section-title{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin:6px 2px 10px; flex-wrap:wrap;}
+  .section-title h2{margin:0; font-size:17px; font-weight:700; letter-spacing:-0.01em;}
+  .table-count{font-size:12.5px; color:var(--text-dim);}
+  .table-wrap{overflow-x:auto; background:#fff; border:1px solid var(--field-border); border-radius:12px;}
+  table{width:100%; min-width:760px; border-collapse:collapse; font-size:13.5px;}
+  thead th{text-align:left; font-size:12px; font-weight:600; color:var(--text-dim); padding:10px 14px; background:rgba(120,120,128,0.06); border-bottom:1px solid var(--hairline); white-space:nowrap; position:sticky; top:0;}
+  tbody td{padding:11px 14px; border-bottom:1px solid var(--hairline); vertical-align:middle; white-space:nowrap;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:nth-child(even){background:rgba(0,122,255,0.025);}
+  tbody tr:hover{background:rgba(0,122,255,0.08);}
+  td.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--text-dim);}
+  .tag{display:inline-block; font-size:12px; font-weight:600; padding:2px 10px; border-radius:999px; color:#fff;}
+  .kelas-chip{display:inline-block; font-size:12px; font-weight:700; padding:2px 9px; border-radius:6px; background:rgba(0,122,255,0.12); color:#0A5FCC;}
+  .empty-state{text-align:center; color:var(--text-dim); font-size:13.5px; padding:34px 12px; margin:0;}
+  .more-wrap{text-align:center; padding:14px;}
+
+  /* ---------- Footer ---------- */
+  .footer-bar{position:fixed; bottom:0; left:0; right:0; height:var(--footer-h); background:var(--turquoise); display:flex; align-items:stretch; justify-content:center; z-index:30; box-shadow:0 -4px 16px rgba(0,0,0,0.15);}
+  .footer-btn{flex:1 1 0; max-width:170px; min-width:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; padding:0 2px; background:none; border:none; color:#fff; font-family:inherit; font-size:0.75rem; font-weight:600; line-height:1.15; cursor:pointer; text-decoration:none; transition:background .15s;}
+  .footer-btn:hover{background:rgba(255,255,255,0.16);}
+  .footer-btn:focus-visible{outline-color:#fff; outline-offset:-3px;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform .15s;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+
+  .toast{position:fixed; top:42px; left:50%; transform:translate(-50%,-12px); z-index:80; background:rgba(40,40,45,0.88); -webkit-backdrop-filter:blur(16px); backdrop-filter:blur(16px); color:#fff; font-size:13px; font-weight:500; padding:10px 18px; border-radius:12px; max-width:92vw; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.25); opacity:0; visibility:hidden; transition:opacity .2s, transform .2s, visibility 0s linear .2s;}
+  .toast.show{opacity:1; visibility:visible; transform:translate(-50%,0); transition:opacity .2s, transform .2s, visibility 0s linear 0s;}
+
+  @media (max-width:560px){
+    main{padding-left:8px; padding-right:8px;} .window-body{padding:16px 12px 22px;} .navbar-hint{display:none;}
+    .hero-title{font-size:21px;} .footer-btn{font-size:0.66rem;}
+    .filter-row .f-field{flex:1 1 100%;}
+  }
+  @media print{ .footer-bar,.navbar,.toast{display:none;} body{background:#fff; padding:0;} }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<header class="navbar">
+  <span class="navbar-brand"><span class="brand-icon">S</span><span id="schoolName">SCORIA</span></span>
+  <span class="navbar-hint">Laporan Kasus Siswa</span>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Laporan Kasus Siswa</div>
+    </div>
+    <div class="window-body">
+
+      <section class="hero">
+        <div class="hero-logo" id="heroLogo">S</div>
+        <div class="hero-text">
+          <p class="hero-eyebrow">Laporan</p>
+          <h1 class="hero-title">Kasus Siswa</h1>
+          <p class="hero-sub" id="heroSub">Memuat data sekolah...</p>
+        </div>
+        <span class="hero-term" id="heroTerm" hidden></span>
+      </section>
+
+      <p class="page-msg" id="pageMsg"></p>
+
+      <section class="filter-card">
+        <p class="filter-label">Filter Kelas</p>
+        <div class="tabs-wrap"><div class="segmented" id="kelasTabs" role="tablist" aria-label="Filter kelas"></div></div>
+        <div class="filter-row">
+          <div class="f-field grow">
+            <label for="fSearch">Cari</label>
+            <input type="text" id="fSearch" placeholder="Nama, NISN, jenis kasus, wali kelas...">
+          </div>
+          <div class="f-field">
+            <label for="fJenis">Jenis Kasus</label>
+            <select id="fJenis"><option value="">Semua jenis</option></select>
+          </div>
+          <div class="f-field">
+            <label for="fFrom">Dari Tanggal</label>
+            <input type="date" id="fFrom">
+          </div>
+          <div class="f-field">
+            <label for="fTo">Sampai Tanggal</label>
+            <input type="date" id="fTo">
+          </div>
+          <button type="button" class="btn-mac" id="btnReset">Reset Filter</button>
+        </div>
+      </section>
+
+      <section class="stats-row">
+        <div class="stat-card" style="--bar:#FF9500;">
+          <div class="stat-top">
+            <div><p class="stat-value" id="stTotal">–</p><p class="stat-label">Total Kasus</p></div>
+            <span class="mac-icon orange"><svg viewBox="0 0 24 24"><path d="M12 3.5l9 16H3z"/><path d="M12 10v4.2"/><circle cx="12" cy="16.9" r=".6" fill="#fff"/></svg></span>
+          </div>
+          <p class="stat-foot" id="stTotalFoot">Semua kelas</p>
+        </div>
+        <div class="stat-card" style="--bar:#FF3B30;">
+          <div class="stat-top">
+            <div><p class="stat-value" id="stSiswa">–</p><p class="stat-label">Siswa Berkasus</p></div>
+            <span class="mac-icon red"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.7 3-6 7-6s7 2.3 7 6"/></svg></span>
+          </div>
+          <p class="stat-foot" id="stSiswaFoot">–</p>
+        </div>
+        <div class="stat-card" style="--bar:#5856D6;">
+          <div class="stat-top">
+            <div><p class="stat-value" id="stKelas">–</p><p class="stat-label">Kelas Terdampak</p></div>
+            <span class="mac-icon indigo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2.5"/><path d="M4 10h16M10 10v10"/></svg></span>
+          </div>
+          <p class="stat-foot" id="stKelasFoot">–</p>
+        </div>
+        <div class="stat-card" style="--bar:#30B0C7;">
+          <div class="stat-top">
+            <div><p class="stat-value small" id="stJenis">–</p><p class="stat-label">Kasus Terbanyak</p></div>
+            <span class="mac-icon teal"><svg viewBox="0 0 24 24"><path d="M4.5 20h15"/><rect x="5.5" y="11" width="3" height="6.5" rx=".8"/><rect x="10.5" y="6.5" width="3" height="11" rx=".8"/><rect x="15.5" y="9" width="3" height="8.5" rx=".8"/></svg></span>
+          </div>
+          <p class="stat-foot" id="stJenisFoot">–</p>
+        </div>
+      </section>
+
+      <section class="panel-grid">
+        <div class="panel">
+          <h3>Jenis Kasus <small id="donutSub"></small></h3>
+          <div id="donutBox"></div>
+        </div>
+        <div class="panel">
+          <h3>Kasus per Kelas <small>klik untuk memfilter</small></h3>
+          <div class="bar-list" id="kelasBars"></div>
+        </div>
+        <div class="panel">
+          <h3>Siswa Perlu Perhatian <small id="topSub"></small></h3>
+          <div class="top-list" id="topList"></div>
+        </div>
+      </section>
+
+      <div class="section-title">
+        <h2 id="tableTitle">Rincian Kasus</h2>
+        <span class="table-count" id="tableCount"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>No</th><th>Tanggal</th><th>Nama Siswa</th><th>NISN</th><th>Kelas</th><th>Jenis Kasus</th><th>Wali Kelas</th><th>ID</th></tr>
+          </thead>
+          <tbody id="kasusBody"></tbody>
+        </table>
+        <p class="empty-state" id="emptyState" hidden></p>
+        <div class="more-wrap" id="moreWrap" hidden><button type="button" class="btn-mac" id="btnMore">Tampilkan lebih banyak</button></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="footer-bar">
+  <button type="button" class="footer-btn" id="btnExport">
+    <span class="mac-icon purple"><svg viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></span>
+    <span>Export PDF</span>
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnRefresh">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M3.5 4v4.5H8"/></svg></span>
+    <span>Muat Ulang</span>
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/></svg></span>
+    <span>Dashboard</span>
+  </a>
+</div>
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const headers = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+  const PAGE_SIZE = 25;
+  const PALETTE = ['#FF9500','#FF3B30','#5856D6','#30B0C7','#34C759','#AF52DE','#FF2D55','#007AFF','#8E8E93'];
+
+  const $ = (id) => document.getElementById(id);
+  let all = [], rombelNames = [], schoolProfil = {};
+  let activeKelas = '', visible = PAGE_SIZE, toastTimer = null;
+  let jenisColor = {};
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const norm = (s) => String(s ?? '').toLowerCase().trim();
+  const natCmp = (a, b) => String(a).localeCompare(String(b), 'id', { numeric:true });
+  function showToast(t){ $('toast').textContent = t; $('toast').classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => $('toast').classList.remove('show'), 2600); }
+  function fmtTgl(v){
+    if(!v) return '-';
+    const d = new Date(v + 'T00:00:00');
+    return isNaN(d) ? v : d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+  }
+  const siswaKey = (r) => r.nisn ? 'n:' + r.nisn : 'x:' + norm(r.nama_siswa);
+
+  /* ---------- Muat data ---------- */
+  async function getJson(path){
+    const res = await fetch(`${SUPABASE_URL}/${path}`, { headers });
+    if(!res.ok) throw new Error(path.split('?')[0] + ' status ' + res.status);
+    return res.json();
+  }
+  async function loadProfil(){
+    try{
+      const rows = await getJson('profil?select=nama_sekolah,logo,semester,tahun_pelajaran,alamat,tlp,npsn&limit=1');
+      schoolProfil = rows[0] || {};
+      if(schoolProfil.nama_sekolah){ $('schoolName').textContent = schoolProfil.nama_sekolah; }
+      $('heroSub').textContent = schoolProfil.nama_sekolah || 'Rekap kasus siswa per kelas';
+      const term = [schoolProfil.semester ? 'Semester ' + schoolProfil.semester : '', schoolProfil.tahun_pelajaran].filter(Boolean).join(' • ');
+      if(term){ $('heroTerm').textContent = term; $('heroTerm').hidden = false; }
+      if(schoolProfil.logo){ $('heroLogo').innerHTML = `<img src="${esc(schoolProfil.logo)}" alt="Logo Sekolah">`; }
+    }catch(e){ console.error(e); $('heroSub').textContent = 'Rekap kasus siswa per kelas'; }
+  }
+  async function loadData(){
+    $('pageMsg').textContent = '';
+    const [k, r] = await Promise.allSettled([
+      getJson('kasus_siswa?select=*&order=tanggal.desc,created_at.desc&limit=10000'),
+      getJson('rombel?select=nama_rombel')
+    ]);
+    if(k.status === 'fulfilled') all = k.value;
+    else { all = []; $('pageMsg').textContent = 'Gagal memuat data kasus. Pastikan tabel "kasus_siswa" sudah dibuat di Supabase (jalankan kasussiswa.sql).'; $('pageMsg').className = 'page-msg err'; }
+    rombelNames = r.status === 'fulfilled' ? r.value.map(x => x.nama_rombel).filter(Boolean) : [];
+
+    // warna konsisten per jenis kasus (urut jumlah terbanyak)
+    const cnt = {};
+    all.forEach(x => { cnt[x.jenis_kasus] = (cnt[x.jenis_kasus] || 0) + 1; });
+    const jenisSorted = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a]);
+    jenisColor = {};
+    jenisSorted.forEach((j, i) => { jenisColor[j] = PALETTE[Math.min(i, PALETTE.length - 1)]; });
+    const cur = $('fJenis').value;
+    $('fJenis').innerHTML = '<option value="">Semua jenis</option>' + Object.keys(cnt).sort(natCmp).map(j => `<option value="${esc(j)}">${esc(j)}</option>`).join('');
+    $('fJenis').value = jenisColor[cur] ? cur : '';
+    render();
+  }
+
+  /* ---------- Filter ---------- */
+  function baseFilter(){ // semua filter KECUALI kelas
+    const q = norm($('fSearch').value), jn = $('fJenis').value, from = $('fFrom').value, to = $('fTo').value;
+    return all.filter(r =>
+      (!jn || r.jenis_kasus === jn) &&
+      (!from || (r.tanggal || '') >= from) &&
+      (!to || (r.tanggal || '') <= to) &&
+      (!q || [r.nama_siswa, r.nisn, r.kelas, r.jenis_kasus, r.walikelas, r.id].some(v => norm(v).includes(q)))
+    );
+  }
+  function filtered(){ const b = baseFilter(); return activeKelas ? b.filter(r => r.kelas === activeKelas) : b; }
+
+  /* ---------- Render ---------- */
+  function renderTabs(base){
+    const counts = {};
+    base.forEach(r => { const k = r.kelas || '(tanpa kelas)'; counts[k] = (counts[k] || 0) + 1; });
+    const kelasAll = [...new Set([...rombelNames, ...Object.keys(counts)])].sort(natCmp);
+    const list = kelasAll.filter(k => counts[k] > 0 || k === activeKelas);
+    const tab = (val, label, n) => `<button type="button" class="seg-tab${activeKelas === val ? ' active' : ''}" role="tab" aria-selected="${activeKelas === val}" data-kelas="${esc(val)}">${esc(label)}<span class="seg-count">${n}</span></button>`;
+    $('kelasTabs').innerHTML = tab('', 'Semua Kelas', base.length) + list.map(k => tab(k, k, counts[k] || 0)).join('');
+    return counts;
+  }
+
+  function renderStats(rows){
+    const siswaSet = new Set(rows.map(siswaKey));
+    const kelasSet = new Set(rows.map(r => r.kelas).filter(Boolean));
+    const jc = {}; rows.forEach(r => { jc[r.jenis_kasus] = (jc[r.jenis_kasus] || 0) + 1; });
+    const top = Object.keys(jc).sort((a, b) => jc[b] - jc[a])[0];
+
+    $('stTotal').textContent = rows.length;
+    $('stTotalFoot').textContent = activeKelas ? 'Kelas ' + activeKelas : 'Semua kelas';
+    $('stSiswa').textContent = siswaSet.size;
+    const berulang = [...siswaSet].filter(k => rows.filter(r => siswaKey(r) === k).length > 1).length;
+    $('stSiswaFoot').textContent = siswaSet.size ? `${berulang} siswa berkasus lebih dari sekali` : 'Belum ada siswa berkasus';
+    $('stKelas').textContent = kelasSet.size;
+    $('stKelasFoot').textContent = activeKelas ? 'Sedang melihat 1 kelas' : (rombelNames.length ? `dari ${rombelNames.length} rombel` : 'kelas dengan catatan kasus');
+    $('stJenis').textContent = top || '–';
+    $('stJenisFoot').textContent = top ? `${jc[top]} kasus (${Math.round(jc[top] / rows.length * 100)}%)` : 'Belum ada data';
+  }
+
+  function renderDonut(rows){
+    const box = $('donutBox');
+    if(!rows.length){ box.innerHTML = '<p class="empty-mini">Tidak ada data untuk ditampilkan.</p>'; $('donutSub').textContent = ''; return; }
+    const jc = {}; rows.forEach(r => { jc[r.jenis_kasus] = (jc[r.jenis_kasus] || 0) + 1; });
+    const keys = Object.keys(jc).sort((a, b) => jc[b] - jc[a]);
+    const R = 60, C = 2 * Math.PI * R; let offset = 0;
+    const segs = keys.map(k => {
+      const len = jc[k] / rows.length * C;
+      const s = `<circle cx="80" cy="80" r="${R}" stroke="${jenisColor[k] || '#8E8E93'}" stroke-dasharray="${Math.max(len - 1.5, 0.5)} ${C}" stroke-dashoffset="${-offset}"/>`;
+      offset += len; return s;
+    }).join('');
+    $('donutSub').textContent = keys.length + ' jenis';
+    box.innerHTML = `<div class="donut-wrap">
+      <div class="donut"><svg viewBox="0 0 160 160"><circle cx="80" cy="80" r="${R}" stroke="rgba(120,120,128,0.12)"/>${segs}</svg>
+        <div class="donut-center"><b>${rows.length}</b><span>kasus</span></div></div>
+      <div class="legend">${keys.slice(0, 7).map(k => `<div class="legend-item"><span class="legend-dot" style="background:${jenisColor[k] || '#8E8E93'}"></span><span class="legend-name" title="${esc(k)}">${esc(k)}</span><span class="legend-val">${jc[k]}</span><span class="legend-pct">${Math.round(jc[k] / rows.length * 100)}%</span></div>`).join('')}
+      ${keys.length > 7 ? `<div class="legend-item" style="color:var(--text-dim)">+${keys.length - 7} jenis lainnya</div>` : ''}</div>
+    </div>`;
+  }
+
+  function renderKelasBars(counts){
+    const keys = Object.keys(counts).sort((a, b) => counts[b] - counts[a] || natCmp(a, b));
+    if(!keys.length){ $('kelasBars').innerHTML = '<p class="empty-mini">Tidak ada data untuk ditampilkan.</p>'; return; }
+    const max = counts[keys[0]];
+    $('kelasBars').innerHTML = keys.map(k => `<button type="button" class="bar-row${activeKelas === k ? ' on' : ''}" data-kelas="${esc(k)}" title="Filter kelas ${esc(k)}">
+      <span class="bar-name">${esc(k)}</span><span class="bar-track"><span class="bar-fill" style="width:${Math.max(counts[k] / max * 100, 4)}%"></span></span><span class="bar-num">${counts[k]}</span></button>`).join('');
+  }
+
+  function renderTop(rows){
+    const g = {};
+    rows.forEach(r => { const k = siswaKey(r); (g[k] = g[k] || { nama:r.nama_siswa, kelas:r.kelas, n:0, jenis:{} }).n++; g[k].jenis[r.jenis_kasus] = 1; });
+    const list = Object.values(g).sort((a, b) => b.n - a.n || natCmp(a.nama, b.nama)).slice(0, 5);
+    $('topSub').textContent = list.length ? 'Top ' + list.length : '';
+    $('topList').innerHTML = list.length ? list.map((s, i) => `<div class="top-item">
+      <span class="rank ${i < 3 ? 'r' + (i + 1) : ''}">${i + 1}</span>
+      <div class="top-info"><div class="top-name">${esc(s.nama)}</div><div class="top-meta">Kelas ${esc(s.kelas || '-')} • ${Object.keys(s.jenis).length} jenis kasus</div></div>
+      <span class="top-badge ${s.n > 1 ? '' : 'once'}">${s.n}× kasus</span></div>`).join('')
+      : '<p class="empty-mini">Tidak ada data untuk ditampilkan.</p>';
+  }
+
+  function renderTable(rows){
+    $('tableTitle').textContent = activeKelas ? `Rincian Kasus Kelas ${activeKelas}` : 'Rincian Kasus Semua Kelas';
+    $('tableCount').textContent = `${Math.min(visible, rows.length)} dari ${rows.length} kasus`;
+    $('kasusBody').innerHTML = rows.slice(0, visible).map((r, i) => `<tr>
+      <td>${i + 1}</td><td>${esc(fmtTgl(r.tanggal))}</td><td><strong>${esc(r.nama_siswa)}</strong></td>
+      <td>${esc(r.nisn || '-')}</td><td><span class="kelas-chip">${esc(r.kelas || '-')}</span></td>
+      <td><span class="tag" style="background:${jenisColor[r.jenis_kasus] || '#8E8E93'}">${esc(r.jenis_kasus)}</span></td>
+      <td>${esc(r.walikelas || '-')}</td><td class="mono">${esc(r.id)}</td></tr>`).join('');
+    $('emptyState').hidden = rows.length > 0;
+    $('emptyState').textContent = all.length ? 'Tidak ada kasus yang cocok dengan filter.' : 'Belum ada data kasus siswa.';
+    $('moreWrap').hidden = rows.length <= visible;
+  }
+
+  function render(){
+    const base = baseFilter();
+    const counts = renderTabs(base);
+    const rows = activeKelas ? base.filter(r => r.kelas === activeKelas) : base;
+    renderStats(rows); renderDonut(rows); renderKelasBars(counts); renderTop(rows); renderTable(rows);
+  }
+  function resetPaging(){ visible = PAGE_SIZE; render(); }
+
+  /* ---------- Event ---------- */
+  function setKelas(k){ activeKelas = (k === activeKelas && k !== '') ? '' : k; resetPaging(); }
+  $('kelasTabs').addEventListener('click', (e) => { const b = e.target.closest('[data-kelas]'); if(b){ activeKelas = b.dataset.kelas; resetPaging(); } });
+  $('kelasBars').addEventListener('click', (e) => { const b = e.target.closest('[data-kelas]'); if(b) setKelas(b.dataset.kelas); });
+  ['fSearch','fJenis','fFrom','fTo'].forEach(id => $(id).addEventListener('input', resetPaging));
+  $('btnReset').addEventListener('click', () => { $('fSearch').value = ''; $('fJenis').value = ''; $('fFrom').value = ''; $('fTo').value = ''; activeKelas = ''; resetPaging(); });
+  $('btnMore').addEventListener('click', () => { visible += PAGE_SIZE; render(); });
+  $('btnRefresh').addEventListener('click', async () => { await loadData(); showToast('Data diperbarui'); });
+
+  /* ---------- Export PDF ---------- */
+  function imgFmt(uri){ const m = /^data:image\/(png|jpe?g|webp);base64,/i.exec(String(uri || '')); if(!m) return null; const e = m[1].toLowerCase(); return e.startsWith('jp') ? 'JPEG' : e === 'webp' ? 'WEBP' : 'PNG'; }
+  $('btnExport').addEventListener('click', () => {
+    const rows = filtered();
+    if(!rows.length){ alert('Tidak ada data kasus untuk diexport.'); return; }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation:'landscape' });
+    const W = doc.internal.pageSize.getWidth();
+    let textX = 14;
+    const fmt = imgFmt(schoolProfil.logo);
+    if(fmt){ try{ doc.addImage(schoolProfil.logo, fmt, 14, 10, 20, 20); textX = 40; }catch(e){} }
+    doc.setFont(undefined, 'bold'); doc.setFontSize(14);
+    doc.text(schoolProfil.nama_sekolah || 'Nama Sekolah', textX, 16);
+    doc.setFont(undefined, 'normal'); doc.setFontSize(9);
+    const sub = [schoolProfil.alamat, schoolProfil.tlp ? 'Telp. ' + schoolProfil.tlp : ''].filter(Boolean).join(' • ');
+    if(sub) doc.text(sub, textX, 22);
+    doc.setDrawColor(60); doc.line(14, 33, W - 14, 33);
+    doc.setFont(undefined, 'bold'); doc.setFontSize(12);
+    doc.text(`Laporan Kasus Siswa${activeKelas ? ' — Kelas ' + activeKelas : ' — Semua Kelas'}`, W / 2, 41, { align:'center' });
+    doc.setFont(undefined, 'normal'); doc.setFontSize(9);
+    const siswa = new Set(rows.map(siswaKey)).size;
+    doc.text(`Total ${rows.length} kasus • ${siswa} siswa • Dicetak ${new Date().toLocaleDateString('id-ID', { day:'2-digit', month:'long', year:'numeric' })}`, W / 2, 47, { align:'center' });
+    doc.autoTable({
+      startY: 52, styles:{ fontSize:8.5 }, headStyles:{ fillColor:[255,94,58] },
+      head:[['No','Tanggal','Nama Siswa','NISN','Kelas','Jenis Kasus','Wali Kelas']],
+      body: rows.map((r, i) => [i + 1, fmtTgl(r.tanggal), r.nama_siswa, r.nisn || '-', r.kelas || '-', r.jenis_kasus, r.walikelas || '-'])
+    });
+    doc.save(`laporan-kasus-siswa-${(activeKelas || 'semua-kelas').replace(/\s+/g, '_')}.pdf`);
+  });
+
+  loadProfil();
+  loadData();
+</script>
+</body>
+</html>
