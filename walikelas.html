@@ -9,362 +9,125 @@
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root{
+    /* dipakai oleh footer & slide-up bar (menu tidak diubah) */
     --ink:#3B2E63;
-    --ink-soft:#7A7191;
-    --paper:#FFFAF0;
-    --paper-deep:#FFEFD6;
-    --paper-line:#F5DDAE;
-    --brand:#6C4FE0;
     --gold:#FFC93C;
-    --brick:#D6336C;
-    --green:#1A8754;
     --turquoise:#0F766E;
-    --purple:#7B5EEA;
-    --amber:#92600F;
-    --blue:#2F80ED;
-    --orange:#F2994A;
     --footer-h:72px;
+    /* palet macOS untuk halaman */
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --green:#34C759;
+    --brick:#FF3B30;
+    --blue:#007AFF;
+    --hairline:rgba(0,0,0,0.1);
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
   }
 
   *{box-sizing:border-box;}
   html{overflow-x:hidden;}
   body{
     margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:'Inter',sans-serif;
+    color:var(--text);
+    font-family:var(--font);
     -webkit-font-smoothing:antialiased;
     padding-bottom:calc(var(--footer-h) + 20px);
     overflow-x:hidden;
     max-width:100vw;
+    min-height:100vh;
+    /* wallpaper ala macOS */
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
   }
   :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .navbar :focus-visible, main :focus-visible{outline-color:var(--mac-blue);}
 
-  /* ---------- Navbar (sama seperti admin.html) ---------- */
+  /* ---------- Menu bar ---------- */
   .navbar{
     position:sticky; top:0; z-index:20;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:var(--brand);
-    color:#FFFFFF;
-    padding:14px clamp(16px,4vw,40px);
+    height:30px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px;
+    color:var(--text);
   }
-  .nav-left{display:flex; align-items:center; gap:10px;}
+  .nav-left{display:flex; align-items:center; gap:8px;}
   .school-logo{
-    width:38px; height:38px;
-    border-radius:50%;
-    background:var(--paper);
-    color:var(--brand);
+    width:20px; height:20px;
+    border-radius:6px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff;
     display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:0.75rem;
-    flex-shrink:0;
-    overflow:hidden;
+    font-size:8px; font-weight:700;
+    flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
   }
-  .school-logo img{
-    width:100%; height:100%;
-    object-fit:cover;
-  }
-  .nav-right{display:flex; align-items:center; gap:16px;}
-  .nav-schoolinfo{
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:4px;
-  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .nav-right{display:flex; align-items:center; gap:14px; min-width:0;}
+  .nav-schoolinfo{display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0;}
   .school-name{
-    font-size:0.92rem;
-    font-weight:500;
-    color:var(--paper);
-    max-width:32ch;
+    font-size:13px; font-weight:700; color:var(--text);
+    max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
   }
   .term-badge{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:0.66rem;
-    letter-spacing:0.02em;
-    color:var(--gold);
-    background:rgba(255,201,60,0.14);
-    border:1px solid rgba(255,201,60,0.4);
-    padding:2px 9px;
-    border-radius:999px;
-    white-space:nowrap;
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:500; color:var(--text-dim);
+    background:rgba(0,0,0,0.06);
+    padding:2px 9px; border-radius:999px; white-space:nowrap;
   }
-  .term-badge .dot{
-    width:5px; height:5px;
-    border-radius:50%;
-    background:var(--gold);
-    flex-shrink:0;
-  }
+  .term-badge .dot{width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0;}
   .admin-account{
-    display:flex; align-items:center; gap:8px;
-    padding-left:16px;
-    border-left:1px solid rgba(240,234,217,0.25);
+    display:flex; align-items:center; gap:7px;
+    padding-left:12px; border-left:1px solid var(--hairline);
   }
   .avatar{
-    width:32px; height:32px;
-    border-radius:50%;
-    background:var(--gold);
-    color:#221a06;
+    width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,#B0B0B8,#7C7C84);
+    color:#fff; font-size:8px; font-weight:700;
     display:flex; align-items:center; justify-content:center;
-    font-family:'JetBrains Mono',monospace;
-    font-weight:700;
-    font-size:0.78rem;
     flex-shrink:0;
   }
-  .admin-name{font-size:0.88rem; color:#ddd6bf;}
+  .admin-name{font-size:13px; font-weight:500; color:var(--text);}
 
-  /* ---------- Main ---------- */
-  main{
-    max-width:1100px;
-    margin:0 auto;
-    padding:32px clamp(16px,4vw,40px) 12px;
-  }
-  .page-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:16px;
-    flex-wrap:wrap;
-    margin-bottom:28px;
-  }
-  .page-heading{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:clamp(1.4rem,2.6vw,1.85rem);
-    margin:0 0 4px;
-  }
-  .page-sub{
-    font-size:0.92rem;
-    color:var(--ink-soft);
-    margin:0;
-  }
-  .page-actions{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-  }
-  .btn{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    font-family:'Inter',sans-serif;
-    font-size:0.86rem;
-    font-weight:600;
-    border-radius:8px;
-    padding:10px 18px;
-    border:1px solid transparent;
-    cursor:pointer;
-    text-decoration:none;
-    white-space:nowrap;
-    transition:filter 0.15s ease, transform 0.1s ease;
-  }
-  .btn:hover{filter:brightness(1.06);}
-  .btn:active{transform:translateY(1px);}
-  .btn svg{width:16px; height:16px; flex-shrink:0;}
-  .btn-primary{background:var(--brick); color:#FFFFFF;}
-  .btn-secondary{background:#fffdf7; color:var(--ink); border-color:var(--paper-line);}
-
-  /* ---------- Panel tabel ---------- */
-  .panel{
-    background:#fffdf7;
-    border:1px solid var(--paper-line);
-    border-radius:10px;
-    padding:18px 20px;
-    min-width:0;
-    max-width:100%;
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:34px clamp(12px,3vw,32px) 12px;}
+  .window{
+    background:rgba(255,255,255,0.78);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px;
     overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
   }
-  .panel-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:14px;
-    flex-wrap:wrap;
-  }
-  .panel-head h3{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:1.05rem;
-    margin:0;
-  }
-  .table-scroll{overflow-x:auto;}
-  table.data-table{
-    width:100%;
-    border-collapse:collapse;
-    font-size:0.86rem;
-    min-width:560px;
-  }
-  table.data-table th{
-    text-align:left;
-    font-size:0.7rem;
-    font-weight:700;
-    letter-spacing:0.03em;
-    text-transform:uppercase;
-    color:var(--ink-soft);
-    padding:0 10px 10px;
-    border-bottom:1px solid var(--paper-line);
-    white-space:nowrap;
-  }
-  table.data-table td{
-    padding:12px 10px;
-    border-bottom:1px solid var(--paper-line);
-    vertical-align:middle;
-  }
-  table.data-table tr:last-child td{border-bottom:none;}
-  .rombel-chip{
-    display:inline-block;
-    background:var(--paper-deep);
-    border:1px solid var(--paper-line);
-    color:var(--amber);
-    font-weight:600;
-    font-size:0.76rem;
-    padding:3px 10px;
-    border-radius:999px;
-    white-space:nowrap;
-  }
-  .row-actions{display:flex; gap:8px;}
-  .icon-btn{
-    width:30px; height:30px;
-    border-radius:7px;
-    border:1px solid var(--paper-line);
-    background:#fffdf7;
-    color:var(--ink-soft);
+  .titlebar{
+    position:relative; height:44px;
     display:flex; align-items:center; justify-content:center;
-    cursor:pointer;
-    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
   }
-  .icon-btn svg{width:15px; height:15px;}
-  .icon-btn:hover{border-color:var(--brick); color:var(--brick); background:#FFE3EE;}
-  .empty-state{
-    text-align:center;
-    padding:36px 12px;
-    color:var(--ink-soft);
-    font-size:0.88rem;
-  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span{width:12px; height:12px; border-radius:50%; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);}
+  .t-red{background:#FF5F57;}
+  .t-yellow{background:#FEBC2E;}
+  .t-green{background:#28C840;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px clamp(14px,3vw,30px) 30px;}
 
-  /* ---------- Modal Tambah Walikelas ---------- */
-  .modal-backdrop{
-    position:fixed; inset:0;
-    background:rgba(59,46,99,0.45);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    opacity:0; visibility:hidden;
-    transition:opacity 0.25s ease, visibility 0s linear 0.25s;
-    z-index:50;
-  }
-  .modal-backdrop.open{
-    opacity:1; visibility:visible;
-    transition:opacity 0.25s ease, visibility 0s linear 0s;
-  }
-  .modal{
-    background:var(--paper);
-    border-radius:14px;
-    width:100%;
-    max-width:440px;
-    max-height:88vh;
-    overflow-y:auto;
-    padding:24px 24px 22px;
-    box-shadow:0 20px 50px rgba(0,0,0,0.25);
-    transform:translateY(16px) scale(0.98);
-    transition:transform 0.25s ease;
-  }
-  .modal-backdrop.open .modal{transform:translateY(0) scale(1);}
-  .modal-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-    margin-bottom:18px;
-  }
-  .modal-head h3{
-    font-family:'Newsreader',serif;
-    font-weight:500;
-    font-size:1.2rem;
-    margin:0 0 4px;
-  }
-  .modal-head p{
-    margin:0;
-    font-size:0.82rem;
-    color:var(--ink-soft);
-  }
-  .modal-close{
-    background:none; border:none; cursor:pointer;
-    color:var(--ink-soft);
-    width:30px; height:30px;
-    display:flex; align-items:center; justify-content:center;
-    border-radius:50%;
-    flex-shrink:0;
-  }
-  .modal-close:hover{background:var(--paper-deep); color:var(--brick);}
-  .modal-close svg{width:18px; height:18px;}
-  .form-field{margin-bottom:16px;}
-  .form-field label{
-    display:block;
-    font-size:0.78rem;
-    font-weight:600;
-    color:var(--ink);
-    margin-bottom:6px;
-  }
-  .form-field input,
-  .form-field select{
-    width:100%;
-    font-family:'Inter',sans-serif;
-    font-size:0.9rem;
-    color:var(--ink);
-    background:#FFFFFF;
-    border:1px solid var(--paper-line);
-    border-radius:8px;
-    padding:10px 12px;
-  }
-  .form-field input:focus,
-  .form-field select:focus{
-    outline:none;
-    border-color:var(--brand);
-    box-shadow:0 0 0 3px rgba(108,79,224,0.15);
-  }
-  .form-field input[readonly]{
-    background:var(--paper-deep);
-    color:var(--ink-soft);
-    cursor:not-allowed;
-  }
-  .form-field select{cursor:pointer;}
-  .id-row{display:flex; gap:8px;}
-  .id-row input{flex:1; min-width:0;}
-  .id-row .btn{padding:10px 14px; font-size:0.8rem; flex-shrink:0;}
-  .form-hint{font-size:0.72rem; color:var(--ink-soft); margin-top:5px;}
-  .modal-actions{
-    display:flex;
-    justify-content:flex-end;
-    gap:10px;
-    margin-top:22px;
-  }
-  .form-msg{
-    font-size:0.8rem;
-    padding:9px 12px;
-    border-radius:8px;
-    margin-bottom:16px;
-    display:none;
-  }
-  .form-msg.show{display:block;}
-  .form-msg.error{background:#FCE4EC; color:var(--brick);}
-  .form-msg.success{background:#E3F5EC; color:var(--green);}
+  .page-heading{font-size:clamp(1.5rem,3vw,1.9rem); font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{font-size:0.92rem; color:var(--text-dim); line-height:1.5; margin:0 0 22px;}
 
-  @media (max-width:560px){
-    main{padding-left:5px; padding-right:5px;}
-    .navbar{padding-left:5px; padding-right:5px;}
-    .page-actions{width:100%;}
-    .page-actions .btn{flex:1; justify-content:center;}
-  }
-
-  /* ---------- Footer sticky & bottom sheet (sama seperti admin.html) ---------- */
+  /* ---------- Footer sticky ---------- */
   .footer-bar{
     position:fixed; bottom:0; left:0; right:0;
     height:var(--footer-h);
@@ -383,22 +146,29 @@
     gap:4px;
     background:none;
     border:none;
-    color:var(--ink);
+    color:#FFFFFF;
     font-size:0.75rem;
     font-weight:600;
     width:140px;
     cursor:pointer;
     transition:background 0.15s ease;
   }
-  .footer-btn svg{width:20px; height:20px;}
-  .footer-btn:hover{background:rgba(59,46,99,0.12); color:#FFFFFF;}
+  .footer-btn .mac-icon{
+    width:34px; height:34px; border-radius:8px;
+    transition:transform 0.15s ease;
+  }
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+  .footer-btn:hover{background:rgba(255,255,255,0.16); color:#FFFFFF;}
   .footer-divider{
     width:1px;
-    background:rgba(59,46,99,0.2);
+    background:rgba(255,255,255,0.35);
     margin:14px 0;
   }
   .footer-btn.logout:hover{background:rgba(242,80,138,0.35); color:#FFFFFF;}
 
+  /* ---------- Bottom sheet menu ---------- */
   .sheet-backdrop{
     position:fixed; inset:0;
     background:rgba(59,46,99,0.45);
@@ -410,10 +180,17 @@
     opacity:1; visibility:visible;
     transition:opacity 0.28s ease, visibility 0s linear 0s;
   }
+
   .sheet{
+    font-family:'Inter',sans-serif;
     position:fixed;
     left:0; right:0; bottom:0;
-    background:var(--paper);
+    background:rgba(255,255,255,0.5);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.6);
+    border-bottom:none;
+    box-shadow:0 -8px 32px rgba(0,0,0,0.12);
     border-radius:16px 16px 0 0;
     padding:10px 20px calc(20px + var(--footer-h));
     max-width:640px;
@@ -425,9 +202,10 @@
     overflow-y:auto;
   }
   .sheet-backdrop.open .sheet{transform:translateY(0);}
+
   .sheet-handle{
     width:40px; height:4px;
-    background:var(--paper-line);
+    background:rgba(0,0,0,0.2);
     border-radius:2px;
     margin:8px auto 16px;
   }
@@ -437,37 +215,171 @@
     font-size:1.15rem;
     margin:0 0 16px;
   }
-  .menu-grid{
+  /* Menu memenuhi ruang bar: ikon di atas, nama di bawah, tanpa kotak/kartu */
+  .menu-list{
     display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px 8px;
+    padding:4px 0 8px;
   }
   .menu-item{
     display:flex;
     flex-direction:column;
     align-items:center;
-    justify-content:center;
+    justify-content:flex-start;
     gap:8px;
+    padding:6px 2px;
+    border-radius:14px;
     text-align:center;
-    background:var(--paper-deep);
-    border:1px solid var(--paper-line);
-    border-radius:8px;
-    padding:16px 8px;
     text-decoration:none;
     color:var(--ink);
     font-size:0.78rem;
     font-weight:500;
     line-height:1.25;
-    transition:border-color 0.15s ease, background 0.15s ease;
+    transition:background 0.15s ease, transform 0.15s ease;
   }
-  .menu-item:hover{border-color:var(--brick); background:#FFE3EE;}
-  .menu-item svg{width:22px; height:22px; color:var(--brick);}
+  .menu-item:hover,
+  .menu-item:focus-visible{background:rgba(0,0,0,0.06); outline:none;}
+  .menu-item:active{background:rgba(0,0,0,0.1); transform:scale(0.96);}
+
+  /* Ikon gaya macOS: squircle bergradien + glyph putih */
+  .mac-icon{
+    flex:0 0 auto;
+    width:56px; height:56px;
+    border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4),
+               inset 0 -1px 0 rgba(0,0,0,0.08),
+               0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px;
+    fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.purple{--c1:#C58AF9; --c2:#AF52DE;}
+  .mac-icon.teal  {--c1:#6FDDE6; --c2:#30B0C7;}
+  .mac-icon.red   {--c1:#FF7A70; --c2:#FF3B30;}
+  .mac-icon.yellow{--c1:#FFDD55; --c2:#FFCC00;}
+  .mac-icon.indigo{--c1:#8E8CF0; --c2:#5856D6;}
+  .mac-icon.pink  {--c1:#FF7CA3; --c2:#FF2D55;}
+  .mac-icon.gray  {--c1:#A4A4AA; --c2:#6E6E73;}
+  .mac-icon.graphite{--c1:#7C8896; --c2:#4A5562;}
 
   @media (max-width:520px){
-    .menu-grid{grid-template-columns:repeat(3,1fr);}
+    .footer-btn{width:auto; flex:1; max-width:140px;}
     .nav-schoolinfo{display:none;}
+    .menu-list{grid-template-columns:repeat(3,1fr);}
+    .mac-icon{width:52px; height:52px;}
+    .mac-icon svg{width:30px; height:30px;}
+  }
+
+  /* ---------- Khusus halaman Wali Kelas ---------- */
+  .footer-btn{font-family:inherit; line-height:1.15; text-align:center;}
+  a.footer-btn{text-decoration:none;}
+  .page-head{display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px;}
+  .page-head .page-sub{margin:0;}
+  .page-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .btn{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:inherit; font-size:13px; font-weight:600;
+    border-radius:8px; padding:8px 15px; border:1px solid transparent;
+    cursor:pointer; text-decoration:none; white-space:nowrap;
+    transition:filter .15s ease, transform .1s ease, background .15s ease;
+  }
+  .btn:hover:not(:disabled){filter:brightness(1.05);}
+  .btn:active:not(:disabled){transform:scale(0.97);}
+  .btn:disabled{opacity:.55; cursor:not-allowed;}
+  .btn svg{width:15px; height:15px; flex-shrink:0;}
+  .btn-primary{color:#fff; background:linear-gradient(180deg,#4DA3FF,#007AFF); box-shadow:inset 0 1px 0 rgba(255,255,255,0.35), 0 1px 2px rgba(0,0,0,0.2);}
+  .btn-secondary{color:var(--text); background:linear-gradient(180deg,#fff,#F2F2F5); border-color:rgba(0,0,0,0.14); box-shadow:0 1px 1px rgba(0,0,0,0.06);}
+  .btn-secondary:hover:not(:disabled){background:linear-gradient(180deg,#fff,#E9E9EE);}
+
+  .count-pill{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:#0E6B64; background:rgba(15,118,110,0.13); padding:4px 12px; border-radius:999px; white-space:nowrap;}
+  .count-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--turquoise); flex-shrink:0;}
+
+  .table-scroll{overflow-x:auto; background:#fff; border:1px solid rgba(0,0,0,0.14); border-radius:12px; box-shadow:0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(30,40,80,0.08);}
+  table.data-table{width:100%; border-collapse:collapse; font-size:14px; min-width:560px;}
+  table.data-table th{
+    text-align:left; font-size:0.7rem; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+    color:var(--text-dim); padding:10px 14px; background:rgba(240,240,245,0.9);
+    border-bottom:1px solid var(--hairline); white-space:nowrap;
+  }
+  table.data-table td{padding:10px 14px; border-bottom:1px solid rgba(0,0,0,0.07); vertical-align:middle;}
+  table.data-table tbody tr:last-child td{border-bottom:none;}
+  table.data-table tbody tr:hover{background:rgba(15,118,110,0.05);}
+  .rombel-chip{display:inline-block; background:rgba(0,122,255,0.12); color:#0A5FD0; font-weight:600; font-size:0.76rem; padding:3px 11px; border-radius:999px; white-space:nowrap;}
+  .row-actions{display:flex; gap:8px;}
+  .icon-btn{
+    width:30px; height:30px; border-radius:8px; border:1px solid rgba(0,0,0,0.12);
+    background:linear-gradient(180deg,#fff,#F2F2F5); color:var(--text-dim);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .icon-btn svg{width:15px; height:15px;}
+  .icon-btn:hover{border-color:var(--brick); color:var(--brick); background:rgba(255,59,48,0.08);}
+  .empty-state{text-align:center; padding:34px 12px; color:var(--text-dim); font-size:0.9rem; line-height:1.5;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(30,30,40,0.35);
+    -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    opacity:0; visibility:hidden;
+    transition:opacity .25s ease, visibility 0s linear .25s; z-index:50;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity .25s ease, visibility 0s linear 0s;}
+  .modal{
+    background:rgba(255,255,255,0.92);
+    -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7); border-radius:12px;
+    width:100%; max-width:440px; max-height:88vh; overflow-y:auto; padding:22px 24px 22px;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.35), 0 4px 14px rgba(30,40,80,0.12);
+    transform:translateY(16px) scale(0.98); transition:transform .25s ease;
+  }
+  .modal-backdrop.open .modal{transform:none;}
+  .modal-head{display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:18px;}
+  .modal-head h3{font-weight:700; font-size:1.15rem; letter-spacing:-0.01em; margin:0 0 4px;}
+  .modal-head p{margin:0; font-size:0.82rem; color:var(--text-dim);}
+  .modal-close{background:rgba(0,0,0,0.06); border:none; cursor:pointer; color:var(--text-dim); width:26px; height:26px; display:flex; align-items:center; justify-content:center; border-radius:50%; flex-shrink:0;}
+  .modal-close:hover{background:rgba(255,59,48,0.14); color:var(--brick);}
+  .modal-close svg{width:14px; height:14px;}
+  .form-field{margin-bottom:16px;}
+  .form-field label{display:block; font-size:0.78rem; font-weight:600; color:var(--text); margin-bottom:6px;}
+  .form-field input, .form-field select{
+    width:100%; font-family:inherit; font-size:14px; color:var(--text);
+    background:#fff; border:1px solid rgba(0,0,0,0.14); border-radius:8px; padding:9px 11px; outline:none;
+    box-shadow:0 1px 1px rgba(0,0,0,0.04), inset 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .form-field select{
+    appearance:none; -webkit-appearance:none; cursor:pointer; padding-right:34px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%236E6E73' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 4.5 6 1.8l3 2.7M3 7.5l3 2.7 3-2.7'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 11px center;
+  }
+  .form-field input:focus, .form-field select:focus{border-color:var(--mac-blue); box-shadow:0 0 0 4px rgba(0,122,255,0.25);}
+  .form-field input[readonly]{background:#F2F2F5; color:var(--text-dim); cursor:not-allowed;}
+  .id-row{display:flex; gap:8px;}
+  .id-row input{flex:1; min-width:0;}
+  .id-row .btn{padding:8px 13px; flex-shrink:0;}
+  .form-hint{font-size:0.72rem; color:var(--text-dim); margin-top:5px;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:22px;}
+  .form-msg{font-size:0.82rem; padding:9px 12px; border-radius:8px; margin-bottom:16px; display:none;}
+  .form-msg.show{display:block;}
+  .form-msg.error{background:rgba(255,59,48,0.12); color:#D70015;}
+  .form-msg.success{background:rgba(52,199,89,0.15); color:#1E8E3E;}
+
+  @media (max-width:560px){
+    .page-actions{width:100%;}
+    .page-actions .btn{flex:1; justify-content:center;}
   }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -488,27 +400,22 @@
 </header>
 
 <main>
-  <div class="page-head">
-    <div>
-      <h1 class="page-heading">Wali Kelas</h1>
-      <p class="page-sub">Kelola data wali kelas dan rombel yang menjadi tanggung jawabnya.</p>
-    </div>
-    <div class="page-actions">
-      <button class="btn btn-primary" id="openAddBtn" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Tambah Walikelas
-      </button>
-      <a class="btn btn-secondary" href="admin.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
-        Dashboard
-      </a>
-    </div>
+ <div class="window">
+  <div class="titlebar">
+    <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+    <div class="titlebar-title">Wali Kelas</div>
   </div>
+  <div class="window-body">
+    <div class="page-head">
+      <div>
+        <h1 class="page-heading">Wali kelas</h1>
+        <p class="page-sub">Kelola data wali kelas dan rombel yang menjadi tanggung jawabnya.</p>
+      </div>
+    </div>
 
-  <div class="panel">
     <div class="panel-head">
-      <h3>Daftar Wali Kelas</h3>
-      <span class="term-badge" style="color:var(--turquoise); background:rgba(15,118,110,0.12); border-color:rgba(15,118,110,0.35);"><span class="dot" style="background:var(--turquoise);"></span><span id="totalWalikelasText">Memuat...</span></span>
+      <h3 class="section-heading" style="margin:0;">Daftar Wali Kelas</h3>
+      <span class="count-pill"><span class="dot"></span><span id="totalWalikelasText">Memuat...</span></span>
     </div>
     <div class="table-scroll">
       <table class="data-table">
@@ -527,65 +434,25 @@
       </table>
     </div>
   </div>
+ </div>
 </main>
 
 <!-- Footer sticky -->
 <div class="footer-bar">
-  <button class="footer-btn" id="openMenuBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
-    Menu
+  <button type="button" class="footer-btn" id="openAddBtn">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="8.5" r="3.3"/><path d="M3.8 20c0-3.5 2.8-5.6 6.2-5.6 1.2 0 2.3.3 3.2.8"/><path d="M18 13v6M15 16h6"/></svg></span>
+    <span>+ Walikelas</span>
   </button>
   <div class="footer-divider"></div>
-  <button class="footer-btn logout" id="logoutBtn">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-    Log Out
+  <button type="button" class="footer-btn" id="btnExport">
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4"/><path d="M9 14.5h6M9 17.5h4"/></svg></span>
+    <span>Export PDF</span>
   </button>
-</div>
-
-<!-- Bottom sheet menu -->
-<div class="sheet-backdrop" id="sheetBackdrop">
-  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetHeading">
-    <div class="sheet-handle"></div>
-    <h3 id="sheetHeading">Menu</h3>
-    <div class="menu-grid">
-      <a class="menu-item" href="identitassekolah.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-6h6v6"/></svg>
-        Profil Sekolah
-      </a>
-      <a class="menu-item" href="rombel.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Rombongan Belajar
-      </a>
-      <a class="menu-item" href="datasiswa.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
-        Data Siswa
-      </a>
-      <a class="menu-item" href="dataguru.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="7" r="3.5"/><path d="M5 21c0-4.5 3.5-7 7-7s7 2.5 7 7"/><path d="M17 4l1.5 1.5L21 3"/></svg>
-        Data Guru
-      </a>
-      <a class="menu-item" href="walikelas.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5V6a2 2 0 0 1 2-2h9l5 5v10.5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M15 4v5h5"/><circle cx="10" cy="13" r="2"/><path d="M6.5 19c.3-2 1.7-3.3 3.5-3.3s3.2 1.3 3.5 3.3"/></svg>
-        Wali Kelas
-      </a>
-      <a class="menu-item" href="matapelajaran.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M8 7h8"/><path d="M8 11h5"/></svg>
-        Mata Pelajaran
-      </a>
-      <a class="menu-item" href="daftarnilairombel.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 4h16v16H4z"/><path d="M4 10h16"/><path d="M9 10v10"/></svg>
-        Daftar Nilai Per Rombel
-      </a>
-      <a class="menu-item" href="backupreset.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
-        Back Up &amp; Reset
-      </a>
-      <a class="menu-item" href="restore.html">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v12"/><polyline points="7 10 12 15 17 10"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
-        Restore
-      </a>
-    </div>
-  </div>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" id="btnBeranda" href="admin.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5L12 4.5l8 7"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1v-8.5"/></svg></span>
+    <span>Beranda</span>
+  </a>
 </div>
 
 <!-- Modal Tambah Walikelas -->
@@ -647,13 +514,15 @@
   };
 
   // Ambil logo & nama sekolah dari tabel "profil" di Supabase (sama seperti admin.html)
-  (async function loadSchoolProfile(){
+  let schoolProfil = {};
+  const profilReady = (async function loadSchoolProfile(){
     try{
-      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: sbHeaders });
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran,npsn,status,alamat,tlp,email,nama_kepsek,nip_kepsek&limit=1`, { headers: sbHeaders });
       if(!res.ok) return;
       const rows = await res.json();
       const profil = rows && rows[0];
       if(!profil) return;
+      schoolProfil = profil;
 
       if(profil.nama_sekolah){
         document.getElementById('schoolName').textContent = profil.nama_sekolah;
@@ -747,7 +616,9 @@
     }[c]));
   }
 
+  let walikelasRows = [];
   function renderWalikelas(rows){
+    walikelasRows = rows || [];
     if(!rows || rows.length === 0){
       tableBody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada data wali kelas. Klik "Tambah Walikelas" untuk menambahkan.</td></tr>';
       totalWalikelasText.textContent = '0 wali kelas';
@@ -873,19 +744,105 @@
       submitAddBtn.textContent = 'Simpan';
     }
   });
-  // ---------- Footer & bottom sheet menu ----------
-  const sheetBackdrop = document.getElementById('sheetBackdrop');
-  document.getElementById('openMenuBtn').addEventListener('click', () => {
-    sheetBackdrop.classList.add('open');
-  });
-  sheetBackdrop.addEventListener('click', (e) => {
-    if (e.target === sheetBackdrop) sheetBackdrop.classList.remove('open');
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') sheetBackdrop.classList.remove('open');
-  });
-  document.getElementById('logoutBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
+  // ---------- Export PDF daftar wali kelas ----------
+  function getImageFormatFromDataUri(dataUri){
+    const m = /^data:image\/(png|jpe?g|webp);base64,/i.exec(String(dataUri || ''));
+    if(!m) return null;
+    const ext = m[1].toLowerCase();
+    return (ext === 'jpg' || ext === 'jpeg') ? 'JPEG' : (ext === 'webp' ? 'WEBP' : 'PNG');
+  }
+  function addKopSurat(doc, judul){
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const marginLeft = 14, logoSize = 20;
+    let textX = marginLeft;
+    if(schoolProfil.logo){
+      const fmt = getImageFormatFromDataUri(schoolProfil.logo);
+      if(fmt){
+        try{ doc.addImage(schoolProfil.logo, fmt, marginLeft, 10, logoSize, logoSize); textX = marginLeft + logoSize + 6; }
+        catch(err){ console.warn('Gagal menambahkan logo ke PDF:', err); }
+      }
+    }
+    let y = 15;
+    doc.setFont(undefined, 'bold'); doc.setFontSize(13);
+    doc.text(schoolProfil.nama_sekolah || 'Nama Sekolah', textX, y); y += 5;
+    doc.setFont(undefined, 'normal'); doc.setFontSize(9);
+    const maxWidth = pageWidth - textX - marginLeft;
+    const baris1 = [];
+    if(schoolProfil.npsn) baris1.push(`NPSN: ${schoolProfil.npsn}`);
+    if(schoolProfil.status) baris1.push(schoolProfil.status);
+    if(baris1.length){ doc.text(baris1.join('  •  '), textX, y); y += 4.5; }
+    if(schoolProfil.alamat){
+      const lines = doc.splitTextToSize(schoolProfil.alamat, maxWidth);
+      doc.text(lines, textX, y); y += lines.length * 4.5;
+    }
+    const kontak = [];
+    if(schoolProfil.tlp) kontak.push(`Telp: ${schoolProfil.tlp}`);
+    if(schoolProfil.email) kontak.push(`Email: ${schoolProfil.email}`);
+    if(kontak.length){ doc.text(kontak.join('  •  '), textX, y); y += 4.5; }
+    const lineY = Math.max(y, 10 + logoSize) + 2;
+    doc.setDrawColor(15, 118, 110); doc.setLineWidth(0.6);
+    doc.line(marginLeft, lineY, pageWidth - marginLeft, lineY);
+    const titleY = lineY + 7;
+    doc.setFont(undefined, 'bold'); doc.setFontSize(11);
+    doc.text(judul, marginLeft, titleY);
+    doc.setFont(undefined, 'normal');
+    return titleY + 5;
+  }
+  const tanggalIndo = () => new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  const TEMPAT_TTD = 'Simpang Teritip';   // kota pada baris tanggal tanda tangan
+
+  async function exportPdf(){
+    if(!window.jspdf || !window.jspdf.jsPDF){ alert('Library PDF belum termuat. Periksa koneksi internet lalu coba lagi.'); return; }
+    if(!walikelasRows.length){ alert('Belum ada data wali kelas untuk diexport.'); return; }
+    await profilReady;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ orientation: 'portrait' });
+    const pw = doc.internal.pageSize.getWidth(), ph = doc.internal.pageSize.getHeight();
+    let y = addKopSurat(doc, 'Daftar Wali Kelas');
+    doc.setFontSize(9);
+    doc.text(`Tanggal cetak: ${tanggalIndo()}`, 14, y); y += 4.5;
+    doc.text(`Jumlah wali kelas: ${walikelasRows.length}`, 14, y); y += 4.5;
+
+    doc.autoTable({
+      head: [['No', 'Id Walikelas', 'Nama Guru', 'NIP', 'Rombel']],
+      body: walikelasRows.map((r, i) => [i + 1, r.id_walikelas || '-', r.nama_guru || '-', r.nip || '-', r.rombel || '-']),
+      startY: y + 2,
+      styles: { fontSize: 9 },
+      headStyles: { fillColor: [15, 118, 110], halign: 'center' },
+      columnStyles: { 0: { cellWidth: 12, halign: 'center' }, 1: { cellWidth: 30 }, 4: { cellWidth: 32, halign: 'center' } }
+    });
+
+    // tanda tangan Kepala Sekolah (kanan)
+    const colW = 74, lh = 5, cx = pw - 14 - colW / 2;
+    const namaKepsek = String(schoolProfil.nama_kepsek || '').trim() || '.............................';
+    const nipKepsek = String(schoolProfil.nip_kepsek || '').trim();
+    let ty = doc.lastAutoTable.finalY + 10;
+    if(ty + 45 > ph - 16){ doc.addPage(); ty = 24; }
+    doc.setFont(undefined, 'normal'); doc.setFontSize(10);
+    doc.text(`${TEMPAT_TTD}, ${tanggalIndo()}`, cx, ty, { align: 'center' });
+    doc.text('Kepala Sekolah', cx, ty + lh, { align: 'center' });
+    const yName = ty + lh + 22;
+    doc.setFont(undefined, 'bold');
+    const w = doc.getTextWidth(namaKepsek);
+    doc.text(namaKepsek, cx, yName, { align: 'center' });
+    doc.setDrawColor(0); doc.setLineWidth(0.2); doc.line(cx - w / 2, yName + 0.9, cx + w / 2, yName + 0.9);
+    doc.setFont(undefined, 'normal');
+    doc.text('NIP. ' + (nipKepsek || '-'), cx, yName + lh, { align: 'center' });
+
+    const total = doc.getNumberOfPages();
+    for(let i = 1; i <= total; i++){
+      doc.setPage(i); doc.setFont(undefined, 'normal'); doc.setFontSize(8); doc.setTextColor(110);
+      doc.text(`Halaman ${i} dari ${total}`, pw - 14, ph - 8, { align: 'right' });
+      doc.setTextColor(0);
+    }
+    doc.save('daftar-wali-kelas.pdf');
+  }
+  document.getElementById('btnExport').addEventListener('click', async () => {
+    const btn = document.getElementById('btnExport'); btn.disabled = true;
+    try{ await exportPdf(); }
+    catch(err){ console.error(err); alert('Gagal membuat PDF: ' + (err.message || err)); }
+    finally{ btn.disabled = false; }
   });
 </script>
 
