@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Materi Ekstrakurikuler — SCORIA</title>
+<style>
+  :root{
+    --ink:#3B2E63;
+    --gold:#FFC93C;
+    --turquoise:#0F766E;
+    --footer-h:72px;
+    --text:#1D1D1F;
+    --text-dim:#6E6E73;
+    --mac-blue:#007AFF;
+    --green:#34C759;
+    --brick:#FF3B30;
+    --hairline:rgba(0,0,0,0.1);
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{overflow-x:hidden;}
+  body{
+    margin:0; color:var(--text); font-family:var(--font);
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 20px);
+    overflow-x:hidden; max-width:100vw; min-height:100vh;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--gold); outline-offset:2px;}
+  .navbar :focus-visible, main :focus-visible, .modal :focus-visible{outline-color:var(--mac-blue);}
+  [hidden]{display:none !important;}
+
+  /* ---------- Menu bar ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20; height:30px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px;
+    background:rgba(255,255,255,0.55);
+    -webkit-backdrop-filter:blur(24px) saturate(180%);
+    backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08);
+    font-size:13px; color:var(--text);
+  }
+  .nav-left{display:flex; align-items:center; gap:8px;}
+  .school-logo{
+    width:20px; height:20px; border-radius:6px;
+    background:linear-gradient(180deg,#5AC8FA,#007AFF);
+    color:#fff; display:flex; align-items:center; justify-content:center;
+    font-size:8px; font-weight:700; flex-shrink:0; overflow:hidden;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .nav-right{display:flex; align-items:center; gap:14px; min-width:0;}
+  .nav-schoolinfo{display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0;}
+  .school-name{font-size:13px; font-weight:700; color:var(--text); max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .term-badge{
+    display:inline-flex; align-items:center; gap:5px;
+    font-size:11px; font-weight:500; color:var(--text-dim);
+    background:rgba(0,0,0,0.06); padding:2px 9px; border-radius:999px; white-space:nowrap;
+  }
+  .term-badge .dot{width:6px; height:6px; border-radius:50%; background:var(--green); flex-shrink:0;}
+  .admin-account{display:flex; align-items:center; gap:7px; padding-left:12px; border-left:1px solid var(--hairline);}
+  .avatar{
+    width:20px; height:20px; border-radius:50%;
+    background:linear-gradient(180deg,#B0B0B8,#7C7C84);
+    color:#fff; font-size:8px; font-weight:700;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .admin-name{font-size:13px; font-weight:500; color:var(--text);}
+
+  /* ---------- Window ---------- */
+  main{max-width:1000px; margin:0 auto; padding:34px clamp(12px,3vw,32px) 12px;}
+  .window{
+    background:rgba(255,255,255,0.78);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7);
+    border-radius:12px; overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{
+    position:relative; height:44px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85));
+    border-bottom:1px solid var(--hairline);
+  }
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span{width:12px; height:12px; border-radius:50%; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);}
+  .t-red{background:#FF5F57;} .t-yellow{background:#FEBC2E;} .t-green{background:#28C840;}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px clamp(14px,3vw,30px) 30px;}
+
+  .page-heading{font-size:clamp(1.5rem,3vw,1.9rem); font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{font-size:0.92rem; color:var(--text-dim); line-height:1.5; margin:0 0 20px;}
+
+  /* ---------- Toolbar (pilih ekskul + pencarian) ---------- */
+  .toolbar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:14px;}
+  .ek-chip{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:0.82rem; font-weight:700; color:#0E6B64;
+    background:rgba(15,118,110,0.13); padding:6px 12px; border-radius:999px;
+  }
+  .ek-chip .mac-icon{width:22px; height:22px; border-radius:6px;}
+  .ek-chip .mac-icon svg{width:14px; height:14px;}
+  select, input[type=text], input[type=date], textarea{
+    font-family:inherit; font-size:0.9rem; color:var(--text);
+    background:rgba(255,255,255,0.95);
+    border:1px solid rgba(0,0,0,0.15); border-radius:9px;
+    padding:8px 11px; width:100%;
+  }
+  textarea{resize:vertical; min-height:90px; line-height:1.45;}
+  .toolbar select{width:auto; max-width:100%;}
+  .toolbar .search{flex:1; min-width:160px; max-width:280px; margin-left:auto;}
+  select:focus, input:focus, textarea:focus{outline:2px solid var(--mac-blue); outline-offset:0; border-color:var(--mac-blue);}
+
+  /* ---------- Tabel ---------- */
+  .table-card{
+    background:rgba(255,255,255,0.92);
+    border:1px solid rgba(0,0,0,0.12); border-radius:14px;
+    box-shadow:0 1px 2px rgba(0,0,0,0.06), 0 6px 18px rgba(30,40,80,0.08);
+    overflow:hidden;
+  }
+  .table-scroll{overflow-x:auto;}
+  table{width:100%; border-collapse:collapse; min-width:700px;}
+  thead th{
+    text-align:left; font-size:0.7rem; font-weight:700; letter-spacing:0.05em;
+    text-transform:uppercase; color:var(--text-dim);
+    background:rgba(240,240,245,0.9);
+    padding:11px 14px; border-bottom:1px solid var(--hairline); white-space:nowrap;
+  }
+  tbody td{
+    padding:12px 14px; font-size:0.88rem; line-height:1.45; vertical-align:top;
+    border-bottom:1px solid rgba(0,0,0,0.07);
+  }
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:rgba(15,118,110,0.05);}
+  td.c-no{width:48px; color:var(--text-dim); font-variant-numeric:tabular-nums;}
+  td.c-id{white-space:nowrap; color:var(--text-dim); font-size:0.8rem; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;}
+  td.c-kelas{white-space:nowrap;}
+  .kelas-badge{display:inline-block; font-size:0.74rem; font-weight:700; color:#0E6B64; background:rgba(15,118,110,0.13); padding:2px 10px; border-radius:999px;}
+  .label-hint{font-weight:400; color:var(--text-dim);}
+  input:disabled{background:rgba(0,0,0,0.05); color:var(--text-dim); cursor:not-allowed;}
+  td.c-judul{font-weight:600; min-width:160px; word-break:break-word;}
+  td.c-desc{color:#48484A; min-width:200px; word-break:break-word; white-space:pre-line;}
+  td.c-aksi{white-space:nowrap; width:1%;}
+  .icon-btn{
+    width:30px; height:30px; border-radius:8px; border:none; cursor:pointer;
+    background:rgba(0,0,0,0.05); color:#48484A;
+    display:inline-flex; align-items:center; justify-content:center;
+    transition:background .15s, color .15s;
+  }
+  .icon-btn svg{width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .icon-btn:hover{background:rgba(0,122,255,0.14); color:var(--mac-blue);}
+  .icon-btn.del:hover{background:rgba(255,59,48,0.14); color:var(--brick);}
+  .empty-note{padding:30px 14px; text-align:center; color:var(--text-dim); font-size:0.9rem;}
+  .count-note{font-size:0.8rem; color:var(--text-dim); margin:10px 2px 0;}
+
+  /* ---------- Footer sticky ---------- */
+  .footer-bar{
+    position:fixed; bottom:0; left:0; right:0; height:var(--footer-h);
+    background:var(--turquoise);
+    display:flex; align-items:stretch; justify-content:center;
+    z-index:30; box-shadow:0 -4px 16px rgba(0,0,0,0.15);
+  }
+  .footer-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+    background:none; border:none; color:#FFFFFF;
+    font-family:inherit; font-size:0.75rem; font-weight:600;
+    width:140px; cursor:pointer; text-decoration:none;
+    transition:background 0.15s ease;
+  }
+  .footer-btn .mac-icon{width:34px; height:34px; border-radius:8px; transition:transform 0.15s ease;}
+  .footer-btn .mac-icon svg{width:20px; height:20px; stroke-width:2;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);}
+  .footer-btn:active .mac-icon{transform:scale(0.95);}
+  .footer-btn:hover{background:rgba(255,255,255,0.16); color:#FFFFFF;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+
+  /* ---------- Ikon macOS ---------- */
+  .mac-icon{
+    flex:0 0 auto; width:56px; height:56px; border-radius:13px;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25);
+  }
+  .mac-icon svg{
+    width:32px; height:32px; fill:none; stroke:#FFFFFF;
+    stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;
+    filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  }
+  .mac-icon.blue  {--c1:#5AC8FA; --c2:#007AFF;}
+  .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
+  .mac-icon.green {--c1:#6CE37F; --c2:#28B94A;}
+  .mac-icon.red   {--c1:#FF7A70; --c2:#FF3B30;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed; inset:0; background:rgba(59,46,99,0.45);
+    display:flex; align-items:center; justify-content:center; padding:16px;
+    opacity:0; visibility:hidden;
+    transition:opacity .25s ease, visibility 0s linear .25s;
+    z-index:50;
+  }
+  .modal-backdrop.open{opacity:1; visibility:visible; transition:opacity .25s ease, visibility 0s linear 0s;}
+  .modal{
+    width:100%; max-width:460px; max-height:90vh; overflow-y:auto;
+    background:rgba(255,255,255,0.88);
+    -webkit-backdrop-filter:blur(30px) saturate(180%);
+    backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7); border-radius:14px;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.35);
+    transform:scale(.96); transition:transform .25s cubic-bezier(.32,.72,.33,1);
+  }
+  .modal-backdrop.open .modal{transform:scale(1);}
+  .modal-head{padding:18px 20px 4px;}
+  .modal-head h3{margin:0; font-size:1.05rem; font-weight:700; letter-spacing:-0.01em;}
+  .modal-head p{margin:4px 0 0; font-size:0.82rem; color:var(--text-dim);}
+  .modal-body{padding:14px 20px 6px; display:flex; flex-direction:column; gap:12px;}
+  .field label{display:block; font-size:0.74rem; font-weight:600; color:var(--text-dim); margin:0 0 5px; letter-spacing:0.02em;}
+  .modal-foot{display:flex; justify-content:flex-end; gap:8px; padding:12px 20px 18px;}
+  .btn{
+    font-family:inherit; font-size:0.88rem; font-weight:600;
+    padding:8px 18px; border-radius:9px; border:1px solid rgba(0,0,0,0.12);
+    background:#fff; color:var(--text); cursor:pointer;
+  }
+  .btn:hover{background:#f3f3f6;}
+  .btn.primary{background:var(--mac-blue); border-color:var(--mac-blue); color:#fff;}
+  .btn.primary:hover{background:#0A6FE0;}
+  .btn.danger{background:var(--brick); border-color:var(--brick); color:#fff;}
+  .btn.danger:hover{background:#E6342A;}
+  .btn:disabled{opacity:.6; cursor:default;}
+  .form-error{color:var(--brick); font-size:0.8rem; margin:0; min-height:1em;}
+
+  .toast{
+    position:fixed; left:50%; bottom:calc(var(--footer-h) + 16px);
+    transform:translate(-50%, 20px); opacity:0; pointer-events:none;
+    background:rgba(30,30,34,0.9); color:#fff; font-size:0.84rem; font-weight:500;
+    padding:9px 16px; border-radius:999px; z-index:60;
+    transition:opacity .2s ease, transform .2s ease;
+  }
+  .toast.show{opacity:1; transform:translate(-50%, 0);}
+
+  @media (max-width:560px){
+    main{padding-left:5px; padding-right:5px;}
+    .navbar{padding-left:10px; padding-right:10px;}
+    .window-body{padding:20px 12px 22px;}
+    .toolbar .search{max-width:none; margin-left:0; flex-basis:100%;}
+  }
+  @media (max-width:520px){
+    .footer-btn{width:auto; flex:1; max-width:140px;}
+    .nav-schoolinfo{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left">
+    <div class="school-logo" id="schoolLogo">SMA</div>
+  </div>
+  <div class="nav-right">
+    <div class="nav-schoolinfo">
+      <span class="school-name" id="schoolName">SMA Negeri 1 Contoh</span>
+      <span class="term-badge" id="termBadge"><span class="dot"></span><span id="termBadgeText">Memuat...</span></span>
+    </div>
+    <div class="admin-account">
+      <span class="avatar" id="navAvatar">PB</span>
+      <span class="admin-name" id="navName">Pembina</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span class="t-red"></span><span class="t-yellow"></span><span class="t-green"></span></div>
+      <div class="titlebar-title">Materi Ekstrakurikuler</div>
+    </div>
+    <div class="window-body">
+      <h1 class="page-heading">Materi ekskul</h1>
+      <p class="page-sub">Daftar materi yang sudah disampaikan pada kegiatan ekstrakurikuler. Tambahkan materi baru lewat tombol <strong>+ Materi</strong> di bawah.</p>
+
+      <div class="toolbar">
+        <span class="ek-chip" id="ekChip">
+          <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 6H5.5v1.5A2.5 2.5 0 0 0 8 10"/><path d="M16 6h2.5v1.5A2.5 2.5 0 0 1 16 10"/><path d="M12 13v3.5"/><path d="M8.5 20h7"/><path d="M9.5 20v-3.5h5V20"/></svg></span>
+          <span id="ekChipText">Memuat...</span>
+        </span>
+        <select id="ekSelect" aria-label="Pilih ekstrakurikuler" hidden></select>
+        <input type="text" class="search" id="searchInput" placeholder="Cari materi..." aria-label="Cari materi">
+      </div>
+
+      <div class="table-card">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>ID</th>
+                <th>Judul Materi</th>
+                <th>Kelas</th>
+                <th>Deskripsi</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="materiBody">
+              <tr><td colspan="6"><div class="empty-note">Memuat data materi...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <p class="count-note" id="countNote"></p>
+    </div>
+  </div>
+</main>
+
+<!-- Footer sticky -->
+<div class="footer-bar">
+  <button class="footer-btn" id="addBtn" type="button">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></span>
+    + Materi
+  </button>
+  <div class="footer-divider"></div>
+  <button class="footer-btn" id="pdfBtn" type="button">
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 3.5h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9.5A1.5 1.5 0 0 1 5.5 20V5A1.5 1.5 0 0 1 7 3.5z"/><path d="M14 3.5V8h4"/><path d="M9 14.5h6M9 17.5h4"/></svg></span>
+    Export PDF
+  </button>
+  <div class="footer-divider"></div>
+  <a class="footer-btn" id="homeBtn" href="ekskulguru.html">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5L12 4.5l8 7"/><path d="M6 10.5V19a1 1 0 0 0 1 1h3.5v-5h3v5H17a1 1 0 0 0 1-1v-8.5"/></svg></span>
+    Beranda
+  </a>
+</div>
+
+<!-- Modal tambah / edit -->
+<div class="modal-backdrop" id="formBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="formTitle">
+    <div class="modal-head">
+      <h3 id="formTitle">Tambah Materi</h3>
+      <p id="formSub"></p>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label for="fId">ID <span class="label-hint">(otomatis)</span></label><input type="text" id="fId" disabled autocomplete="off"></div>
+      <div class="field"><label for="fJudul">Judul materi</label><input type="text" id="fJudul" maxlength="150" placeholder="Contoh: Teknik dasar passing"></div>
+      <div class="field"><label for="fKelas">Kelas</label><select id="fKelas"><option value="">Memuat data kelas...</option></select></div>
+      <div class="field"><label for="fDeskripsi">Deskripsi</label><textarea id="fDeskripsi" placeholder="Ringkasan materi yang disampaikan (opsional)"></textarea></div>
+      <p class="form-error" id="formError" role="alert"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="formCancel" type="button">Batal</button>
+      <button class="btn primary" id="formSave" type="button">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal hapus -->
+<div class="modal-backdrop" id="delBackdrop">
+  <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="delTitle">
+    <div class="modal-head">
+      <h3 id="delTitle">Hapus materi?</h3>
+      <p id="delText"></p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="delCancel" type="button">Batal</button>
+      <button class="btn danger" id="delConfirm" type="button">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+  const SUPABASE_URL = "https://ncfuynsctxxxqiqbzptp.supabase.co/rest/v1";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+  const sbHeaders = { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + SUPABASE_ANON_KEY };
+  const jsonHeaders = { ...sbHeaders, "Content-Type": "application/json", "Prefer": "return=representation" };
+
+  /* Nama tabel materi di Supabase (kolom: id, ekskul_id, judul, kelas, deskripsi) */
+  const TABEL_MATERI = "materi_ekskul";
+  const ROMBEL_TABLE = "rombel";       // sumber daftar kelas (sama dengan datasiswa.html)
+  const SISWA_TABLE = "datasiswa";
+
+  /* ---------- Session ---------- */
+  let session = null;
+  try{ session = JSON.parse(localStorage.getItem('ekskul_session') || 'null'); }catch(e){}
+  if(!session || !session.nama_guru){
+    window.location.replace('index.html');
+  }
+
+  function escapeHtml(str){
+    return String(str ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+  function initials(name){
+    const parts = String(name || "?").replace(/[.,]/g, " ").trim().split(/\s+/).filter(Boolean);
+    return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[1][0] : "")).toUpperCase();
+  }
+  function formatTanggal(iso){
+    if(!iso) return "-";
+    const d = new Date(iso + "T00:00:00");
+    return isNaN(d) ? iso : d.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" });
+  }
+  function todayISO(){
+    const d = new Date();
+    const m = String(d.getMonth()+1).padStart(2,'0'), day = String(d.getDate()).padStart(2,'0');
+    return `${d.getFullYear()}-${m}-${day}`;
+  }
+  let toastTimer;
+  function toast(msg){
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  /* ---------- Navbar ---------- */
+  if(session && session.nama_guru){
+    document.getElementById('navName').textContent = session.nama_guru;
+    document.getElementById('navAvatar').textContent = initials(session.nama_guru);
+  }
+  (async function loadSchoolProfile(){
+    try{
+      const res = await fetch(`${SUPABASE_URL}/profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1`, { headers: sbHeaders });
+      if(!res.ok) return;
+      const rows = await res.json();
+      const profil = rows && rows[0];
+      if(!profil) return;
+      if(profil.nama_sekolah) document.getElementById('schoolName').textContent = profil.nama_sekolah;
+      const semester = (profil.semester || '').trim();
+      const tahun = (profil.tahun_pelajaran || '').trim();
+      if(semester || tahun){
+        document.getElementById('termBadgeText').textContent = [semester ? 'Semester ' + semester : '', tahun].filter(Boolean).join(' • ');
+      } else {
+        document.getElementById('termBadge').style.display = 'none';
+      }
+      if(profil.logo){
+        const logoEl = document.getElementById('schoolLogo');
+        logoEl.innerHTML = '';
+        const img = document.createElement('img');
+        img.src = profil.logo; img.alt = 'Logo Sekolah';
+        logoEl.appendChild(img);
+      }
+    }catch(err){ console.error('Gagal memuat profil sekolah:', err); }
+  })();
+
+  /* ---------- Ekskul aktif ---------- */
+  let ekskulList = [];
+  let aktifId = localStorage.getItem('ekskul_aktif');
+  let materiList = [];
+
+  const ekSelect = document.getElementById('ekSelect');
+
+  function aktifEkskul(){
+    return ekskulList.find(e => String(e.id) === String(aktifId)) || null;
+  }
+  function renderEkskulPicker(){
+    if(ekskulList.length === 0){
+      document.getElementById('ekChipText').textContent = 'Belum ada ekskul';
+      ekSelect.hidden = true;
+      return;
+    }
+    if(!aktifEkskul()){
+      aktifId = String(ekskulList[0].id);
+      localStorage.setItem('ekskul_aktif', aktifId);
+    }
+    document.getElementById('ekChipText').textContent = aktifEkskul().nama_ekstrakurikuler;
+    if(ekskulList.length > 1){
+      ekSelect.innerHTML = ekskulList.map(e =>
+        `<option value="${escapeHtml(e.id)}"${String(e.id) === String(aktifId) ? ' selected' : ''}>${escapeHtml(e.nama_ekstrakurikuler)}</option>`
+      ).join('');
+      ekSelect.hidden = false;
+    } else {
+      ekSelect.hidden = true;
+    }
+  }
+  ekSelect.addEventListener('change', () => {
+    aktifId = ekSelect.value;
+    localStorage.setItem('ekskul_aktif', aktifId);
+    renderEkskulPicker();
+    loadMateri();
+  });
+
+  async function loadEkskul(){
+    ekskulList = (session.ekskul || []).map(e => ({ id: e.id, nama_ekstrakurikuler: e.nama_ekstrakurikuler }));
+    renderEkskulPicker();
+    try{
+      const res = await fetch(`${SUPABASE_URL}/ekstrakurikuler?nama_guru=eq.${encodeURIComponent(session.nama_guru)}&select=id,nama_ekstrakurikuler&order=nama_ekstrakurikuler.asc`, { headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      ekskulList = await res.json();
+    }catch(err){ console.error('Gagal memuat ekstrakurikuler:', err); }
+    renderEkskulPicker();
+    loadMateri();
+  }
+
+  /* ---------- Tabel materi ---------- */
+  const IC_EDIT = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+  const IC_TRASH = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M9 7V4.5h6V7"/><path d="M6.5 7l1 13h9l1-13"/><path d="M10 11v6M14 11v6"/></svg>';
+
+  function filtered(){
+    const q = document.getElementById('searchInput').value.trim().toLowerCase();
+    if(!q) return materiList;
+    return materiList.filter(m =>
+      (m.judul || '').toLowerCase().includes(q) || (m.deskripsi || '').toLowerCase().includes(q) || (m.kelas || '').toLowerCase().includes(q) || (m.id || '').toLowerCase().includes(q)
+    );
+  }
+  function renderTable(){
+    const body = document.getElementById('materiBody');
+    const note = document.getElementById('countNote');
+    if(!aktifEkskul()){
+      body.innerHTML = '<tr><td colspan="6"><div class="empty-note">Belum ada ekstrakurikuler yang tercatat atas nama Anda.</div></td></tr>';
+      note.textContent = '';
+      return;
+    }
+    const rows = filtered();
+    if(rows.length === 0){
+      body.innerHTML = `<tr><td colspan="6"><div class="empty-note">${materiList.length ? 'Tidak ada materi yang cocok dengan pencarian.' : 'Belum ada materi. Klik <strong>+ Materi</strong> untuk menambahkan.'}</div></td></tr>`;
+      note.textContent = '';
+      return;
+    }
+    body.innerHTML = rows.map((m, i) => `
+      <tr>
+        <td class="c-no">${i + 1}</td>
+        <td class="c-id">${escapeHtml(m.id)}</td>
+        <td class="c-judul">${escapeHtml(m.judul)}</td>
+        <td class="c-kelas">${m.kelas ? `<span class="kelas-badge">${escapeHtml(m.kelas)}</span>` : '-'}</td>
+        <td class="c-desc">${escapeHtml(m.deskripsi || '-')}</td>
+        <td class="c-aksi">
+          <button class="icon-btn" type="button" data-act="edit" data-id="${escapeHtml(m.id)}" aria-label="Edit materi" title="Edit">${IC_EDIT}</button>
+          <button class="icon-btn del" type="button" data-act="del" data-id="${escapeHtml(m.id)}" aria-label="Hapus materi" title="Hapus">${IC_TRASH}</button>
+        </td>
+      </tr>`).join('');
+    note.textContent = `${rows.length} materi` + (rows.length !== materiList.length ? ` dari ${materiList.length}` : '');
+  }
+  document.getElementById('searchInput').addEventListener('input', renderTable);
+
+  async function loadMateri(){
+    const ek = aktifEkskul();
+    if(!ek){ materiList = []; renderTable(); return; }
+    document.getElementById('materiBody').innerHTML = '<tr><td colspan="6"><div class="empty-note">Memuat data materi...</div></td></tr>';
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${TABEL_MATERI}?ekskul_id=eq.${encodeURIComponent(ek.id)}&select=id,judul,kelas,deskripsi&order=kelas.asc,judul.asc`, { headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      materiList = await res.json();
+      renderTable();
+    }catch(err){
+      console.error('Gagal memuat materi:', err);
+      materiList = [];
+      document.getElementById('materiBody').innerHTML = '<tr><td colspan="6"><div class="empty-note">Gagal memuat materi. Pastikan tabel <strong>' + TABEL_MATERI + '</strong> sudah dibuat di Supabase.</div></td></tr>';
+    }
+  }
+
+  document.getElementById('materiBody').addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if(!btn) return;
+    const m = materiList.find(x => String(x.id) === btn.getAttribute('data-id'));
+    if(!m) return;
+    if(btn.getAttribute('data-act') === 'edit') openForm(m); else openDelete(m);
+  });
+
+  /* ---------- ID otomatis & daftar kelas (sumber: halaman datasiswa) ---------- */
+  function generateMateriId(){
+    const used = new Set(materiList.map(m => m.id));
+    let id;
+    do{ id = 'id-' + Math.floor(10000 + Math.random() * 90000); }while(used.has(id));
+    return id;
+  }
+  let aktifKelas = '';
+  let kelasNames = [];
+  async function loadKelasOptions(){
+    const sel = document.getElementById('fKelas');
+    try{
+      const [rombelRes, siswaRes] = await Promise.all([
+        fetch(`${SUPABASE_URL}/${ROMBEL_TABLE}?select=nama_rombel&order=nama_rombel.asc`, { headers: sbHeaders }),
+        fetch(`${SUPABASE_URL}/${SISWA_TABLE}?select=kelas`, { headers: sbHeaders })
+      ]);
+      if(!rombelRes.ok) throw new Error('Status ' + rombelRes.status);
+      const names = (await rombelRes.json()).map(r => r.nama_rombel).filter(Boolean);
+      if(siswaRes.ok){
+        (await siswaRes.json()).forEach(s => { if(s.kelas && !names.includes(s.kelas)) names.push(s.kelas); });
+      }
+      kelasNames = names.sort((a, b) => a.localeCompare(b, 'id', { numeric: true }));
+      fillKelasSelect();
+    }catch(err){
+      console.error('Gagal memuat daftar kelas:', err);
+      sel.innerHTML = '<option value="">Gagal memuat kelas</option>';
+    }
+  }
+  function fillKelasSelect(extra){
+    const sel = document.getElementById('fKelas');
+    const names = kelasNames.slice();
+    if(extra && !names.includes(extra)) names.push(extra);
+    if(names.length === 0){ sel.innerHTML = '<option value="">Belum ada data kelas</option>'; return; }
+    sel.innerHTML = '<option value="">Pilih kelas</option>' + names.map(n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`).join('');
+  }
+  function setKelasValue(v){
+    fillKelasSelect(v);
+    document.getElementById('fKelas').value = v || '';
+  }
+
+  /* ---------- Form tambah / edit ---------- */
+  const formBackdrop = document.getElementById('formBackdrop');
+  const delBackdrop = document.getElementById('delBackdrop');
+  let editingId = null;
+  let deletingId = null;
+
+  function openForm(m){
+    const ek = aktifEkskul();
+    if(!ek){ toast('Belum ada ekstrakurikuler untuk dipilih'); return; }
+    editingId = m ? m.id : null;
+    document.getElementById('formTitle').textContent = m ? 'Edit Materi' : 'Tambah Materi';
+    document.getElementById('formSub').textContent = ek.nama_ekstrakurikuler;
+    document.getElementById('fId').value = m ? m.id : generateMateriId();
+    document.getElementById('fJudul').value = m ? m.judul : '';
+    setKelasValue(m ? m.kelas : (aktifKelas || ''));
+    document.getElementById('fDeskripsi').value = m ? (m.deskripsi || '') : '';
+    document.getElementById('formError').textContent = '';
+    formBackdrop.classList.add('open');
+    setTimeout(() => document.getElementById('fJudul').focus(), 60);
+  }
+  function closeForm(){ formBackdrop.classList.remove('open'); }
+
+  document.getElementById('addBtn').addEventListener('click', () => openForm(null));
+  document.getElementById('formCancel').addEventListener('click', closeForm);
+  formBackdrop.addEventListener('click', (e) => { if(e.target === formBackdrop) closeForm(); });
+
+  document.getElementById('formSave').addEventListener('click', async () => {
+    const ek = aktifEkskul();
+    const kelas = document.getElementById('fKelas').value;
+    const judul = document.getElementById('fJudul').value.trim();
+    const deskripsi = document.getElementById('fDeskripsi').value.trim();
+    const errEl = document.getElementById('formError');
+    if(!judul){ errEl.textContent = 'Judul materi wajib diisi.'; return; }
+    if(!kelas){ errEl.textContent = 'Kelas wajib dipilih.'; return; }
+    errEl.textContent = '';
+
+    const btn = document.getElementById('formSave');
+    btn.disabled = true; btn.textContent = 'Menyimpan...';
+    try{
+      const payload = { judul, kelas, deskripsi: deskripsi || null };
+      let res;
+      if(editingId){
+        res = await fetch(`${SUPABASE_URL}/${TABEL_MATERI}?id=eq.${encodeURIComponent(editingId)}`, { method:'PATCH', headers: jsonHeaders, body: JSON.stringify(payload) });
+      } else {
+        let id = document.getElementById('fId').value;
+        for(let attempt = 0; attempt < 4; attempt++){
+          res = await fetch(`${SUPABASE_URL}/${TABEL_MATERI}`, { method:'POST', headers: jsonHeaders, body: JSON.stringify({ ...payload, id, ekskul_id: String(ek.id) }) });
+          if(res.status !== 409) break;
+          id = generateMateriId();   // ID bentrok → acak ulang
+        }
+      }
+      if(!res.ok) throw new Error(await res.text());
+      aktifKelas = kelas;
+      closeForm();
+      toast(editingId ? 'Materi diperbarui' : 'Materi ditambahkan');
+      await loadMateri();
+    }catch(err){
+      console.error('Gagal menyimpan materi:', err);
+      errEl.textContent = 'Gagal menyimpan. Coba lagi.';
+    }finally{
+      btn.disabled = false; btn.textContent = 'Simpan';
+    }
+  });
+
+  /* ---------- Hapus ---------- */
+  function openDelete(m){
+    deletingId = m.id;
+    document.getElementById('delText').textContent = `“${m.judul}” akan dihapus permanen.`;
+    delBackdrop.classList.add('open');
+  }
+  function closeDelete(){ delBackdrop.classList.remove('open'); }
+  document.getElementById('delCancel').addEventListener('click', closeDelete);
+  delBackdrop.addEventListener('click', (e) => { if(e.target === delBackdrop) closeDelete(); });
+  document.getElementById('delConfirm').addEventListener('click', async () => {
+    const btn = document.getElementById('delConfirm');
+    btn.disabled = true;
+    try{
+      const res = await fetch(`${SUPABASE_URL}/${TABEL_MATERI}?id=eq.${encodeURIComponent(deletingId)}`, { method:'DELETE', headers: sbHeaders });
+      if(!res.ok) throw new Error(await res.text());
+      closeDelete();
+      toast('Materi dihapus');
+      await loadMateri();
+    }catch(err){
+      console.error('Gagal menghapus materi:', err);
+      toast('Gagal menghapus materi');
+    }finally{ btn.disabled = false; }
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if(e.key === 'Escape'){ closeForm(); closeDelete(); }
+  });
+
+  /* ---------- Export PDF (lewat dialog cetak → Simpan sebagai PDF) ---------- */
+  document.getElementById('pdfBtn').addEventListener('click', () => {
+    const ek = aktifEkskul();
+    if(!ek){ toast('Belum ada ekstrakurikuler'); return; }
+    if(materiList.length === 0){ toast('Belum ada materi untuk diexport'); return; }
+
+    const sekolah = document.getElementById('schoolName').textContent;
+    const term = document.getElementById('termBadge').style.display === 'none' ? '' : document.getElementById('termBadgeText').textContent;
+    const rows = materiList.slice().sort((a, b) => String(a.kelas || '').localeCompare(String(b.kelas || ''), 'id', { numeric: true }) || String(a.judul).localeCompare(String(b.judul), 'id')).map((m, i) => `
+      <tr>
+        <td class="n">${i + 1}</td>
+        <td class="t">${escapeHtml(m.id)}</td>
+        <td><strong>${escapeHtml(m.judul)}</strong></td>
+        <td class="t">${escapeHtml(m.kelas || '-')}</td>
+        <td class="d">${escapeHtml(m.deskripsi || '-')}</td>
+      </tr>`).join('');
+
+    const html = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">
+      <title>Materi ${escapeHtml(ek.nama_ekstrakurikuler)}</title>
+      <style>
+        @page{size:A4; margin:16mm;}
+        body{font-family:Arial,Helvetica,sans-serif; color:#111; font-size:11pt;}
+        h1{font-size:15pt; margin:0 0 2px;}
+        h2{font-size:12pt; font-weight:600; margin:0 0 2px;}
+        .meta{color:#555; font-size:10pt; margin:0 0 14px;}
+        table{width:100%; border-collapse:collapse;}
+        th,td{border:1px solid #888; padding:6px 8px; vertical-align:top; text-align:left;}
+        th{background:#e9eef0; font-size:10pt;}
+        td.n{width:28px; text-align:center;} td.t{white-space:nowrap;}
+        td.d{white-space:pre-line;}
+        tr{page-break-inside:avoid;}
+        .foot{margin-top:14px; font-size:9pt; color:#666;}
+      </style></head><body>
+      <h1>Daftar Materi Ekstrakurikuler</h1>
+      <h2>${escapeHtml(ek.nama_ekstrakurikuler)}</h2>
+      <p class="meta">${escapeHtml(sekolah)}${term ? ' • ' + escapeHtml(term) : ''}<br>Pembina: ${escapeHtml(session.nama_guru)}</p>
+      <table><thead><tr><th>No</th><th>ID</th><th>Judul Materi</th><th>Kelas</th><th>Deskripsi</th></tr></thead><tbody>${rows}</tbody></table>
+      <p class="foot">Dicetak pada ${escapeHtml(formatTanggal(todayISO()))}</p>
+      </body></html>`;
+
+    const w = window.open('', '_blank');
+    if(!w){ toast('Izinkan pop-up untuk export PDF'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+    w.focus();
+    setTimeout(() => { w.print(); }, 350);
+  });
+
+  /* ---------- Mulai ---------- */
+  if(session && session.nama_guru){ loadKelasOptions(); loadEkskul(); }
+</script>
+
+</body>
+</html>
