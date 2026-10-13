@@ -303,6 +303,8 @@ const TABEL = "absensi_pembina";
 const TZ = "Asia/Jakarta";
 const MAKS_AKURASI = 100;   // meter; di atas ini lokasi dianggap kurang akurat
 const SEKOLAH = {nama:"SD Negeri 7 Simpang Teritip", lat:-1.8965034, lng:105.402773};   // titik di Google Maps
+const RADIUS_DEFAULT = 100;   // meter; dipakai bila radius_meter di tabel profil belum diisi
+const radiusSekolah = () => Number(profil.radius_meter) || RADIUS_DEFAULT;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const HDR = {"apikey":KEY, "Authorization":"Bearer " + KEY};
@@ -402,12 +404,10 @@ function posisiBaru(){
 }
 /* Hasil penilaian posisi terhadap titik & radius sekolah */
 function nilai(p){
-  const la = profil.latitude, lo = profil.longitude, r = Number(profil.radius_meter) || 0;
-  if(la == null || lo == null || !r) return {status:"belum", r};
-  const c = p.coords, jarak = haversine(+la, +lo, c.latitude, c.longitude);
-  const dx = (c.longitude - lo) * Math.cos(rad(+la)) * 111320, dy = (c.latitude - la) * 110574;
+  const la = SEKOLAH.lat, lo = SEKOLAH.lng, r = radiusSekolah();
+  const c = p.coords, jarak = haversine(la, lo, c.latitude, c.longitude);
   const status = c.accuracy > MAKS_AKURASI ? "lemah" : (jarak <= r ? "dalam" : "luar");
-  return {status, jarak, r, acc:c.accuracy, dx, dy};
+  return {status, jarak, r, acc:c.accuracy};
 }
 
 /* ---------- Tampilan lokasi ---------- */
@@ -428,7 +428,7 @@ function gambarPeta(){
 }
 function renderLok(){
   const b = $("banner"), tx = $("bannerTx");
-  const n = pos ? nilai(pos) : null, r = Number(profil.radius_meter) || 0;
+  const n = pos ? nilai(pos) : null, r = radiusSekolah();
   let kelas = "wait", teks = "Mencari lokasi...";
   if(posErr){ kelas = "bad"; teks = posErr; }
   else if(pos && n.status === "belum"){ kelas = "warn"; teks = "Titik lokasi dan radius sekolah belum diatur oleh Admin Aplikasi."; }
