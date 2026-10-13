@@ -305,6 +305,8 @@ const MAKS_AKURASI = 100;   // meter; di atas ini lokasi dianggap kurang akurat
 const SEKOLAH = {nama:"SD Negeri 7 Simpang Teritip", lat:-1.8965034, lng:105.402773};   // titik di Google Maps
 const RADIUS_DEFAULT = 100;   // meter; dipakai bila radius_meter di tabel profil belum diisi
 const radiusSekolah = () => Number(profil.radius_meter) || RADIUS_DEFAULT;
+const BATAS_TERLAMBAT = "13:30";   // absen masuk setelah jam ini (WIB) dicatat terlambat
+const BUKA_PULANG = "16:00";       // absen pulang baru dibuka pada jam ini (WIB)
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const HDR = {"apikey":KEY, "Authorization":"Bearer " + KEY};
@@ -334,6 +336,11 @@ const tglWIB = (d = new Date()) => new Intl.DateTimeFormat("sv-SE", {timeZone:TZ
 const jamWIB = d => d ? new Date(d).toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit", timeZone:TZ}).replace(/\./g, ":") : "-";
 const tglPanjang = t => new Date(t + "T12:00:00+07:00").toLocaleDateString("id-ID", {weekday:"long", day:"numeric", month:"long", year:"numeric", timeZone:TZ});
 const tglPendek = t => new Date(t + "T12:00:00+07:00").toLocaleDateString("id-ID", {weekday:"short", day:"2-digit", month:"short", year:"numeric", timeZone:TZ});
+const menitWIB = d => { const o = Object.fromEntries(new Intl.DateTimeFormat("en-GB", {timeZone:TZ, hour:"2-digit", minute:"2-digit", hourCycle:"h23"}).formatToParts(new Date(d)).map(x => [x.type, x.value])); return (+o.hour) * 60 + (+o.minute); };
+const keMenit = hhmm => { const [h, m] = hhmm.split(":").map(Number); return h * 60 + m; };
+const menitTerlambat = d => d ? Math.max(0, menitWIB(d) - keMenit(BATAS_TERLAMBAT)) : 0;
+const pulangDibuka = () => menitWIB(new Date()) >= keMenit(BUKA_PULANG);
+const fmtDurasiTelat = m => m >= 60 ? `${Math.floor(m / 60)} jam ${m % 60} menit` : `${m} menit`;
 const fmtM = m => m >= 1000 ? (m / 1000).toFixed(2).replace(".", ",") + " km" : Math.round(m) + " m";
 const inisial = n => String(n || "").split(" ").filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
 
@@ -448,14 +455,17 @@ function renderHariIni(){
   const h = hariIni;
   $("tglTeks").textContent = tglPanjang(tglWIB()) + (nip ? "  •  NIP " + nip : "");
   $("vMasuk").textContent = h && h.jam_masuk ? jamWIB(h.jam_masuk) + " WIB" : "Belum absen";
-  $("dMasuk").textContent = h && h.masuk_jarak != null ? `${fmtM(h.masuk_jarak)} dari sekolah` : "";
+  const telat = h && h.jam_masuk ? menitTerlambat(h.jam_masuk) : 0;
+  $("dMasuk").textContent = h && h.masuk_jarak != null ? `${fmtM(h.masuk_jarak)} dari sekolah` + (telat ? ` • Terlambat ${fmtDurasiTelat(telat)}` : "") : "";
+  $("dMasuk").style.color = telat ? "#B25E00" : "";
   $("vPulang").textContent = h && h.jam_pulang ? jamWIB(h.jam_pulang) + " WIB" : "Belum absen";
-  $("dPulang").textContent = h && h.pulang_jarak != null ? `${fmtM(h.pulang_jarak)} dari sekolah` : "";
+  const bukaP = pulangDibuka();
+  $("dPulang").textContent = h && h.pulang_jarak != null ? `${fmtM(h.pulang_jarak)} dari sekolah` : (!bukaP ? `Dibuka pukul ${BUKA_PULANG.replace(":", ".")} WIB` : "");
   $("stMasuk").classList.toggle("done", !!(h && h.jam_masuk));
   $("stPulang").classList.toggle("done", !!(h && h.jam_pulang));
   const lengkap = !!(h && h.jam_masuk && h.jam_pulang);
   $("btnMasuk").disabled = sibuk || !!h;
-  $("btnPulang").disabled = sibuk || !h || lengkap;
+  $("btnPulang").disabled = sibuk || !h || lengkap || !bukaP;
   $("doneNote").hidden = !lengkap;
 }
 async function muatHariIni(){
@@ -468,6 +478,7 @@ async function muatHariIni(){
 
 async function absen(jenis){
   if(sibuk) return;
+  if(jenis === "pulang" && !pulangDibuka()){ pesan("warn", "Absen pulang belum dibuka", `Absen pulang baru dibuka pukul <b>${BUKA_PULANG.replace(":", ".")} WIB</b>.`); return; }
   sibuk = true; renderHariIni();
   const tombol = $(jenis === "masuk" ? "btnMasuk" : "btnPulang"), teksAsal = tombol.innerHTML;
   tombol.classList.add("busy"); tombol.textContent = "Memeriksa lokasi...";
@@ -481,9 +492,12 @@ async function absen(jenis){
     if(n.status === "luar"){ pesan("bad", "Anda di luar radius sekolah", `Jarak Anda ke sekolah sekitar <b>${fmtM(n.jarak)}</b>, batas absensi <b>${n.r} m</b>. Mendekatlah ke area sekolah lalu coba lagi.`); return; }
 
     const c = p.coords, ket = $("ket").value.trim(), j = Math.round(n.jarak * 10) / 10, a = Math.round(c.accuracy * 10) / 10;
+    let telat = 0;
     if(jenis === "masuk"){
+      telat = menitTerlambat(new Date());
+      const ketFinal = [ket, telat ? `Terlambat ${fmtDurasiTelat(telat)}` : ""].filter(Boolean).join(" • ");
       const r = await rest(TABEL, {method:"POST", headers:{Prefer:"return=representation"}, body:JSON.stringify({
-        nama_guru:namaGuru, nip:nip || null, masuk_lat:c.latitude, masuk_lng:c.longitude, masuk_akurasi:a, masuk_jarak:j, keterangan:ket || null
+        nama_guru:namaGuru, nip:nip || null, masuk_lat:c.latitude, masuk_lng:c.longitude, masuk_akurasi:a, masuk_jarak:j, keterangan:ketFinal || null
       })});
       hariIni = r && r[0] || null;
     }else{
@@ -494,7 +508,7 @@ async function absen(jenis){
     }
     $("ket").value = "";
     pesan("ok", jenis === "masuk" ? "Absen masuk berhasil" : "Absen pulang berhasil",
-      `Tercatat pukul <b>${jamWIB(jenis === "masuk" ? hariIni.jam_masuk : hariIni.jam_pulang)} WIB</b>, sekitar <b>${fmtM(n.jarak)}</b> dari titik sekolah.`);
+      `Tercatat pukul <b>${jamWIB(jenis === "masuk" ? hariIni.jam_masuk : hariIni.jam_pulang)} WIB</b>, sekitar <b>${fmtM(n.jarak)}</b> dari titik sekolah.` + (telat ? `<br><br><b style="color:#B25E00">Terinput terlambat ${fmtDurasiTelat(telat)}</b> (batas masuk ${BATAS_TERLAMBAT.replace(":", ".")} WIB).` : ""));
     muatRiwayat();
   }catch(e){
     if(e.code === "23505" || e.status === 409){ toast("Anda sudah absen masuk hari ini.", true); await muatHariIni(); }
@@ -522,7 +536,7 @@ function renderRiwayat(){
     <td data-l="Pulang">${jamWIB(r.jam_pulang)}</td>
     <td data-l="Durasi">${durasi(r.jam_masuk, r.jam_pulang)}</td>
     <td data-l="Jarak masuk">${r.masuk_jarak != null ? fmtM(r.masuk_jarak) : "-"}</td>
-    <td data-l="Status"><span class="pill${r.jam_pulang ? "" : " o"}">${r.jam_pulang ? "Lengkap" : "Belum pulang"}</span></td>
+    <td data-l="Status"><span class="pill${r.jam_pulang ? "" : " o"}">${r.jam_pulang ? "Lengkap" : "Belum pulang"}</span>${menitTerlambat(r.jam_masuk) ? ` <span class="pill o">Terlambat ${fmtDurasiTelat(menitTerlambat(r.jam_masuk))}</span>` : ""}</td>
     <td data-l="Keterangan">${r.keterangan ? esc(r.keterangan) : "-"}</td>
   </tr>`).join("");
 }
@@ -544,6 +558,7 @@ $("btnSalin").onclick = async () => {
   const t = pos.coords.latitude.toFixed(6) + ", " + pos.coords.longitude.toFixed(6);
   try{ await navigator.clipboard.writeText(t); toast("Koordinat disalin: " + t); }catch(e){ toast("Gagal menyalin koordinat.", true); }
 };
+setInterval(() => { if(!sibuk) renderHariIni(); }, 30000);
 setInterval(() => { $("jam").textContent = new Date().toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit", second:"2-digit", timeZone:TZ}).replace(/\./g, ":"); }, 1000);
 $("jam").textContent = new Date().toLocaleTimeString("id-ID", {hour:"2-digit", minute:"2-digit", second:"2-digit", timeZone:TZ}).replace(/\./g, ":");
 
