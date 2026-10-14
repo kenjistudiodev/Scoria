@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Absensi Pembina — SCORIA</title>
 <style>
   :root{
@@ -11,7 +11,8 @@
     --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
   }
   *{box-sizing:border-box;}
-  html{overflow-x:hidden;}
+  html{overflow-x:hidden; width:100%; -webkit-text-size-adjust:100%;}
+  img,svg,iframe,video{max-width:100%;}
   body{
     margin:0; color:var(--text); font-family:var(--font); -webkit-font-smoothing:antialiased;
     padding-bottom:calc(var(--footer-h) + 20px); overflow-x:hidden; min-height:100vh;
@@ -161,17 +162,73 @@
 
   @media (max-width:820px){ .grid2{grid-template-columns:1fr;} }
   @media (max-width:640px){
-    main{padding-left:5px; padding-right:5px;} .navbar{padding:0 10px;} .school-name{max-width:16ch;} .window-body{padding:20px 12px 22px;}
-    .clock .t{font-size:1.25rem;}
-    table,tbody,tr,td{display:block;} thead{display:none;}
+    /* Margin kiri = kanan, tetap aman dari notch/poni */
+    :root{--gx:max(10px, env(safe-area-inset-left)); --gy:max(10px, env(safe-area-inset-right));}
+    main{padding:20px var(--gy) 10px var(--gx);}
+    .window{width:100%;}
+    .window-body{padding:18px 14px 20px;}
+    .page-heading,.page-sub{text-align:center;}
+
+    /* Navbar simetris: logo + nama sekolah di tengah */
+    .navbar{padding:0 var(--gy) 0 var(--gx); justify-content:center; gap:8px;}
+    .nav-left,.nav-right{flex:0 1 auto; gap:8px;}
+    .school-name{max-width:34vw;}
+    .term-badge{max-width:36vw; overflow:hidden; text-overflow:ellipsis;}
+
+    /* Identitas */
+    .ident{padding:12px; gap:10px;}
+    .avatar{width:40px; height:40px; font-size:.9rem;}
+    .ident .sb{overflow-wrap:anywhere; line-height:1.35;}
+    .clock .t{font-size:1.2rem;}
+
+    /* Kartu */
+    .grid2{gap:14px; margin-bottom:18px;}
+    .card{padding:14px;}
+    .banner{overflow-wrap:anywhere;}
+    .map-links{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+    .map-links a{min-width:0; padding:8px 6px;}
+    .chips{gap:6px;}
+    .chip{padding:8px 4px; text-align:center;}
+    .chip .lb{font-size:.66rem;}
+    .chip .vl{font-size:clamp(.78rem,3.7vw,.95rem);}
+    .koord{flex-direction:column; align-items:center; text-align:center; gap:8px;}
+    .koord span{overflow-wrap:anywhere;}
+    .aksi{gap:8px;}
+    .aksi .btn{min-width:0; padding:0 6px; font-size:13.5px; gap:5px;}
+    .aksi .btn svg{width:16px; height:16px; flex:none;}
+    .step > div:last-child{min-width:0; overflow-wrap:anywhere;}
+
+    /* Riwayat */
+    .head-row{justify-content:center; text-align:center;}
+    .head-row input{max-width:100%; min-width:0;}
+    .stats{gap:8px;}
+    .stat{padding:10px 6px; align-items:center; text-align:center;}
+    .stat .nu{font-size:1.4rem;}
+
+    /* Tabel jadi kartu */
+    .tbl-wrap{overflow:hidden;}
+    table,tbody,tr,td{display:block; width:100%;} thead{display:none;}
     tr{padding:12px 14px; border-bottom:1px solid var(--hairline);} tr:last-child{border-bottom:none;}
-    td{padding:3px 0; border:none; display:flex; justify-content:space-between; gap:12px; text-align:right;}
+    td{padding:3px 0; border:none; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; text-align:right; min-width:0; overflow-wrap:anywhere;}
     td::before{content:attr(data-l); color:var(--text-dim); font-size:0.76rem; text-align:left; flex:none;}
+    td[data-l="Status"]{flex-wrap:wrap; justify-content:flex-end;}
+    td[data-l="Status"]::before{margin-right:auto;}
     td.tg{display:block; text-align:left; font-size:0.95rem; padding-bottom:6px;} td.tg::before{display:none;}
+    td.empty{display:block; text-align:center;} td.empty::before{display:none;}
+
+    .toast{max-width:calc(100vw - 32px); width:max-content;}
+  }
+  @media (max-width:360px){
+    .window-body{padding:16px 10px 18px;}
+    .card{padding:12px;}
+    .school-name{max-width:30vw;}
+    .term-badge{display:none;}
+    .clock .t{font-size:1.05rem;}
+    .aksi .btn{font-size:12.5px;}
   }
 
   /* Footer */
-  .footer-bar{position:fixed; bottom:0; left:0; right:0; height:var(--footer-h); background:var(--turquoise); display:flex; align-items:stretch; justify-content:center; z-index:30; box-shadow:0 -4px 16px rgba(0,0,0,0.15);}
+  .footer-bar{position:fixed; bottom:0; left:0; right:0; height:var(--footer-h); background:var(--turquoise); display:flex; align-items:stretch; justify-content:center; z-index:30; box-shadow:0 -4px 16px rgba(0,0,0,0.15); padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left);}
   .footer-btn{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:none; border:none; color:#fff; font-size:0.75rem; font-weight:600; width:140px; cursor:pointer; text-decoration:none; transition:background .15s ease;}
   .footer-btn:hover{background:rgba(255,255,255,0.16);}
   .footer-btn:focus-visible{outline:2px solid #fff; outline-offset:-4px;}
@@ -181,7 +238,7 @@
   .mac-icon svg{width:20px; height:20px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));}
   .mac-icon.blue{--c1:#5AC8FA; --c2:#007AFF;} .mac-icon.green{--c1:#6CE37F; --c2:#28B94A;} .mac-icon.orange{--c1:#FFB340; --c2:#FF9500;}
   .footer-btn:hover .mac-icon{transform:scale(1.08);} .footer-btn:active .mac-icon{transform:scale(0.95);}
-  @media (max-width:520px){ .footer-btn{width:auto; flex:1;} }
+  @media (max-width:520px){ .footer-btn{width:auto; flex:1 1 0; min-width:0; padding:0 4px; text-align:center; line-height:1.15;} }
   @media (prefers-reduced-motion:reduce){ .toast,.msg-box,.banner.wait i{animation:none; transition:none;} }
 </style>
 </head>
