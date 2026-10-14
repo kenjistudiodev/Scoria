@@ -360,7 +360,7 @@ const TABEL = "absensi_guru";
 const TZ = "Asia/Jakarta";
 const MAKS_AKURASI = 100;   // meter; di atas ini lokasi dianggap kurang akurat
 const SEKOLAH = {nama:"SD Negeri 7 Simpang Teritip", lat:-1.8965034, lng:105.402773};   // titik di Google Maps
-const RADIUS_GURU = 3000;   // meter (3 km); khusus absensi guru, tidak mengikuti radius_meter di tabel profil
+const RADIUS_GURU = 15;   // meter; khusus absensi guru, tidak mengikuti radius_meter di tabel profil
 const radiusSekolah = () => RADIUS_GURU;
 const BATAS_TERLAMBAT = "07:15";   // absen masuk setelah jam ini (WIB) dicatat terlambat
 const BUKA_PULANG = "16:00";       // absen pulang baru dibuka pada jam ini (WIB)
