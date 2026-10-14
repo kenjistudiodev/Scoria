@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Laporan Modul Ajar — SCORIA</title>
+<style>
+  :root{
+    --text:#1D1D1F; --text-dim:#6E6E73; --blue:#007AFF; --green:#28B94A; --red:#FF3B30; --orange:#FF9500;
+    --hairline:rgba(0,0,0,0.1); --turquoise:#0F766E; --footer-h:72px;
+    --font:-apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html{overflow-x:hidden; width:100%; -webkit-text-size-adjust:100%;}
+  img,svg,iframe,video{max-width:100%;}
+  body{
+    margin:0; color:var(--text); font-family:var(--font); -webkit-font-smoothing:antialiased;
+    padding-bottom:calc(var(--footer-h) + 20px); overflow-x:hidden; min-height:100vh;
+    background:
+      radial-gradient(60% 50% at 15% 10%, rgba(255,180,200,0.75) 0%, transparent 60%),
+      radial-gradient(55% 55% at 90% 15%, rgba(140,180,255,0.8) 0%, transparent 60%),
+      radial-gradient(60% 60% at 80% 95%, rgba(190,150,255,0.7) 0%, transparent 60%),
+      radial-gradient(60% 60% at 10% 90%, rgba(130,220,230,0.7) 0%, transparent 60%),
+      #dfe6f5;
+    background-attachment:fixed;
+  }
+  :focus-visible{outline:2px solid var(--blue); outline-offset:2px;}
+  button,input,select{font:inherit; color:inherit;}
+
+  /* Menu bar */
+  .navbar{
+    position:sticky; top:0; z-index:20; height:30px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; background:rgba(255,255,255,0.55); -webkit-backdrop-filter:blur(24px) saturate(180%); backdrop-filter:blur(24px) saturate(180%);
+    border-bottom:1px solid rgba(0,0,0,0.08); font-size:13px;
+  }
+  .nav-left,.nav-right{display:flex; align-items:center; gap:10px; min-width:0;}
+  .school-logo{
+    width:20px; height:20px; border-radius:6px; background:linear-gradient(180deg,#5AC8FA,#007AFF); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:8px; font-weight:700; overflow:hidden; flex-shrink:0;
+    box-shadow:0 1px 2px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  }
+  .school-logo img{width:100%; height:100%; object-fit:cover;}
+  .school-name{font-weight:700; max-width:32ch; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .term-badge{font-size:11px; color:var(--text-dim); background:rgba(0,0,0,0.06); padding:2px 9px; border-radius:999px; white-space:nowrap;}
+
+  /* Window */
+  main{max-width:1180px; margin:0 auto; padding:34px clamp(12px,3vw,32px) 12px;}
+  .window{
+    background:rgba(255,255,255,0.78); -webkit-backdrop-filter:blur(30px) saturate(180%); backdrop-filter:blur(30px) saturate(180%);
+    border:1px solid rgba(255,255,255,0.7); border-radius:12px; overflow:hidden;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.18), 0 22px 60px rgba(30,40,80,0.28), 0 4px 14px rgba(30,40,80,0.12);
+  }
+  .titlebar{position:relative; height:44px; display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg,rgba(255,255,255,0.9),rgba(238,238,242,0.85)); border-bottom:1px solid var(--hairline);}
+  .traffic{position:absolute; left:14px; top:50%; transform:translateY(-50%); display:flex; gap:8px;}
+  .traffic span{width:12px; height:12px; border-radius:50%; box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.2);}
+  .titlebar-title{font-size:13px; font-weight:600; color:#3a3a3c;}
+  .window-body{padding:26px clamp(14px,3vw,30px) 30px;}
+  .page-heading{font-size:clamp(1.5rem,3vw,1.9rem); font-weight:700; letter-spacing:-0.02em; margin:0 0 6px;}
+  .page-sub{font-size:0.92rem; color:var(--text-dim); line-height:1.5; margin:0 0 18px;}
+
+  /* Ringkasan */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:16px;}
+  .stat{padding:12px 14px; border-radius:12px; background:rgba(255,255,255,0.88); border:1px solid rgba(255,255,255,0.8);
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.08), 0 4px 14px rgba(30,40,80,0.08); display:flex; flex-direction:column; gap:2px; min-width:0;}
+  .stat .lb{font-size:0.74rem; font-weight:600; color:var(--text-dim);}
+  .stat .nu{font-size:1.65rem; font-weight:700; letter-spacing:-0.02em; line-height:1.15;}
+  .stat.warn .nu{color:#B25E00;} .stat.ok .nu{color:#17803a;}
+
+  /* Filter */
+  .toolbar{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; margin:0 0 12px; flex-wrap:wrap;}
+  .filters{display:flex; gap:10px; flex-wrap:wrap; min-width:0; flex:1;}
+  .fgroup{display:flex; flex-direction:column; gap:4px; min-width:0;}
+  .fgroup label{font-size:0.72rem; font-weight:600; color:var(--text-dim);}
+  .fgroup input,.fgroup select{height:38px; padding:0 10px; border:1px solid var(--hairline); border-radius:9px; background:#fff; font-size:14px; min-width:0; max-width:100%;}
+  .seg{display:inline-flex; padding:3px; border-radius:10px; background:rgba(0,0,0,0.07); gap:2px;}
+  .seg button{border:none; background:none; height:32px; padding:0 16px; border-radius:8px; font-size:13px; font-weight:600; color:var(--text-dim); cursor:pointer;}
+  .seg button[aria-pressed="true"]{background:#fff; color:var(--text); box-shadow:0 1px 3px rgba(0,0,0,0.15);}
+  .count{font-size:0.8rem; color:var(--text-dim); margin:0 0 8px;}
+
+  /* Tabel */
+  .tbl-wrap{background:rgba(255,255,255,0.88); border:1px solid rgba(255,255,255,0.8); border-radius:14px; overflow:auto;
+    box-shadow:0 0 0 0.5px rgba(0,0,0,0.08), 0 4px 14px rgba(30,40,80,0.08);}
+  table{width:100%; border-collapse:collapse; font-size:0.88rem;}
+  th{text-align:left; font-size:0.74rem; font-weight:600; color:var(--text-dim); padding:11px 14px; border-bottom:1px solid var(--hairline); white-space:nowrap; background:rgba(0,0,0,0.025);}
+  td{padding:12px 14px; border-bottom:1px solid rgba(0,0,0,0.06); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  td.tg{font-weight:600; white-space:nowrap;}
+  td.nm{font-weight:600;} td.nm small{display:block; font-weight:500; color:var(--text-dim); font-size:0.74rem;}
+  td.num,th.num{text-align:center;}
+  .pill{display:inline-block; font-size:0.74rem; font-weight:600; padding:3px 10px; border-radius:999px; white-space:nowrap; background:rgba(40,185,74,0.15); color:#17803a;}
+  .pill.o{background:rgba(255,149,0,0.16); color:#B25E00;}
+  .lnk{color:var(--blue); font-weight:600; text-decoration:none; white-space:nowrap;}
+  .lnk:hover{text-decoration:underline;}
+  .empty{padding:38px 16px; text-align:center; color:var(--text-dim); font-size:0.92rem;}
+  [hidden]{display:none !important;}
+
+  /* Modal pesan */
+  .backdrop{position:fixed; inset:0; z-index:70; background:rgba(20,24,40,0.5); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); display:none; align-items:center; justify-content:center;
+    padding:14px max(14px, env(safe-area-inset-right)) 14px max(14px, env(safe-area-inset-left));}
+  .backdrop.open{display:flex;}
+  .toast{position:fixed; left:50%; bottom:calc(var(--footer-h) + 14px); transform:translateX(-50%) translateY(20px); z-index:80; background:#1D1D1F; color:#fff; padding:10px 18px; border-radius:10px; font-size:0.88rem; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; max-width:calc(100vw - 32px); text-align:center;}
+  .toast.on{opacity:1; transform:translateX(-50%);}
+  .toast.bad{background:#C42B20;}
+
+  @media (max-width:900px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    /* tabel jadi kartu */
+    .tbl-wrap{overflow:hidden;}
+    table,tbody,tr,td{display:block; width:100%;} thead{display:none;}
+    tr{padding:12px 14px; border-bottom:1px solid var(--hairline);} tr:last-child{border-bottom:none;}
+    td{padding:3px 0; border:none; display:flex; justify-content:space-between; align-items:flex-start; gap:12px; text-align:right; min-width:0; overflow-wrap:anywhere;}
+    td::before{content:attr(data-l); color:var(--text-dim); font-size:0.76rem; text-align:left; flex:none;}
+    td[data-l="Status"]{flex-wrap:wrap; justify-content:flex-end;}
+    td[data-l="Status"]::before{margin-right:auto;}
+    td.tg,td.nm{display:block; text-align:left; white-space:normal;} td.tg::before,td.nm::before{display:none;}
+    td.tg{font-size:0.95rem; padding-bottom:2px;} td.nm{padding-bottom:6px;}
+    td.empty{display:block; text-align:center;} td.empty::before{display:none;}
+    td.num{text-align:right;}
+  }
+  @media (max-width:640px){
+    :root{--gx:max(10px, env(safe-area-inset-left)); --gy:max(10px, env(safe-area-inset-right));}
+    main{padding:20px var(--gy) 10px var(--gx);}
+    .window{width:100%;}
+    .window-body{padding:18px 14px 20px;}
+    .page-heading,.page-sub{text-align:center;}
+    .navbar{padding:0 var(--gy) 0 var(--gx); justify-content:center; gap:8px;}
+    .nav-left,.nav-right{flex:0 1 auto; gap:8px;}
+    .school-name{max-width:34vw;}
+    .term-badge{max-width:36vw; overflow:hidden; text-overflow:ellipsis;}
+    .stats{gap:8px;}
+    .stat{padding:10px 6px; align-items:center; text-align:center;}
+    .stat .nu{font-size:1.4rem;}
+    .toolbar{flex-direction:column; align-items:stretch;}
+    .filters{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+    .fgroup input,.fgroup select{width:100%;}
+    .fgroup.wide{grid-column:1/-1;}
+    .seg{display:flex; width:100%;} .seg button{flex:1; padding:0 8px;}
+    .count{text-align:center;}
+  }
+  @media (max-width:360px){
+    .window-body{padding:16px 10px 18px;}
+    .school-name{max-width:30vw;}
+    .term-badge{display:none;}
+  }
+
+
+  /* Modul */
+  .pill.b{background:rgba(0,122,255,0.12); color:#0A5FCC;}
+  .kls{display:flex; flex-wrap:wrap; gap:5px;}
+  .dok{display:inline-flex; align-items:center; gap:6px; color:var(--blue); font-weight:600; text-decoration:none; max-width:100%;}
+  .dok svg{width:16px; height:16px; flex:none; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .dok span{overflow-wrap:anywhere; min-width:0;} .dok:hover span{text-decoration:underline;}
+  .dok small{display:block; color:var(--text-dim); font-weight:500; font-size:0.72rem;}
+  .none{color:var(--text-dim);}
+  .seg button{white-space:nowrap;}
+  @media (max-width:640px){ .seg button{font-size:12px; padding:0 6px; white-space:normal; line-height:1.2; height:38px;} .kls{justify-content:flex-end;} }
+
+  /* Footer */
+  .footer-bar{position:fixed; bottom:0; left:0; right:0; height:var(--footer-h); background:var(--turquoise); display:flex; align-items:stretch; justify-content:center; z-index:30; box-shadow:0 -4px 16px rgba(0,0,0,0.15); padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left);}
+  .footer-btn{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; background:none; border:none; color:#fff; font-size:0.75rem; font-weight:600; width:140px; cursor:pointer; text-decoration:none; transition:background .15s ease;}
+  .footer-btn:hover{background:rgba(255,255,255,0.16);}
+  .footer-btn:focus-visible{outline:2px solid #fff; outline-offset:-4px;}
+  .footer-divider{width:1px; background:rgba(255,255,255,0.35); margin:14px 0;}
+  .mac-icon{width:34px; height:34px; border-radius:8px; display:flex; align-items:center; justify-content:center; background:linear-gradient(180deg,var(--c1),var(--c2));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.4), inset 0 -1px 0 rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.25); transition:transform .15s ease;}
+  .mac-icon svg{width:20px; height:20px; fill:none; stroke:#fff; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; filter:drop-shadow(0 1px 1px rgba(0,0,0,0.2));}
+  .mac-icon.blue{--c1:#5AC8FA; --c2:#007AFF;} .mac-icon.green{--c1:#6CE37F; --c2:#28B94A;} .mac-icon.red{--c1:#FF7A70; --c2:#FF3B30;}
+  .footer-btn:disabled{opacity:.6; cursor:wait;}
+  .footer-btn:hover .mac-icon{transform:scale(1.08);} .footer-btn:active .mac-icon{transform:scale(0.95);}
+  @media (max-width:520px){ .footer-btn{width:auto; flex:1 1 0; min-width:0; padding:0 4px; text-align:center; line-height:1.15;} }
+  @media (prefers-reduced-motion:reduce){ .toast{transition:none;} }
+</style>
+</head>
+<body>
+
+<header class="navbar">
+  <div class="nav-left"><div class="school-logo" id="schoolLogo">SMA</div></div>
+  <div class="nav-right">
+    <span class="school-name" id="schoolName">SCORIA</span>
+    <span class="term-badge" id="termBadge" hidden></span>
+  </div>
+</header>
+
+<main>
+  <div class="window">
+    <div class="titlebar">
+      <div class="traffic"><span style="background:#FF5F57"></span><span style="background:#FEBC2E"></span><span style="background:#28C840"></span></div>
+      <div class="titlebar-title">Laporan Modul Ajar</div>
+    </div>
+    <div class="window-body">
+      <h1 class="page-heading">Laporan modul ajar</h1>
+      <p class="page-sub">Berkas modul ajar yang diunggah guru (halaman Modul Ajar) dan pembina ekstrakurikuler (halaman Modul Ekstrakurikuler).</p>
+
+      <div class="stats">
+        <div class="stat"><span class="lb">Total modul</span><span class="nu" id="sTotal">0</span></div>
+        <div class="stat"><span class="lb" id="lbGuruStat">Guru</span><span class="nu" id="sGuru">0</span></div>
+        <div class="stat warn"><span class="lb">Tahun ini</span><span class="nu" id="sTahun">0</span></div>
+        <div class="stat ok"><span class="lb">Ada dokumen</span><span class="nu" id="sDok">0</span></div>
+      </div>
+
+      <div class="toolbar">
+        <div class="seg" role="group" aria-label="Jenis modul" style="flex:none">
+          <button type="button" id="tabMapel" aria-pressed="true">Modul Mata Pelajaran</button>
+          <button type="button" id="tabEkskul" aria-pressed="false">Modul Ekstrakurikuler</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="filters">
+          <div class="fgroup"><label for="fTahun">Tahun</label><select id="fTahun"><option value="">Semua tahun</option></select></div>
+          <div class="fgroup"><label for="fJenis" id="lblJenis">Mata Pelajaran</label><select id="fJenis"><option value="">Semua</option></select></div>
+          <div class="fgroup"><label for="fGuru" id="lblGuru">Guru</label><select id="fGuru"><option value="">Semua</option></select></div>
+          <div class="fgroup wide"><label for="cari">Cari</label><input type="search" id="cari" placeholder="Nama modul / guru..." autocomplete="off"></div>
+        </div>
+      </div>
+      <p class="count" id="count"></p>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"><tr><td colspan="7" class="empty">Memuat data...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<div class="footer-bar">
+  <a class="footer-btn" href="admin.html" id="btnDashboard">
+    <span class="mac-icon blue"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 20.5h17"/><path d="M5.5 20.5V9.5L12 4l6.5 5.5v11"/><path d="M10 20.5v-5.5h4v5.5"/></svg></span>
+    Dashboard
+  </a>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnSegarkan">
+    <span class="mac-icon green"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.5L4 8.5"/><path d="M4 4v4.5h4.5"/><path d="M4 13a8 8 0 0 0 14.3 4.5l1.7-2"/><path d="M20 20v-4.5h-4.5"/></svg></span>
+    Segarkan Data
+  </button>
+  <div class="footer-divider"></div>
+  <button type="button" class="footer-btn" id="btnPdf">
+    <span class="mac-icon red"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 11.5v5M9.8 14.4l2.2 2.2 2.2-2.2"/></svg></span>
+    Export PDF
+  </button>
+</div>
+
+<script>
+const HOST = "https://ncfuynsctxxxqiqbzptp.supabase.co";
+const KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jZnV5bnNjdHh4eHFpcWJ6cHRwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgxMzY1MzUsImV4cCI6MjEwMzcxMjUzNX0.Xy-u2FJuRiwhxOKndHe6suVrItHShGY7WM68bTk9VCk";
+const TZ = "Asia/Jakarta";
+/* Sumber data tiap tab */
+const SUMBER = {
+  mapel:{tabel:"modul_ajar", guru:"nama_guru", jenis:"mata_pelajaran", labelGuru:"Guru", labelJenis:"Mata Pelajaran",
+         judul:"Modul Mata Pelajaran", sql:"modulajar.sql", halaman:"modulajarguru.html"},
+  ekskul:{tabel:"modul_ekstrakurikuler", guru:"nama_pembina", jenis:"jenis_ekskul", labelGuru:"Pembina", labelJenis:"Jenis Ekstrakurikuler",
+          judul:"Modul Ekstrakurikuler", sql:"modul_ekstrakurikuler.sql", halaman:"modulekskul.html"}
+};
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const HDR = {"apikey":KEY, "Authorization":"Bearer " + KEY};
+const MAKS = 1024 * 1024;
+let tab = "mapel";
+const data = {mapel:[], ekskul:[]}, galat = {mapel:"", ekskul:""};
+
+/* ---------- Util ---------- */
+function toast(m, bad){ const t = $("toast"); t.textContent = m; t.className = "toast on" + (bad ? " bad" : ""); clearTimeout(toast.t); toast.t = setTimeout(() => t.className = "toast", 3200); }
+async function rest(path, tabel){
+  const res = await fetch(`${HOST}/rest/v1/${path}`, {headers:{...HDR, "Content-Type":"application/json"}});
+  if(!res.ok){
+    let msg = "Gagal (" + res.status + ")";
+    try{ const j = await res.json(); if(j.message) msg = j.message; }catch(e){}
+    if(res.status === 404 && tabel) { const s = Object.values(SUMBER).find(x => x.tabel === tabel); msg += ". Pastikan " + (s ? s.sql : "SQL tabel") + " sudah dijalankan di Supabase."; }
+    throw new Error(msg);
+  }
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : [];
+}
+const tahunWIB = () => +new Intl.DateTimeFormat("en-CA", {timeZone:TZ, year:"numeric"}).format(new Date());
+const tglWIB = d => d ? new Date(d).toLocaleDateString("id-ID", {day:"2-digit", month:"short", year:"numeric", timeZone:TZ}) : "-";
+const fmtUkuran = b => b >= MAKS ? (b / MAKS).toFixed(2).replace(".", ",") + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+const urut = (a, b) => String(a).localeCompare(String(b), "id", {numeric:true});
+const urlAman = u => /^https?:\/\//i.test(u || "") ? u : "";
+
+/* ---------- Profil sekolah (navbar) ---------- */
+async function muatProfil(){
+  try{
+    const r = await rest("profil?select=nama_sekolah,logo,semester,tahun_pelajaran&limit=1"), p = r && r[0]; if(!p) return;
+    if(p.nama_sekolah) $("schoolName").textContent = p.nama_sekolah;
+    const term = [p.semester ? "Semester " + p.semester : "", p.tahun_pelajaran || ""].filter(Boolean).join(" • ");
+    if(term){ $("termBadge").textContent = term; $("termBadge").hidden = false; }
+    if(/^(https?:|data:image\/)/i.test(p.logo || "")){ const i = new Image(); i.src = p.logo; i.alt = "Logo sekolah"; $("schoolLogo").textContent = ""; $("schoolLogo").appendChild(i); }
+  }catch(e){}
+}
+
+/* ---------- Data ---------- */
+async function muat(){
+  $("tbody").innerHTML = `<tr><td colspan="7" class="empty">Memuat data...</td></tr>`;
+  await Promise.all(Object.keys(SUMBER).map(async k => {
+    galat[k] = "";
+    try{ data[k] = await rest(`${SUMBER[k].tabel}?select=*&order=tahun.desc,id.desc&limit=5000`, SUMBER[k].tabel) || []; }
+    catch(e){ data[k] = []; galat[k] = e.message; }
+  }));
+  isiFilter(); render();
+}
+function isiFilter(){
+  const S = SUMBER[tab], rows = data[tab];
+  const set = (id, semua, nilai) => {
+    const el = $(id), v = el.value;
+    el.innerHTML = `<option value="">${semua}</option>` + nilai.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    el.value = nilai.includes(v) ? v : "";
+  };
+  set("fTahun", "Semua tahun", [...new Set(rows.map(r => String(r.tahun)).filter(Boolean))].sort().reverse());
+  set("fJenis", "Semua", [...new Set(rows.map(r => r[S.jenis]).filter(Boolean))].sort(urut));
+  set("fGuru", "Semua", [...new Set(rows.map(r => r[S.guru]).filter(Boolean))].sort(urut));
+  $("lblJenis").textContent = S.labelJenis; $("lblGuru").textContent = S.labelGuru; $("lbGuruStat").textContent = S.labelGuru;
+  $("cari").placeholder = `Nama modul / ${S.labelGuru.toLowerCase()}...`;
+  $("tabMapel").textContent = "Modul Mata Pelajaran" + (galat.mapel ? "" : ` (${data.mapel.length})`);
+  $("tabEkskul").textContent = "Modul Ekstrakurikuler" + (galat.ekskul ? "" : ` (${data.ekskul.length})`);
+}
+function tersaring(){
+  const S = SUMBER[tab], t = $("fTahun").value, j = $("fJenis").value, g = $("fGuru").value, q = $("cari").value.trim().toLowerCase();
+  return data[tab].filter(r => (!t || String(r.tahun) === t) && (!j || r[S.jenis] === j) && (!g || r[S.guru] === g) &&
+    (!q || [r.nama_modul, r[S.guru], r[S.jenis]].join(" ").toLowerCase().includes(q)));
+}
+function hitung(rows){
+  const S = SUMBER[tab];
+  $("sTotal").textContent = rows.length;
+  $("sGuru").textContent = new Set(rows.map(r => r[S.guru])).size;
+  $("sTahun").textContent = rows.filter(r => Number(r.tahun) === tahunWIB()).length;
+  $("sDok").textContent = rows.filter(r => r.dokumen_url).length;
+}
+const IKON_DOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
+function render(){
+  const S = SUMBER[tab], rows = tersaring(); hitung(rows);
+  $("thead").innerHTML = `<tr><th>Nama Modul</th><th>${esc(S.labelGuru)}</th><th>${esc(S.labelJenis)}</th><th>Kelas</th><th class="num">Tahun</th><th>Dokumen</th><th>Diperbarui</th></tr>`;
+  $("count").textContent = rows.length ? `Menampilkan ${rows.length} modul` : "";
+  if(galat[tab]){ $("tbody").innerHTML = `<tr><td colspan="7" class="empty">${esc(galat[tab])}</td></tr>`; return; }
+  if(!rows.length){
+    $("tbody").innerHTML = `<tr><td colspan="7" class="empty">${data[tab].length ? "Tidak ada modul yang cocok dengan filter ini." : "Belum ada modul yang diunggah di halaman " + S.halaman + "."}</td></tr>`; return;
+  }
+  $("tbody").innerHTML = rows.map(r => {
+    const u = urlAman(r.dokumen_url);
+    const dok = u ? `<a class="dok" href="${esc(u)}" target="_blank" rel="noopener">${IKON_DOK}<span>${esc(r.dokumen_nama || "Dokumen")}${r.dokumen_ukuran ? `<small>${fmtUkuran(r.dokumen_ukuran)}</small>` : ""}</span></a>` : `<span class="none">Tidak ada</span>`;
+    const kls = (r.kelas || []).slice().sort(urut).map(k => `<span class="pill b">${esc(k)}</span>`).join("") || "-";
+    return `<tr>
+      <td class="nm">${esc(r.nama_modul)}<small>ID ${esc(r.id)}</small></td>
+      <td data-l="${esc(S.labelGuru)}">${esc(r[S.guru])}</td>
+      <td data-l="${esc(S.labelJenis)}">${esc(r[S.jenis])}</td>
+      <td data-l="Kelas"><span class="kls">${kls}</span></td>
+      <td class="num" data-l="Tahun">${esc(r.tahun)}</td>
+      <td data-l="Dokumen">${dok}</td>
+      <td data-l="Diperbarui">${tglWIB(r.updated_at || r.created_at)}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ---------- Kontrol ---------- */
+function pilihTab(k){
+  tab = k;
+  $("tabMapel").setAttribute("aria-pressed", String(k === "mapel")); $("tabEkskul").setAttribute("aria-pressed", String(k === "ekskul"));
+  $("fJenis").value = ""; $("fGuru").value = ""; $("cari").value = "";
+  isiFilter(); render();
+}
+$("tabMapel").onclick = () => pilihTab("mapel");
+$("tabEkskul").onclick = () => pilihTab("ekskul");
+["fTahun", "fJenis", "fGuru"].forEach(id => $(id).addEventListener("change", render));
+$("cari").addEventListener("input", render);
+$("btnSegarkan").onclick = async () => { await muat(); toast("Data diperbarui."); };
+
+/* ---------- Export PDF (mengikuti tab & filter yang sedang aktif) ---------- */
+const CDN = ["https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+             "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"];
+function muatSkrip(src){
+  return new Promise((ok, gagal) => {
+    const el = document.createElement("script"); el.src = src; el.onload = ok; el.onerror = () => gagal(new Error("Gagal memuat pustaka PDF. Periksa koneksi internet."));
+    document.head.appendChild(el);
+  });
+}
+async function siapPdf(){
+  if(!(window.jspdf && window.jspdf.jsPDF)) await muatSkrip(CDN[0]);
+  if(!(window.jspdf.jsPDF.API && window.jspdf.jsPDF.API.autoTable)) await muatSkrip(CDN[1]);
+}
+async function exportPdf(){
+  const S = SUMBER[tab], rows = tersaring();
+  if(!rows.length){ toast("Tidak ada data modul untuk diexport.", true); return; }
+  const btn = $("btnPdf"); btn.disabled = true;
+  try{
+    await siapPdf();
+    const {jsPDF} = window.jspdf, doc = new jsPDF({orientation:"landscape", unit:"mm", format:"a4"});
+    const W = doc.internal.pageSize.getWidth(), M = 10;
+    const f = [["Tahun", $("fTahun").value], [S.labelJenis, $("fJenis").value], [S.labelGuru, $("fGuru").value], ["Cari", $("cari").value.trim()]].filter(x => x[1]).map(x => x[0] + ": " + x[1]);
+    const sekolah = ($("schoolName").textContent || "").trim();
+    doc.setFont("helvetica", "bold"); doc.setFontSize(14);
+    doc.text("Laporan " + S.judul, W / 2, 14, {align:"center"});
+    doc.setFontSize(10.5);
+    if(sekolah && sekolah !== "SCORIA") doc.text(sekolah, W / 2, 19.5, {align:"center"});
+    doc.setFont("helvetica", "normal"); doc.setFontSize(9);
+    doc.text("Filter: " + (f.join("  |  ") || "Semua data"), M, 27);
+    doc.text(`Total ${rows.length} modul  |  ${new Set(rows.map(r => r[S.guru])).size} ${S.labelGuru.toLowerCase()}  |  Ada dokumen ${rows.filter(r => r.dokumen_url).length}`, M, 32);
+    doc.autoTable({
+      startY:36, margin:{left:M, right:M, bottom:14},
+      head:[["No", "Nama Modul", S.labelGuru, S.labelJenis, "Kelas", "Tahun", "Dokumen"]],
+      body:rows.map((r, i) => [i + 1, r.nama_modul, r[S.guru], r[S.jenis], (r.kelas || []).slice().sort(urut).join(", ") || "-", r.tahun, r.dokumen_url ? (r.dokumen_nama || "Ada") : "Tidak ada"]),
+      styles:{font:"helvetica", fontSize:8, cellPadding:2, valign:"middle", overflow:"linebreak", lineColor:[210, 214, 220], lineWidth:0.1},
+      headStyles:{fillColor:[15, 118, 110], textColor:255, fontStyle:"bold", halign:"center"},
+      alternateRowStyles:{fillColor:[245, 248, 250]},
+      columnStyles:{0:{cellWidth:9, halign:"center"}, 1:{cellWidth:62}, 2:{cellWidth:48}, 3:{cellWidth:40}, 4:{cellWidth:32}, 5:{cellWidth:16, halign:"center"}, 6:{cellWidth:"auto"}},
+      didDrawPage:() => {
+        doc.setFontSize(8); doc.setTextColor(110);
+        const h = doc.internal.pageSize.getHeight();
+        doc.text("Dicetak: " + new Date().toLocaleString("id-ID", {timeZone:TZ, dateStyle:"long", timeStyle:"short"}) + " WIB", M, h - 7);
+        doc.text("Halaman " + doc.internal.getCurrentPageInfo().pageNumber, W - M, h - 7, {align:"right"});
+        doc.setTextColor(0);
+      }
+    });
+    doc.save(`modul-${tab === "mapel" ? "mapel" : "ekskul"}-${tglWIB(new Date()).replace(/\s+/g, "-").toLowerCase()}.pdf`);
+    toast("PDF berhasil dibuat.");
+  }catch(e){ toast(e.message || "Gagal membuat PDF.", true); }
+  finally{ btn.disabled = false; }
+}
+$("btnPdf").onclick = exportPdf;
+
+muatProfil();
+muat();
+</script>
+</body>
+</html>
