@@ -542,8 +542,8 @@
         <div class="field">
           <label for="password">Password Login</label>
           <div class="pass-wrap">
-            <input type="password" id="password" name="password" required placeholder="Minimal 6 karakter">
-            <button type="button" class="pass-toggle" id="togglePass">Tampilkan</button>
+            <input type="text" id="password" name="password" required placeholder="Minimal 6 karakter" autocomplete="off">
+            <button type="button" class="pass-toggle" id="togglePass">Sembunyikan</button>
           </div>
           <p class="form-hint" id="passwordHint" hidden>Kosongkan jika password tidak ingin diubah.</p>
         </div>
@@ -691,8 +691,8 @@
     fileHint.style.color = "";
     selectedFile = null;
     editingGuru = null;
-    passInput.type = "password";
-    togglePass.textContent = "Tampilkan";
+    passInput.type = "text";
+    togglePass.textContent = "Sembunyikan";
     setStatus("", "");
   }
 
@@ -715,8 +715,8 @@
     modalDesc.textContent = "Perbarui data guru di bawah ini.";
     btnSubmit.textContent = "Simpan Perubahan";
     passInput.required = false;
-    passInput.placeholder = "Kosongkan jika tidak diubah";
-    passwordHint.hidden = false;
+    passInput.placeholder = "Password login";
+    passwordHint.hidden = true;
 
     document.getElementById("nama_guru").value = guru.nama_guru || "";
     document.getElementById("nip").value = guru.nip || "";
@@ -724,7 +724,7 @@
     document.getElementById("tanggal_lahir").value = guru.tanggal_lahir || "";
     document.getElementById("alamat").value = guru.alamat || "";
     document.getElementById("tlp").value = guru.tlp || "";
-    passInput.value = "";
+    passInput.value = guru.password || "";
 
     if(guru.photo){
       photoPreview.innerHTML = `<img src="${escapeHtml(guru.photo)}" alt="Foto ${escapeHtml(guru.nama_guru || '')}">`;
