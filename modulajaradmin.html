@@ -117,6 +117,8 @@
     td.tg{font-size:0.95rem; padding-bottom:2px;} td.nm{padding-bottom:6px;}
     td.empty{display:block; text-align:center;} td.empty::before{display:none;}
     td.num{text-align:right;}
+    td.aksi{width:100%; padding-top:8px;} td.aksi .btn-eye{width:auto; padding:0 14px; gap:6px;}
+    td.aksi .btn-eye::after{content:"Preview"; font-size:0.82rem; font-weight:600;}
   }
   @media (max-width:640px){
     :root{--gx:max(10px, env(safe-area-inset-left)); --gy:max(10px, env(safe-area-inset-right));}
@@ -155,6 +157,29 @@
   .none{color:var(--text-dim);}
   .seg button{white-space:nowrap;}
   @media (max-width:640px){ .seg button{font-size:12px; padding:0 6px; white-space:normal; line-height:1.2; height:38px;} .kls{justify-content:flex-end;} }
+
+
+  /* Aksi & modal preview */
+  th.aksi,td.aksi{text-align:center; width:72px;}
+  .btn-eye{width:34px; height:34px; border-radius:9px; border:1px solid var(--hairline); background:#fff; color:var(--blue); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background .15s ease, transform .15s ease;}
+  .btn-eye:hover:not(:disabled){background:rgba(0,122,255,0.1);} .btn-eye:active:not(:disabled){transform:scale(0.94);}
+  .btn-eye:disabled{color:#b5b5ba; cursor:not-allowed; background:rgba(0,0,0,0.03);}
+  .btn-eye svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:2; stroke-linecap:round; stroke-linejoin:round;}
+  .pv{width:min(960px,100%); height:min(86vh,820px); background:#fff; border-radius:14px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 0 0 0.5px rgba(0,0,0,0.2), 0 30px 80px rgba(0,0,0,0.35);}
+  .pv-head{display:flex; align-items:center; gap:12px; padding:12px 14px 12px 18px; border-bottom:1px solid var(--hairline); background:linear-gradient(180deg,#fff,#f4f4f7);}
+  .pv-ttl{flex:1; min-width:0;} .pv-ttl strong{display:block; font-size:0.95rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pv-ttl small{display:block; color:var(--text-dim); font-size:0.76rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .pv-act{display:flex; gap:8px; flex:none; align-items:center;}
+  .pv-btn{height:34px; padding:0 12px; border-radius:9px; border:1px solid var(--hairline); background:#fff; font-size:0.82rem; font-weight:600; color:var(--blue); text-decoration:none; display:inline-flex; align-items:center; cursor:pointer; white-space:nowrap;}
+  .pv-btn:hover{background:rgba(0,122,255,0.08);}
+  .pv-x{width:34px; padding:0; justify-content:center; color:var(--text); font-size:1.2rem; line-height:1;}
+  .pv-body{flex:1; position:relative; background:#eceef3; min-height:0; display:flex; align-items:center; justify-content:center;}
+  .pv-body iframe{width:100%; height:100%; border:0; background:#fff;}
+  .pv-body img{max-width:100%; max-height:100%; object-fit:contain;}
+  .pv-load{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:0.9rem; pointer-events:none;}
+  .pv-note{padding:8px 16px; font-size:0.76rem; color:var(--text-dim); border-top:1px solid var(--hairline); background:#fafafc;}
+  .pv-fallback{padding:24px; text-align:center; color:var(--text-dim); font-size:0.92rem; line-height:1.6;}
+  @media (max-width:640px){ .pv{height:90vh; border-radius:12px;} .pv-btn .t{display:none;} .pv-btn{padding:0 10px;} }
 
   /* Footer */
   .footer-bar{position:fixed; bottom:0; left:0; right:0; height:var(--footer-h); background:var(--turquoise); display:flex; align-items:stretch; justify-content:center; z-index:30; box-shadow:0 -4px 16px rgba(0,0,0,0.15); padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left);}
@@ -218,12 +243,26 @@
       <div class="tbl-wrap">
         <table>
           <thead id="thead"></thead>
-          <tbody id="tbody"><tr><td colspan="7" class="empty">Memuat data...</td></tr></tbody>
+          <tbody id="tbody"><tr><td colspan="8" class="empty">Memuat data...</td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 </main>
+
+<div class="backdrop" id="pvBackdrop" role="dialog" aria-modal="true" aria-labelledby="pvJudul">
+  <div class="pv">
+    <div class="pv-head">
+      <div class="pv-ttl"><strong id="pvJudul">Preview Modul</strong><small id="pvSub"></small></div>
+      <div class="pv-act">
+        <a class="pv-btn" id="pvBuka" href="#" target="_blank" rel="noopener">Buka<span class="t">&nbsp;di tab baru</span></a>
+        <button type="button" class="pv-btn pv-x" id="pvTutup" aria-label="Tutup preview">&times;</button>
+      </div>
+    </div>
+    <div class="pv-body" id="pvBody"></div>
+    <div class="pv-note" id="pvNote" hidden></div>
+  </div>
+</div>
 
 <div class="toast" id="toast" role="status"></div>
 
@@ -294,7 +333,7 @@ async function muatProfil(){
 
 /* ---------- Data ---------- */
 async function muat(){
-  $("tbody").innerHTML = `<tr><td colspan="7" class="empty">Memuat data...</td></tr>`;
+  $("tbody").innerHTML = `<tr><td colspan="8" class="empty">Memuat data...</td></tr>`;
   await Promise.all(Object.keys(SUMBER).map(async k => {
     galat[k] = "";
     try{ data[k] = await rest(`${SUMBER[k].tabel}?select=*&order=tahun.desc,id.desc&limit=5000`, SUMBER[k].tabel) || []; }
@@ -329,14 +368,15 @@ function hitung(rows){
   $("sTahun").textContent = rows.filter(r => Number(r.tahun) === tahunWIB()).length;
   $("sDok").textContent = rows.filter(r => r.dokumen_url).length;
 }
+const IKON_MATA = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 const IKON_DOK = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>';
 function render(){
   const S = SUMBER[tab], rows = tersaring(); hitung(rows);
-  $("thead").innerHTML = `<tr><th>Nama Modul</th><th>${esc(S.labelGuru)}</th><th>${esc(S.labelJenis)}</th><th>Kelas</th><th class="num">Tahun</th><th>Dokumen</th><th>Diperbarui</th></tr>`;
+  $("thead").innerHTML = `<tr><th>Nama Modul</th><th>${esc(S.labelGuru)}</th><th>${esc(S.labelJenis)}</th><th>Kelas</th><th class="num">Tahun</th><th>Dokumen</th><th>Diperbarui</th><th class="aksi">Aksi</th></tr>`;
   $("count").textContent = rows.length ? `Menampilkan ${rows.length} modul` : "";
-  if(galat[tab]){ $("tbody").innerHTML = `<tr><td colspan="7" class="empty">${esc(galat[tab])}</td></tr>`; return; }
+  if(galat[tab]){ $("tbody").innerHTML = `<tr><td colspan="8" class="empty">${esc(galat[tab])}</td></tr>`; return; }
   if(!rows.length){
-    $("tbody").innerHTML = `<tr><td colspan="7" class="empty">${data[tab].length ? "Tidak ada modul yang cocok dengan filter ini." : "Belum ada modul yang diunggah di halaman " + S.halaman + "."}</td></tr>`; return;
+    $("tbody").innerHTML = `<tr><td colspan="8" class="empty">${data[tab].length ? "Tidak ada modul yang cocok dengan filter ini." : "Belum ada modul yang diunggah di halaman " + S.halaman + "."}</td></tr>`; return;
   }
   $("tbody").innerHTML = rows.map(r => {
     const u = urlAman(r.dokumen_url);
@@ -350,6 +390,7 @@ function render(){
       <td class="num" data-l="Tahun">${esc(r.tahun)}</td>
       <td data-l="Dokumen">${dok}</td>
       <td data-l="Diperbarui">${tglWIB(r.updated_at || r.created_at)}</td>
+      <td class="aksi" data-l="Aksi"><button type="button" class="btn-eye" data-id="${esc(r.id)}" ${u ? "" : "disabled"} title="${u ? "Preview modul ajar" : "Tidak ada dokumen"}" aria-label="${u ? "Preview " + esc(r.nama_modul) : "Tidak ada dokumen"}">${IKON_MATA}</button></td>
     </tr>`;
   }).join("");
 }
@@ -366,6 +407,50 @@ $("tabEkskul").onclick = () => pilihTab("ekskul");
 ["fTahun", "fJenis", "fGuru"].forEach(id => $(id).addEventListener("change", render));
 $("cari").addEventListener("input", render);
 $("btnSegarkan").onclick = async () => { await muat(); toast("Data diperbarui."); };
+
+
+/* ---------- Preview dokumen ---------- */
+const EKS_GAMBAR = ["png","jpg","jpeg","gif","webp","bmp","svg"], EKS_OFFICE = ["doc","docx","ppt","pptx","xls","xlsx"];
+function ekstensi(r){
+  const dariNama = (String(r.dokumen_nama || "").split(".").pop() || "").toLowerCase();
+  if(dariNama && dariNama.length <= 5 && dariNama !== String(r.dokumen_nama || "").toLowerCase()) return dariNama;
+  try{ return (new URL(r.dokumen_url).pathname.split(".").pop() || "").toLowerCase(); }catch(e){ return ""; }
+}
+let pvFokus = null;
+function bukaPreview(r){
+  const u = urlAman(r.dokumen_url); if(!u){ toast("Modul ini tidak memiliki dokumen.", true); return; }
+  const S = SUMBER[tab], ext = ekstensi(r), body = $("pvBody"), note = $("pvNote");
+  $("pvJudul").textContent = r.nama_modul || "Preview Modul";
+  $("pvSub").textContent = [r.dokumen_nama, r.dokumen_ukuran ? fmtUkuran(r.dokumen_ukuran) : "", r[S.guru]].filter(Boolean).join(" • ");
+  $("pvBuka").href = u; note.hidden = true; body.innerHTML = "";
+  const muatEl = document.createElement("div"); muatEl.className = "pv-load"; muatEl.textContent = "Memuat preview..."; body.appendChild(muatEl);
+  const hapusMuat = () => muatEl.remove();
+  if(EKS_GAMBAR.includes(ext)){
+    const im = new Image(); im.alt = r.nama_modul || "Preview"; im.onload = hapusMuat;
+    im.onerror = () => { body.innerHTML = `<div class="pv-fallback">Gambar tidak dapat ditampilkan.<br>Gunakan tombol <b>Buka di tab baru</b>.</div>`; };
+    im.src = u; body.appendChild(im);
+  }else{
+    const fr = document.createElement("iframe"); fr.title = "Preview " + (r.nama_modul || "modul"); fr.onload = hapusMuat;
+    if(EKS_OFFICE.includes(ext)){
+      fr.src = "https://view.officeapps.live.com/op/embed.aspx?src=" + encodeURIComponent(u);
+      note.textContent = "Preview file Office dimuat lewat Microsoft Office Online. Jika kosong, gunakan tombol Buka di tab baru."; note.hidden = false;
+    }else{ fr.src = u; }
+    body.appendChild(fr);
+  }
+  pvFokus = document.activeElement;
+  $("pvBackdrop").classList.add("open"); document.body.style.overflow = "hidden"; $("pvTutup").focus();
+}
+function tutupPreview(){
+  $("pvBackdrop").classList.remove("open"); $("pvBody").innerHTML = ""; document.body.style.overflow = "";
+  if(pvFokus && pvFokus.focus) pvFokus.focus();
+}
+$("tbody").addEventListener("click", e => {
+  const b = e.target.closest(".btn-eye"); if(!b || b.disabled) return;
+  const r = data[tab].find(x => String(x.id) === b.dataset.id); if(r) bukaPreview(r);
+});
+$("pvTutup").onclick = tutupPreview;
+$("pvBackdrop").addEventListener("click", e => { if(e.target === $("pvBackdrop")) tutupPreview(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape" && $("pvBackdrop").classList.contains("open")) tutupPreview(); });
 
 /* ---------- Export PDF (mengikuti tab & filter yang sedang aktif) ---------- */
 const CDN = ["https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
